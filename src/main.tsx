@@ -1,0 +1,44 @@
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import About from "./pages/About";
+import "./index.css";
+import Login from "./pages/Login";
+import Registro from "./pages/Registro";
+import Layout from "./components/layouts/Layout";
+import Layout_Login from "./components/layouts/Layout_Login";
+import DashboardRecepcionista from "./pages/recepcionistas_dashboard/DashboardRecepcion";
+import DashboardAdmin from "./pages/admin_dashboard/DashboardAdmin";
+import DashboardEstilista from "./pages/estilistas_dashboard/DashboardEstilista";
+
+const root = ReactDOM.createRoot(
+  document.getElementById("root") as HTMLElement
+);
+
+root.render(
+  <>
+    <BrowserRouter>
+      <Routes>
+        {/* Rutas que utilizan el Layout por defecto */}
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Login />} />
+          <Route path="about" element={<About />} />
+        </Route>
+        <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+
+        {/* Rutas con Layout_Login */}
+        <Route path="/" element={<Layout_Login />}>
+          <Route
+            path="dashboard-recepcionista/main"
+            element={<DashboardRecepcionista />}
+          />
+          <Route path="dashboard-admin/main" element={<DashboardAdmin />} />
+          <Route
+            path="dashboard-estilista/main"
+            element={<DashboardEstilista />}
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  </>
+);
