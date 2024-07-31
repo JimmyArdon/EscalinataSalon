@@ -6,12 +6,9 @@ import { LuLayoutDashboard } from "react-icons/lu";
 import { PiNut } from "react-icons/pi";
 import { NavLink } from "react-router-dom";
 
-
 const Sidebar: React.FC = () => {
   return (
-    <aside className="bg-blue-900 text-white h-screen w-44 hidden md:flex text-sm bottom-0 fixed"> {/* Ajustar top */}
-
-
+    <aside className="text-white h-screen w-44 hidden md:flex text-sm bottom-0 fixed" style={{ backgroundColor: '#6F5D44' }}>
       {/* Opciones de navegación */}
       <nav className="mt-5">
         <ul className="space-y-2">
@@ -27,10 +24,9 @@ const Sidebar: React.FC = () => {
               <CiUser className="h-6 w-6 mr-2" />
               Perfil
             </NavLink>
-
           </li>
           <ul>
-            {/* Ruta para el dashboard de administrador */}
+            {/* Ruta para el dashboard de coordinador */}
             {location.pathname.includes('dashboard-coordinador') && (
               <li>
                 <NavLink
@@ -56,7 +52,7 @@ const Sidebar: React.FC = () => {
               </li>
             )}
 
-            {/* Ruta para el dashboard de correos */}
+            {/* Ruta para el dashboard de VOAE */}
             {location.pathname.includes('dashboard-voae') && (
               <li>
                 <NavLink

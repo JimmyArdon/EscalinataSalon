@@ -1,9 +1,6 @@
 import React, { useEffect } from 'react';
 import logo1 from '../assets/Logo1.png';
 
-
-
-
 const Login: React.FC = () => {
     useEffect(() => {
         document.title = "Login - Escalinata";
@@ -11,7 +8,6 @@ const Login: React.FC = () => {
 
     return (
         <>
-           
             <div className="ml-5 mr-5 h-full md:mt-20 md:mb-11 bg-white overflow-hidden flex items-center justify-center">
                 <div className="flex flex-col md:flex-row w-full h-full items-center justify-center space-y-6 md:space-y-0 md:space-x-8">
 
@@ -20,9 +16,8 @@ const Login: React.FC = () => {
                         <img src={logo1} alt="Logo 1" className="w-64 h-64 md:w-96 md:h-96" />
                     </div>
                     
-
                     {/* Formulario de Login */}
-                    <div className="bg-yellow-500 w-full sm:w-8/12 md:w-6/12 lg:w-5/12 xl:w-4/12 shadow-2xl rounded-lg p-4 sm:p-4">
+                    <div className="bg-[#CCC5B7] w-full sm:w-8/12 md:w-6/12 lg:w-5/12 xl:w-4/12 shadow-2xl rounded-lg p-4 sm:p-4">
                         <form className="p-1">
                             <div className="flex items-center text-lg mb-6 md:mb-8 relative">
                                 <svg className="absolute ml-3" width="24" viewBox="0 0 24 24">
@@ -31,7 +26,7 @@ const Login: React.FC = () => {
                                 <input
                                     type="text"
                                     id="username"
-                                    className="bg-gray-200 pl-12 py-2 md:py-4 text-sm focus:outline-none w-full rounded-md shadow-lg focus:ring-2 focus:ring-blue-500"
+                                    className="bg-gray-200 pl-12 py-2 md:py-4 text-sm focus:outline-none w-full rounded-md shadow-lg focus:ring-2 focus:ring-[#6F5D44]"
                                     placeholder="Usuario"
                                 />
                             </div>
@@ -42,23 +37,20 @@ const Login: React.FC = () => {
                                 <input
                                     type="password"
                                     id="password"
-                                    className="bg-gray-200 pl-12 py-2 md:py-4 focus:outline-none w-full rounded-md shadow-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                                    className="bg-gray-200 pl-12 py-2 md:py-4 focus:outline-none w-full rounded-md shadow-lg focus:ring-2 focus:ring-[#6F5D44] text-sm"
                                     placeholder="Contraseña"
                                 />
                             </div>
-                            <button className="bg-gradient-to-b from-blue-800 to-blue-900 font-medium p-2 md:p-4 text-white uppercase w-full rounded-md shadow-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <button className="bg-gradient-to-b from-[#6F5D44] to-[#4A3C28] font-medium p-2 md:p-4 text-white uppercase w-full rounded-md shadow-xl hover:from-[#5A4B37] hover:to-[#4A3C28] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6F5D44]">
                                 Login
                             </button>
                         </form>
 
                         <div className="flex flex-col items-center space-y-2">
-                            <a href="/dashboard-admin/main" className="text-sm hover:underline bg-blue-500 text-white py-2 px-4 rounded">Dashboard Admin</a>
+                            <a href="/dashboard-admin/main" className="text-sm hover:underline bg-[#6F5D44] text-white py-2 px-4 rounded">Dashboard Admin</a>
                             <a href="/dashboard-recepcionista/main" className="text-sm hover:underline bg-green-500 text-white py-2 px-4 rounded">Dashboard Recepcionista</a>
                             <a href="/dashboard-estilista/main" className="text-sm hover:underline bg-red-500 text-white py-2 px-4 rounded">Dashboard Estilista</a>
                         </div>
-
-                       
-
                     </div>
                 </div>
             </div>

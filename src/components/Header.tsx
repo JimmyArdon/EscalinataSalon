@@ -2,15 +2,13 @@ import { useState } from 'react';
 import { IoHomeOutline } from 'react-icons/io5';
 import { MdRoundaboutRight } from 'react-icons/md';
 
-
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
         <>
-            <header className="px-4 lg:px-6 h-14 flex items-center bg-primary text-primary-foreground bg-blue-900">
+            <header className="px-4 lg:px-6 h-14 flex items-center bg-primary text-primary-foreground" style={{ backgroundColor: '#6F5D44' }}>
                 <a className="flex items-center justify-center" href="/">
-                    
                     <span className="text-xs md:text-lg font-bold text-white ml-2">SALON ESCALINATA</span>
                 </a>
                 <nav className="ml-auto hidden md:flex gap-4 text-white">
@@ -26,10 +24,10 @@ export default function Header() {
                 </button>
             </header>
             {isMenuOpen && (
-                <nav className="bg-blue-900 md:hidden">
+                <nav style={{ backgroundColor: '#6F5D44' }} className="md:hidden">
                     <a href="/" className="flex px-4 py-2 text-sm text-white hover:underline items-center"><IoHomeOutline className='mr-1'/>Inicio</a>
                     <a href="/about" className="flex px-4 py-2 text-sm text-white hover:underline items-center"><MdRoundaboutRight className='mr-1'/>Acerca de</a>
-                    </nav>
+                </nav>
             )}
         </>
     )

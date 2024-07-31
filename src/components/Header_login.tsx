@@ -12,9 +12,8 @@ export default function Header_login() {
 
     return (
         <>
-            <header className="px-4 lg:px-6 h-14 flex items-center bg-primary text-primary-foreground bg-blue-900">
+            <header className="px-4 lg:px-6 h-14 flex items-center text-primary-foreground" style={{ backgroundColor: '#6F5D44' }}>
                 <a className="flex md:hidden items-center justify-center" href="/">
-                    
                     <span className="text-xs font-bold text-white ml-2">Salon Escalinata</span>
                 </a>
                 <nav className="ml-auto hidden md:flex gap-4 text-white">
@@ -30,7 +29,7 @@ export default function Header_login() {
                 </button>
             </header>
             {isMenuOpen && (
-                <nav className="bg-blue-900 md:hidden">
+                <nav className="md:hidden" style={{ backgroundColor: '#6F5D44' }}>
                     <a href="/perfil" className="px-4 py-2 text-sm text-white hover:underline flex items-center">
                         <CiUser className='mr-1' /> Perfil
                     </a>

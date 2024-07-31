@@ -19,7 +19,7 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({ title, icon, route })
     <motion.button
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
-      className="bg-yellow-500 p-4 rounded-lg shadow-md hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+      className="bg-[#CCC5B7] p-4 rounded-lg shadow-md hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#CCC5B7] focus:ring-opacity-50"
       onClick={handleClick}
     >
       <div className="mb-2 flex items-center justify-center">
