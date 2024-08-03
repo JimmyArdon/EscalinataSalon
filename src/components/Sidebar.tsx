@@ -1,7 +1,5 @@
 import React from "react";
 import { CiLogout, CiUser } from "react-icons/ci";
-import { FaRegCalendarAlt } from "react-icons/fa";
-import { IoNotificationsOutline } from "react-icons/io5";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { PiNut } from "react-icons/pi";
 import { NavLink } from "react-router-dom";
