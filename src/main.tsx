@@ -9,6 +9,14 @@ import Layout_Login from "./components/layouts/Layout_Login";
 import DashboardRecepcionista from "./pages/recepcionistas_dashboard/DashboardRecepcion";
 import DashboardAdmin from "./pages/admin_dashboard/DashboardAdmin";
 import DashboardEstilista from "./pages/estilistas_dashboard/DashboardEstilista";
+import GestionProveedores from "./pages/admin_dashboard/GestionProveedores";
+import EditarProveedor from './pages/admin_dashboard/EditarProveedor';
+import ProductosProveedor from './pages/admin_dashboard/ProductosProveedor';
+import AgregarProveedor from "./pages/admin_dashboard/AgregarProveedor";
+import GestionCitas from "./pages/admin_dashboard/GestionCitas";
+import AgregarCita from './pages/admin_dashboard/AgregarCita';
+import EditarCita from "./pages/admin_dashboard/EditarCita";
+
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -28,15 +36,22 @@ root.render(
 
         {/* Rutas con Layout_Login */}
         <Route path="/" element={<Layout_Login />}>
-          <Route
-            path="dashboard-recepcionista/main"
-            element={<DashboardRecepcionista />}
-          />
-          <Route path="dashboard-admin/main" element={<DashboardAdmin />} />
-          <Route
-            path="dashboard-estilista/main"
-            element={<DashboardEstilista />}
-          />
+        {/* Rutas Recepcionista */}
+          <Route path="dashboard-recepcionista/main" element={<DashboardRecepcionista />}/>
+
+        {/* Rutas Administracion*/}
+        <Route path="dashboard-admin/main" element={<DashboardAdmin />} />
+        <Route path="dashboard-admin/gestion-proveedores" element={<GestionProveedores />} />
+        <Route path="dashboard-admin/editar-proveedor/:id" element={<EditarProveedor />} />
+        <Route path="dashboard-admin/productos-proveedor/:id" element={<ProductosProveedor />} />
+        <Route path="dashboard-admin/agregar-proveedor/" element={<AgregarProveedor />} />
+        <Route path="dashboard-admin/gestion-citas/" element={<GestionCitas />} />
+        <Route path="dashboard-admin/agregar-cita/" element={<AgregarCita />} />
+        <Route path="dashboard-admin/editar-cita/:id" element={<EditarCita />} />
+            
+
+        {/* Rutas Estilista*/}
+          <Route path="dashboard-estilista/main" element={<DashboardEstilista />}/>
         </Route>
       </Routes>
     </BrowserRouter>
