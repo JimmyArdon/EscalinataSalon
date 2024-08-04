@@ -4,7 +4,7 @@ export const recepcionistaRoutes = {
     "Gestion de Inventarios": "",
     "Control de Ventas": "#",
     "Gestión de Citas": "#",
-    "Gestión de Servicios": "#",
+    "Gestión de Servicios": "gestion-de-servicios",
     "Gestión de Proveedores": "#",
   } as const;
   
@@ -16,7 +16,7 @@ export const recepcionistaRoutes = {
   "Gestion de Inventarios": "",
   "Control de Ventas": "#",
   "Gestión de Citas": "/dashboard-admin/gestion-citas",
-  "Gestión de Servicios": "#",
+  "Gestión de Servicios": "/dashboard-admin/gestion-de-servicios",
   "Gestión de Proveedores": "/dashboard-admin/gestion-proveedores",
   "Reportes y Analisis": "#",
    
