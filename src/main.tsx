@@ -96,7 +96,26 @@ root.render(
             path="dashboard-admin/editar-cita/:id"
             element={<EditarCita />}
           />
-
+          <Route
+            path="dashboard-admin/gestion-de-servicios"
+            element={<GestionDeServicios />}
+          />
+          <Route
+            path="dashboard-admin/main/gestion-de-servicios/servicio"
+            element={<AgregarServicio />}
+          />
+          <Route
+            path="dashboard-admin/main/main/gestion-de-servicios/servicios/edit/:id"
+            element={<EditarServicio />}
+          />
+          <Route
+            path="dashboard-admin/main/main/gestion-de-servicios/promociones"
+            element={<AgregarPromocion />}
+          />
+          <Route
+            path="dashboard-admin/main/main/gestion-de-servicios/promociones/edit/:id"
+            element={<EditarPromocion />}
+          />
           {/* Rutas Estilista*/}
           <Route
             path="dashboard-estilista/main"
