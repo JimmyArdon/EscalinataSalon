@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
+import styled from "styled-components";
 
 const Container = styled.div`
   margin: 40px;
