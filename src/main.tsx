@@ -45,6 +45,26 @@ root.render(
             path="dashboard-recepcionista/main"
             element={<DashboardRecepcionista />}
           />
+          <Route
+            path="dashboard-recepcionista/main/gestion-de-servicios"
+            element={<GestionDeServicios />}
+          />
+          <Route
+            path="dashboard-recepcionista/main/gestion-de-servicios/servicio"
+            element={<AgregarServicio />}
+          />
+          <Route
+            path="dashboard-recepcionista/main/gestion-de-servicios/servicios/edit/:id"
+            element={<EditarServicio />}
+          />
+          <Route
+            path="dashboard-recepcionista/main/gestion-de-servicios/promociones"
+            element={<AgregarPromocion />}
+          />
+          <Route
+            path="dashboard-recepcionista/main/gestion-de-servicios/promociones/edit/:id"
+            element={<EditarPromocion />}
+          />
           <Route path="dashboard-admin/main" element={<DashboardAdmin />} />
           <Route
             path="dashboard-estilista/main"
