@@ -1,7 +1,6 @@
 import React from "react";
 import { CiLogout, CiUser } from "react-icons/ci";
 import { LuLayoutDashboard } from "react-icons/lu";
-import { PiNut } from "react-icons/pi";
 import { NavLink } from "react-router-dom";
 
 const Sidebar: React.FC = () => {
@@ -13,64 +12,72 @@ const Sidebar: React.FC = () => {
           <a className="flex items-center justify-center" href="/">
             <span className="text-sm font-bold text-white ml-2">SALON ESCALINATA</span>
           </a>
-          <li>
-            <NavLink
-              to="/perfil"
-              className={({ isActive }) => `flex items-center py-3 px-6 hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""}`}
-            >
-              <CiUser className="h-6 w-6 mr-2" />
-              Perfil
-            </NavLink>
-          </li>
-          <ul>
-            {/* Ruta para el dashboard de coordinador */}
-            {location.pathname.includes('dashboard-coordinador') && (
+          {location.pathname.includes('dashboard-admin') && (
+            <>
               <li>
                 <NavLink
-                  to="/dashboard-coordinador/main"
+                  to="/dashboard-admin/main"
                   className={({ isActive }) => `flex items-center py-3 px-6 hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""}`}
                 >
                   <LuLayoutDashboard className="h-6 w-6 mr-2" />
                   Dashboard
                 </NavLink>
               </li>
-            )}
-
-            {/* Ruta para el dashboard de estudiante */}
-            {location.pathname.includes('dashboard-estudiante') && (
               <li>
                 <NavLink
-                  to="/dashboard-estudiante/main"
+                  to="/dashboard-admin/perfil"
+                  className={({ isActive }) => `flex items-center py-3 px-6 hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""}`}
+                >
+                  <CiUser className="h-6 w-6 mr-2" />
+                  Perfil
+                </NavLink>
+              </li>
+            </>
+          )}
+          {location.pathname.includes('dashboard-recepcionista') && (
+            <>
+              <li>
+                <NavLink
+                  to="/dashboard-recepcionista/main"
                   className={({ isActive }) => `flex items-center py-3 px-6 hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""}`}
                 >
                   <LuLayoutDashboard className="h-6 w-6 mr-2" />
                   Dashboard
                 </NavLink>
               </li>
-            )}
-
-            {/* Ruta para el dashboard de VOAE */}
-            {location.pathname.includes('dashboard-voae') && (
               <li>
                 <NavLink
-                  to="/dashboard-voae/main"
+                  to="/dashboard-recepcionista/perfil"
+                  className={({ isActive }) => `flex items-center py-3 px-6 hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""}`}
+                >
+                  <CiUser className="h-6 w-6 mr-2" />
+                  Perfil
+                </NavLink>
+              </li>
+            </>
+          )}
+          {location.pathname.includes('dashboard-estilista') && (
+            <>
+              <li>
+                <NavLink
+                  to="/dashboard-estilista/main"
                   className={({ isActive }) => `flex items-center py-3 px-6 hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""}`}
                 >
                   <LuLayoutDashboard className="h-6 w-6 mr-2" />
                   Dashboard
                 </NavLink>
               </li>
-            )}
-          </ul>
-          <li>
-            <NavLink
-              to="/configuracion"
-              className={({ isActive }) => `flex items-center py-3 px-6 hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""}`}
-            >
-              <PiNut className="h-6 w-6 mr-2" />
-              Configuración
-            </NavLink>
-          </li>
+              <li>
+                <NavLink
+                  to="/dashboard-estilista/perfil"
+                  className={({ isActive }) => `flex items-center py-3 px-6 hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""}`}
+                >
+                  <CiUser className="h-6 w-6 mr-2" />
+                  Perfil
+                </NavLink>
+              </li>
+            </>
+          )}
           <li>
             <NavLink
               to="/cerrar-sesion"

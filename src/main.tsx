@@ -16,6 +16,8 @@ import AgregarProveedor from "./pages/admin_dashboard/AgregarProveedor";
 import GestionCitas from "./pages/admin_dashboard/GestionCitas";
 import AgregarCita from './pages/admin_dashboard/AgregarCita';
 import EditarCita from "./pages/admin_dashboard/EditarCita";
+import Perfil from "./components/pages/Perfil";
+import CambiarContrasena from "./components/pages/CambiarContraseña";
 
 
 const root = ReactDOM.createRoot(
@@ -38,6 +40,8 @@ root.render(
         <Route path="/" element={<Layout_Login />}>
         {/* Rutas Recepcionista */}
           <Route path="dashboard-recepcionista/main" element={<DashboardRecepcionista />}/>
+          <Route path="dashboard-recepcionista/perfil" element={<Perfil />} />
+          <Route path="dashboard-recepcionista/cambiar-contrasena" element={<CambiarContrasena />} />
 
         {/* Rutas Administracion*/}
         <Route path="dashboard-admin/main" element={<DashboardAdmin />} />
@@ -48,10 +52,14 @@ root.render(
         <Route path="dashboard-admin/gestion-citas/" element={<GestionCitas />} />
         <Route path="dashboard-admin/agregar-cita/" element={<AgregarCita />} />
         <Route path="dashboard-admin/editar-cita/:id" element={<EditarCita />} />
+        <Route path="dashboard-admin/perfil" element={<Perfil />} />
+        <Route path="dashboard-admin/cambiar-contrasena" element={<CambiarContrasena />} />
             
 
         {/* Rutas Estilista*/}
           <Route path="dashboard-estilista/main" element={<DashboardEstilista />}/>
+          <Route path="dashboard-estilista/perfil" element={<Perfil />} />
+          <Route path="dashboard-estilista/cambiar-contrasena" element={<CambiarContrasena />} />
         </Route>
       </Routes>
     </BrowserRouter>
