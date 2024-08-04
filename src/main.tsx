@@ -9,6 +9,11 @@ import Layout_Login from "./components/layouts/Layout_Login";
 import DashboardRecepcionista from "./pages/recepcionistas_dashboard/DashboardRecepcion";
 import DashboardAdmin from "./pages/admin_dashboard/DashboardAdmin";
 import DashboardEstilista from "./pages/estilistas_dashboard/DashboardEstilista";
+import GestionDeServicios from "./pages/recepcionistas_dashboard/GestionDeServicios/GestionDeServicios";
+import AgregarServicio from "./pages/recepcionistas_dashboard/GestionDeServicios/AgregarServicio/AgregarServicio";
+import EditarServicio from "./pages/recepcionistas_dashboard/GestionDeServicios/EditarServicio/EditarServicio";
+import EditarPromocion from "./pages/recepcionistas_dashboard/GestionDeServicios/EditarPromocion/EditarPromocion";
+import AgregarPromocion from "./pages/recepcionistas_dashboard/GestionDeServicios/AgregarPromocion/AgregarPromocion";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -32,6 +37,12 @@ root.render(
             path="dashboard-recepcionista/main"
             element={<DashboardRecepcionista />}
           />
+          <Route path="dashboard-recepcionista/main/gestion-de-servicios" element={<GestionDeServicios/>} />
+          <Route path="dashboard-recepcionista/main/gestion-de-servicios/servicio" element={<AgregarServicio/>}/>
+          <Route path="/dashboard-recepcionista/main/gestion-de-servicios/servicios/edit/:id" element={<EditarServicio/>}/>
+          <Route path="dashboard-recepcionista/main/gestion-de-servicios/promociones" element={<AgregarPromocion/>}/>
+          <Route path="/dashboard-recepcionista/main/gestion-de-servicios/promociones/edit/:id" element={<EditarPromocion/>}/>
+
           <Route path="dashboard-admin/main" element={<DashboardAdmin />} />
           <Route
             path="dashboard-estilista/main"
