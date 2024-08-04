@@ -1,7 +1,5 @@
 import React from "react";
 import { CiLogout, CiUser } from "react-icons/ci";
-import { FaRegCalendarAlt } from "react-icons/fa";
-import { IoNotificationsOutline } from "react-icons/io5";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { PiNut } from "react-icons/pi";
 import { NavLink } from "react-router-dom";
@@ -13,7 +11,6 @@ const Sidebar: React.FC = () => {
       <nav className="mt-5">
         <ul className="space-y-2">
           <a className="flex items-center justify-center" href="/">
-            <img src="" alt="logo salon" className="w-11 h-11" />
             <span className="text-sm font-bold text-white ml-2">SALON ESCALINATA</span>
           </a>
           <li>
@@ -65,24 +62,6 @@ const Sidebar: React.FC = () => {
               </li>
             )}
           </ul>
-          <li>
-            <NavLink
-              to="/calendario"
-              className={({ isActive }) => `flex items-center py-3 px-6 hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""}`}
-            >
-              <FaRegCalendarAlt className="h-6 w-6 mr-2" />
-              Calendario
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/notificaciones"
-              className={({ isActive }) => `flex items-center py-3 px-6 hover:bg-gray-700 ${isActive ? "bg-gray-700" : ""}`}
-            >
-              <IoNotificationsOutline className="h-6 w-6 mr-2" />
-              Notificaciones
-            </NavLink>
-          </li>
           <li>
             <NavLink
               to="/configuracion"
