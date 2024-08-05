@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import FiltroProveedores from "../../components/FiltroProveedores";
-import Pagination from "../../components/Pagination";
+import FiltroProveedores from "../../../components/FiltroProveedores";
+import Pagination from "../../../components/Pagination";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash, faBoxOpen, faPlus } from "@fortawesome/free-solid-svg-icons";
 

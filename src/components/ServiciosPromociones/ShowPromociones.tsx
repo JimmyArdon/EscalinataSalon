@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import PromocionesCard from "./PromocionesCard/PromocionesCard";
+import PromocionesCard from "./PromocionesCard";
 
 interface Promocion {
   id: string;

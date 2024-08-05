@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Pagination from '../../components/Pagination'; 
+import Pagination from '../../../components/Pagination'; 
 
 
 interface Producto {

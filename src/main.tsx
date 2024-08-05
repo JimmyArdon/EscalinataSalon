@@ -9,20 +9,20 @@ import Layout_Login from "./components/layouts/Layout_Login";
 import DashboardRecepcionista from "./pages/recepcionistas_dashboard/DashboardRecepcion";
 import DashboardAdmin from "./pages/admin_dashboard/DashboardAdmin";
 import DashboardEstilista from "./pages/estilistas_dashboard/DashboardEstilista";
-import GestionProveedores from "./pages/admin_dashboard/GestionProveedores";
-import EditarProveedor from "./pages/admin_dashboard/EditarProveedor";
-import ProductosProveedor from "./pages/admin_dashboard/ProductosProveedor";
-import AgregarProveedor from "./pages/admin_dashboard/AgregarProveedor";
-import GestionCitas from "./pages/admin_dashboard/GestionCitas";
-import AgregarCita from "./pages/admin_dashboard/AgregarCita";
-import EditarCita from "./pages/admin_dashboard/EditarCita";
+import GestionProveedores from "./pages/admin_dashboard/GestionProveedores/GestionProveedores";
+import EditarProveedor from "./pages/admin_dashboard/GestionProveedores/EditarProveedor";
+import ProductosProveedor from "./pages/admin_dashboard/GestionProveedores/ProductosProveedor";
+import AgregarProveedor from "./pages/admin_dashboard/GestionProveedores/AgregarProveedor";
+import GestionCitas from "./pages/admin_dashboard/GestionCitas/GestionCitas";
+import AgregarCita from "./pages/admin_dashboard/GestionCitas/AgregarCita";
+import EditarCita from "./pages/admin_dashboard/GestionCitas/EditarCita";
 import Perfil from "./components/pages/Perfil";
 import CambiarContrasena from "./components/pages/CambiarContraseña";
-import GestionDeServicios from "./pages/recepcionistas_dashboard/GestionDeServicios/GestionDeServicios";
-import AgregarServicio from "./pages/recepcionistas_dashboard/GestionDeServicios/AgregarServicio/AgregarServicio";
-import EditarServicio from "./pages/recepcionistas_dashboard/GestionDeServicios/EditarServicio/EditarServicio";
-import AgregarPromocion from "./pages/recepcionistas_dashboard/GestionDeServicios/AgregarPromocion/AgregarPromocion";
-import EditarPromocion from "./pages/recepcionistas_dashboard/GestionDeServicios/EditarPromocion/EditarPromocion";
+import GestionDeServicios from "./pages/admin_dashboard/GestionServicios/GestionDeServicios";
+import AgregarServicio from "./pages/admin_dashboard/GestionServicios/AgregarServicio";
+//import EditarServicio from "./pages/recepcionistas_dashboard/EditarServicio";
+import AgregarPromocion from "./pages/admin_dashboard/GestionServicios/AgregarPromocion";
+//import EditarPromocion from "./pages/recepcionistas_dashboard/EditarPromocion";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -47,11 +47,11 @@ root.render(
           <Route path="dashboard-recepcionista/main" element={<DashboardRecepcionista />}/>
           <Route path="dashboard-recepcionista/perfil" element={<Perfil />} />
           <Route path="dashboard-recepcionista/cambiar-contrasena" element={<CambiarContrasena />} />
-          <Route path="dashboard-recepcionista/main/gestion-de-servicios" element={<GestionDeServicios />} />
-          <Route path="dashboard-recepcionista/main/gestion-de-servicios/servicio" element={<AgregarServicio />} />
-          <Route path="dashboard-recepcionista/main/gestion-de-servicios/servicios/edit/:id" element={<EditarServicio />} />
-          <Route path="dashboard-recepcionista/main/gestion-de-servicios/promociones" element={<AgregarPromocion />} />
-          <Route path="dashboard-recepcionista/main/gestion-de-servicios/promociones/edit/:id" element={<EditarPromocion />} />
+          {/*<Route path="dashboard-recepcionista/gestion-de-servicios" element={<GestionDeServicios />} />
+          <Route path="dashboard-recepcionista/gestion-de-servicios/servicio" element={<AgregarServicio />} />
+          <Route path="dashboard-recepcionista/gestion-de-servicios/servicios/edit/:id" element={<EditarServicio />} /> 
+          <Route path="dashboard-recepcionista/gestion-de-servicios/promociones" element={<AgregarPromocion />} />
+          <Route path="dashboard-recepcionista/gestion-de-servicios/promociones/edit/:id" element={<EditarPromocion />} />*/}  
 
         {/* Rutas Administracion*/}
         <Route path="dashboard-admin/main" element={<DashboardAdmin />} />
@@ -59,16 +59,19 @@ root.render(
         <Route path="dashboard-admin/editar-proveedor/:id" element={<EditarProveedor />} />
         <Route path="dashboard-admin/productos-proveedor/:id" element={<ProductosProveedor />} />
         <Route path="dashboard-admin/agregar-proveedor/" element={<AgregarProveedor />} />
+
         <Route path="dashboard-admin/gestion-citas/" element={<GestionCitas />} />
         <Route path="dashboard-admin/agregar-cita/" element={<AgregarCita />} />
         <Route path="dashboard-admin/editar-cita/:id" element={<EditarCita />} />
+
         <Route path="dashboard-admin/perfil" element={<Perfil />} />
         <Route path="dashboard-admin/cambiar-contrasena" element={<CambiarContrasena />} />
+        
         <Route path="dashboard-admin/gestion-de-servicios" element={<GestionDeServicios />} />
-        <Route path="dashboard-admin/main/gestion-de-servicios/servicio" element={<AgregarServicio />}/>
-        <Route path="dashboard-admin/main/main/gestion-de-servicios/servicios/edit/:id" element={<EditarServicio />}/>
-        <Route path="dashboard-admin/main/main/gestion-de-servicios/promociones" element={<AgregarPromocion />} />
-        <Route path="dashboard-admin/main/main/gestion-de-servicios/promociones/edit/:id" element={<EditarPromocion />} />
+        <Route path="dashboard-admin/gestion-de-servicios/servicio" element={<AgregarServicio />}/>
+        {/*<Route path="dashboard-admin/gestion-de-servicios/servicios/edit/:id" element={<EditarServicio />}/> */}        
+        <Route path="dashboard-admin/gestion-de-servicios/promociones" element={<AgregarPromocion />} />
+        {/*<Route path="dashboard-admin/gestion-de-servicios/promociones/edit/:id" element={<EditarPromocion />} />*/}  
             
 
         {/* Rutas Estilista*/}
