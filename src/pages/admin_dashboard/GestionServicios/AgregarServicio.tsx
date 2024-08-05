@@ -40,65 +40,59 @@ const AgregarServicio: React.FC = () => {
   const { id } = useParams();
   
   useEffect(() => {
-    if(id){
-        fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setNombre(data.nombre);
-        setDuracion(data.duracion);
-        setPrecio(data.precio);
-      });
+    if (id) {
+      fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setNombre(data.nombre);
+          setDuracion(data.duracion);
+          setPrecio(data.precio);
+        });
     }
-  },[]);
+  }, [id]);
 
   const navigate = useNavigate();
 
   const manejarOnSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    if(id){
-        const res = await fetch(
-            `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`,
-            {
-              method: "PUT",
-              body: JSON.stringify({ nombre, duracion, precio }),
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          const data = await res.json();
-          console.log(data);
-          ;
-    }else{
-        const res = await fetch(
-            "https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios",
-            {
-              method: "POST",
-              body: JSON.stringify({ nombre, duracion, precio }),
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          const data = await res.json();
-          
+    if (id) {
+      await fetch(
+        `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ nombre, duracion, precio }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } else {
+      await fetch(
+        "https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios",
+        {
+          method: "POST",
+          body: JSON.stringify({ nombre, duracion, precio }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
     }
 
-    navigate("/dashboard-recepcionista/main/gestion-de-servicios");
+    navigate("/dashboard-admin/gestion-de-servicios");
   };
 
   const manejarOnClickSalir = () => {
-    navigate("/dashboard-recepcionista/main/gestion-de-servicios");
+    navigate("/dashboard-admin/gestion-de-servicios");
   };
 
   return (
     <Container>
-      <Salir onClick={manejarOnClickSalir}>Shola</Salir>
+      <Salir onClick={manejarOnClickSalir} />
       <h1 className="text-body-secondary mb-10 font-bold">
-        {
-          id ? 'Editar Servicio' : 'Agregar Servicio'  
-        }</h1>
+        {id ? 'Editar Servicio' : 'Agregar Servicio'}
+      </h1>
       <form
         onSubmit={manejarOnSubmit}
         className="bg-slate-700 p-10 rounded-[15px] w-2/4"
@@ -140,23 +134,22 @@ const AgregarServicio: React.FC = () => {
           placeholder="Precio"
         />
         <div className="flex justify-between">
-            <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                 Guardar
+          <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Guardar
+          </button>
+          {id && (
+            <button
+              onClick={async () => {
+                await fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`, {
+                  method: "DELETE",
+                });
+                navigate('/dashboard-recepcionista/main/gestion-de-servicios');
+              }}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Eliminar
             </button>
-            {
-                id && (
-                    <button onClick={ async () => {
-                        const res = await fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`, {
-                            method: "DELETE",
-                        })
-                        const data = await res.json()
-                        navigate('/dashboard-recepcionista/main/gestion-de-servicios')
-                        
-                    } } className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                        Eliminar
-                    </button>
-                )
-            }
+          )}
         </div>
       </form>
     </Container>

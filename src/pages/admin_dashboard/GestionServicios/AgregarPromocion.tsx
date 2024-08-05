@@ -71,11 +71,11 @@ const AgregarPromocion: React.FC = () => {
       },
     });
 
-    navigate("/dashboard-recepcionista/main/gestion-de-servicios");
+    navigate("/dashboard-admin/gestion-de-servicios");
   };
 
   const manejarOnClickSalir = () => {
-    navigate("/dashboard-recepcionista/main/gestion-de-servicios");
+    navigate("/dashboard-admin/gestion-de-servicios");
   };
 
   const manejarEliminar = async () => {
@@ -83,7 +83,7 @@ const AgregarPromocion: React.FC = () => {
       await fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${id}`, {
         method: "DELETE",
       });
-      navigate('/dashboard-recepcionista/gestion-de-servicios');
+      navigate('/dashboard-admin/gestion-de-servicios');
     }
   };
 
