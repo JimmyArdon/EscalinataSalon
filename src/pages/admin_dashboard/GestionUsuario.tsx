@@ -36,7 +36,7 @@ const GestionUsuarios: React.FC = () => {
   };
 
   const validateForm = () => {
-    let formErrors: { [key: string]: string } = {};
+    const formErrors: { [key: string]: string } = {}; // Cambiado de let a const
 
     if (!newUser.firstName) formErrors.firstName = "El nombre es obligatorio.";
     if (!newUser.lastName) formErrors.lastName = "El apellido es obligatorio.";
@@ -218,22 +218,26 @@ const GestionUsuarios: React.FC = () => {
                 </thead>
                 <tbody>
                   {filteredUsers.map(user => (
-                    <tr key={user.id}>
+                    <tr key={user.id} className="table-row">
                       <td className="table-cell">{user.firstName}</td>
                       <td className="table-cell">{user.lastName}</td>
                       <td className="table-cell">{user.phoneNumber}</td>
                       <td className="table-cell">{user.email}</td>
                       <td className="table-cell">{user.role}</td>
                       <td className="table-cell">
-                        <button onClick={() => handleEditUser(user.id)} className="btn-edit bg-yellow-500 text-white p-2 mr-2">Editar</button>
-                        <button onClick={() => handleDeleteUser(user.id)} className="btn-delete bg-red-500 text-white p-2">Eliminar</button>
+                        <button onClick={() => handleEditUser(user.id)} className="btn-edit bg-yellow-500 text-white p-1">
+                          Editar
+                        </button>
+                        <button onClick={() => handleDeleteUser(user.id)} className="btn-delete bg-red-500 text-white p-1 ml-2">
+                          Eliminar
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             ) : (
-              <p>No hay usuarios para mostrar.</p>
+              <p className="no-users text-gray-500">No hay usuarios disponibles.</p>
             )}
           </div>
         </>

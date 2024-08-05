@@ -17,6 +17,12 @@ const ShowPromociones: React.FC = () => {
       .then((data) => setPromociones(data));
   }, []);
 
+  const handleDelete = (id: string) => {
+    // Lógica para eliminar la promoción
+    const nuevasPromociones = promociones.filter(promocion => promocion.id !== id);
+    setPromociones(nuevasPromociones);
+  };
+
   return (
     <div className="box-border">
       <table className="table">
@@ -25,12 +31,13 @@ const ShowPromociones: React.FC = () => {
             <th scope="col">ID</th>
             <th scope="col">Descripcion</th>
             <th scope="col">Descuento</th>
-            <th scope="col">precio</th>
+            <th scope="col">Precio</th>
+            <th scope="col">Acciones</th>
           </tr>
         </thead>
         <tbody>
           {promociones.map((promocion) => (
-            <PromocionesCard promocion = {promocion} key={promocion.id}/>
+            <PromocionesCard promocion={promocion} key={promocion.id} onDelete={handleDelete} />
           ))}
         </tbody>
       </table>
@@ -39,4 +46,3 @@ const ShowPromociones: React.FC = () => {
 };
 
 export default ShowPromociones;
-

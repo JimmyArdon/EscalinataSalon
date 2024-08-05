@@ -21,9 +21,10 @@ import Perfil from "./components/pages/Perfil";
 import CambiarContrasena from "./components/pages/CambiarContraseña";
 import GestionDeServicios from "./pages/admin_dashboard/GestionServicios/GestionDeServicios";
 import AgregarServicio from "./pages/admin_dashboard/GestionServicios/AgregarServicio";
-//import EditarServicio from "./pages/recepcionistas_dashboard/EditarServicio";
+import EditarServicio from "./pages/admin_dashboard/GestionServicios/EditarServicio";
 import AgregarPromocion from "./pages/admin_dashboard/GestionServicios/AgregarPromocion";
-//import EditarPromocion from "./pages/recepcionistas_dashboard/EditarPromocion";
+import EditarPromocion from "./pages/admin_dashboard/GestionServicios/EditarPromocion";
+
 
 
 const root = ReactDOM.createRoot(
@@ -73,11 +74,12 @@ root.render(
         <Route path="dashboard-admin/gestion-de-servicios" element={<GestionDeServicios />} />
 
         <Route path="dashboard-admin/gestion-de-servicios/servicio" element={<AgregarServicio />}/>
-        {/*<Route path="dashboard-admin/gestion-de-servicios/servicios/edit/:id" element={<EditarServicio />}/> */}        
+        <Route path="dashboard-admin/gestion-de-servicios/servicios/edit/:id" element={<EditarServicio />}/>      
         <Route path="dashboard-admin/gestion-de-servicios/promociones" element={<AgregarPromocion />} />
-        {/*<Route path="dashboard-admin/gestion-de-servicios/promociones/edit/:id" element={<EditarPromocion />} />*/}  
+        <Route path="dashboard-admin/gestion-de-servicios/promociones/edit/:id" element={<EditarPromocion />} />  
 
-            
+        <Route path="dashboard-admin/gestion-usuarios" element={<GestionUsuarios />} />
+
 
         {/* Rutas Estilista*/}
           <Route path="dashboard-estilista/main" element={<DashboardEstilista />}/>
