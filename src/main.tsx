@@ -9,6 +9,7 @@ import Layout_Login from "./components/layouts/Layout_Login";
 import DashboardRecepcionista from "./pages/recepcionistas_dashboard/DashboardRecepcion";
 import DashboardAdmin from "./pages/admin_dashboard/DashboardAdmin";
 import DashboardEstilista from "./pages/estilistas_dashboard/DashboardEstilista";
+import GestionUsuarios from "./pages/admin_dashboard/GestionUsuario";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -28,15 +29,10 @@ root.render(
 
         {/* Rutas con Layout_Login */}
         <Route path="/" element={<Layout_Login />}>
-          <Route
-            path="dashboard-recepcionista/main"
-            element={<DashboardRecepcionista />}
-          />
-          <Route path="dashboard-admin/main" element={<DashboardAdmin />} />
-          <Route
-            path="dashboard-estilista/main"
-            element={<DashboardEstilista />}
-          />
+        <Route path="dashboard-recepcionista/main" element={<DashboardRecepcionista />}/>
+        <Route path="dashboard-admin/main" element={<DashboardAdmin />} />
+        <Route path="dashboard-estilista/main" element={<DashboardEstilista />}/>
+        <Route path="dashboard-admin/gestion-usuarios" element={<GestionUsuarios />}/>
         </Route>
       </Routes>
     </BrowserRouter>
