@@ -9,6 +9,7 @@ import Layout_Login from "./components/layouts/Layout_Login";
 import DashboardRecepcionista from "./pages/recepcionistas_dashboard/DashboardRecepcion";
 import DashboardAdmin from "./pages/admin_dashboard/DashboardAdmin";
 import DashboardEstilista from "./pages/estilistas_dashboard/DashboardEstilista";
+import GestionUsuarios from "./pages/admin_dashboard/GestionUsuario";
 import GestionProveedores from "./pages/admin_dashboard/GestionProveedores/GestionProveedores";
 import EditarProveedor from "./pages/admin_dashboard/GestionProveedores/EditarProveedor";
 import ProductosProveedor from "./pages/admin_dashboard/GestionProveedores/ProductosProveedor";
@@ -23,6 +24,7 @@ import AgregarServicio from "./pages/admin_dashboard/GestionServicios/AgregarSer
 //import EditarServicio from "./pages/recepcionistas_dashboard/EditarServicio";
 import AgregarPromocion from "./pages/admin_dashboard/GestionServicios/AgregarPromocion";
 //import EditarPromocion from "./pages/recepcionistas_dashboard/EditarPromocion";
+
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -42,6 +44,7 @@ root.render(
 
         {/* Rutas con Layout_Login */}
         <Route path="/" element={<Layout_Login />}>
+
 
         {/* Rutas Recepcionista */}
           <Route path="dashboard-recepcionista/main" element={<DashboardRecepcionista />}/>
@@ -68,16 +71,19 @@ root.render(
         <Route path="dashboard-admin/cambiar-contrasena" element={<CambiarContrasena />} />
         
         <Route path="dashboard-admin/gestion-de-servicios" element={<GestionDeServicios />} />
+
         <Route path="dashboard-admin/gestion-de-servicios/servicio" element={<AgregarServicio />}/>
         {/*<Route path="dashboard-admin/gestion-de-servicios/servicios/edit/:id" element={<EditarServicio />}/> */}        
         <Route path="dashboard-admin/gestion-de-servicios/promociones" element={<AgregarPromocion />} />
         {/*<Route path="dashboard-admin/gestion-de-servicios/promociones/edit/:id" element={<EditarPromocion />} />*/}  
+
             
 
         {/* Rutas Estilista*/}
           <Route path="dashboard-estilista/main" element={<DashboardEstilista />}/>
           <Route path="dashboard-estilista/perfil" element={<Perfil />} />
           <Route path="dashboard-estilista/cambiar-contrasena" element={<CambiarContrasena />} />
+
 
         </Route>
       </Routes>

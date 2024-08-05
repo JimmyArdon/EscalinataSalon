@@ -12,7 +12,7 @@ export const recepcionistaRoutes = {
 
  // rutas de dashboard Admin
  export const adminRoutes = {
-  "Gestión de Usuarios": "#",
+  "Gestión de Usuarios": "/dashboard-admin/gestion-usuarios",
   "Gestion de Inventarios": "",
   "Control de Ventas": "#",
   "Gestión de Citas": "/dashboard-admin/gestion-citas",
