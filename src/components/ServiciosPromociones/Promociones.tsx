@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import styled from "styled-components"
-import ShowPromociones from "./ShowPromociones/ShowPromociones"
+import ShowPromociones from "../../components/ServiciosPromociones/ShowPromociones"
 
 const Container = styled.div`
     margin: 40px;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ServicioCard from "./ServicioCard/ServicioCard";
+import ServicioCard from "./ServicioCard";
 
 interface Servicio {
   id: string;
