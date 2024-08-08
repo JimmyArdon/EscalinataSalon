@@ -7,7 +7,7 @@ export default function Header() {
 
     return (
         <>
-            <header className="px-4 lg:px-6 h-14 flex items-center bg-primary text-primary-foreground" style={{ backgroundColor: '#6F5D44' }}>
+           <header className="px-4 lg:px-6 h-14 flex items-center text-primary-foreground" style={{ backgroundColor: '#6F5D44' }}>
                 <a className="flex items-center justify-center" href="/">
                     <span className="text-xs md:text-lg font-bold text-white ml-2">SALON ESCALINATA</span>
                 </a>

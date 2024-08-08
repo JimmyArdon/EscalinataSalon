@@ -29,7 +29,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                 Anterior
             </button>
             <span className="px-4 py-2 block">
-                pagina {currentPage} de {totalPages}
+                Página {currentPage} de {totalPages}
             </span>
             <button
                 onClick={handleNext}

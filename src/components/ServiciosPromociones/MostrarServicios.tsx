@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import ServicioCard from "./ServicioCard";
+import styled from "styled-components";
+import Pagination from "../Pagination";
 
 interface Servicio {
   id: string;
@@ -8,8 +10,17 @@ interface Servicio {
   precio: number;
 }
 
+const Container = styled.div`
+  margin: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
 const MostrarServicios: React.FC = () => {
   const [servicios, setServicios] = useState<Servicio[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [serviciosPerPage] = useState(5);
 
   useEffect(() => {
     fetch("https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios")
@@ -17,31 +28,42 @@ const MostrarServicios: React.FC = () => {
       .then((data) => setServicios(data));
   }, []);
 
-  const handleDelete = (id: string) => {
-    // Lógica para eliminar el servicio
-    const nuevosServicios = servicios.filter(servicio => servicio.id !== id);
-    setServicios(nuevosServicios);
-  };
+  
+  // Get current posts
+  const indexOfLastServicio = currentPage * serviciosPerPage;
+  const indexOfFirstServicio = indexOfLastServicio - serviciosPerPage;
+  const currentServicios = servicios.slice(indexOfFirstServicio, indexOfLastServicio);
+
+  const totalPages = Math.ceil(servicios.length / serviciosPerPage);
+
+  const onPageChange = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <div className="box-border">
-      <table className="table">
-        <thead>
-          <tr className="table-active">
-            <th scope="col">ID</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Duración</th>
-            <th scope="col">Precio</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {servicios.map((servicio) => (
-            <ServicioCard servicio={servicio} key={servicio.id} onDelete={handleDelete} />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Container>
+      <h3 className="text-body-secondary">Servicios</h3>
+      <div className="box-border">
+        <table className="table">
+          <thead>
+            <tr className="table-active">
+              <th scope="col">ID</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Duracion</th>
+              <th scope="col">Precio</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentServicios.map((servicio) => (
+              <ServicioCard servicio={servicio} key={servicio.id}/>
+            ))}
+          </tbody>
+        </table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
+      </div>
+    </Container>
   );
 };
 

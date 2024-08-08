@@ -27,6 +27,8 @@ const DashboardAdmin: React.FC = () => {
       case "Gestión de Proveedores":
           return <FiUsers size={32} />;
       case "Reportes y Analisis":
+          return <TbReport size={32} />;
+      case "Información":
         return <TbReport size={32} />;
       default:
         return null;
