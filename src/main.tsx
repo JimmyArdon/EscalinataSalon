@@ -9,7 +9,7 @@ import Layout_Login from "./components/layouts/Layout_Login";
 import DashboardRecepcionista from "./pages/recepcionistas_dashboard/DashboardRecepcion";
 import DashboardAdmin from "./pages/admin_dashboard/DashboardAdmin";
 import DashboardEstilista from "./pages/estilistas_dashboard/DashboardEstilista";
-import GestionUsuarios from "./pages/admin_dashboard/GestionUsuario";
+import GestionUsuarios from "./pages/admin_dashboard/GestionUsuarios/GestionUsuario";
 import GestionProveedores from "./pages/admin_dashboard/GestionProveedores/GestionProveedores";
 import EditarProveedor from "./pages/admin_dashboard/GestionProveedores/EditarProveedor";
 import ProductosProveedor from "./pages/admin_dashboard/GestionProveedores/ProductosProveedor";
@@ -24,6 +24,8 @@ import AgregarServicio from "./pages/admin_dashboard/GestionServicios/AgregarSer
 import EditarServicio from "./pages/admin_dashboard/GestionServicios/EditarServicio";
 import AgregarPromocion from "./pages/admin_dashboard/GestionServicios/AgregarPromocion";
 import EditarPromocion from "./pages/admin_dashboard/GestionServicios/EditarPromocion";
+import BorrarServicio from "./pages/admin_dashboard/GestionServicios/BorrarServicio";
+import BorrarPromocion from "./pages/admin_dashboard/GestionServicios/BorrarPromocion";
 
 
 
@@ -60,23 +62,24 @@ root.render(
         {/* Rutas Administracion*/}
         <Route path="dashboard-admin/main" element={<DashboardAdmin />} />
         <Route path="dashboard-admin/gestion-proveedores" element={<GestionProveedores />} />
-        <Route path="dashboard-admin/editar-proveedor/:id" element={<EditarProveedor />} />
-        <Route path="dashboard-admin/productos-proveedor/:id" element={<ProductosProveedor />} />
-        <Route path="dashboard-admin/agregar-proveedor/" element={<AgregarProveedor />} />
+        <Route path="dashboard-admin/gestion-proveedores/editar-proveedor" element={<EditarProveedor />} />
+        <Route path="dashboard-admin/gestion-proveedores/productos-proveedor/:id" element={<ProductosProveedor />} />
+        <Route path="dashboard-admin/gestion-proveedores/agregar-proveedor" element={<AgregarProveedor />} />
 
         <Route path="dashboard-admin/gestion-citas/" element={<GestionCitas />} />
-        <Route path="dashboard-admin/agregar-cita/" element={<AgregarCita />} />
-        <Route path="dashboard-admin/editar-cita/:id" element={<EditarCita />} />
+        <Route path="dashboard-admin/gestion-citas/agregar-cita/" element={<AgregarCita />} />
+        <Route path="dashboard-admin/gestion-citas/editar-cita/:id" element={<EditarCita />} />
 
         <Route path="dashboard-admin/perfil" element={<Perfil />} />
         <Route path="dashboard-admin/cambiar-contrasena" element={<CambiarContrasena />} />
         
         <Route path="dashboard-admin/gestion-de-servicios" element={<GestionDeServicios />} />
-
-        <Route path="dashboard-admin/gestion-de-servicios/servicio" element={<AgregarServicio />}/>
-        <Route path="dashboard-admin/gestion-de-servicios/servicios/edit/:id" element={<EditarServicio />}/>      
-        <Route path="dashboard-admin/gestion-de-servicios/promociones" element={<AgregarPromocion />} />
-        <Route path="dashboard-admin/gestion-de-servicios/promociones/edit/:id" element={<EditarPromocion />} />  
+        <Route path="dashboard-admin/gestion-de-servicios/agregar-servicio" element={<AgregarServicio />}/>
+        <Route path="dashboard-admin/gestion-de-servicios/editar-servicio" element={<EditarServicio />}/> 
+        <Route path="dashboard-admin/gestion-de-servicios/borrar-servicio" element={<BorrarServicio />} />  
+        <Route path="dashboard-admin/gestion-de-servicios/agregar-promociones" element={<AgregarPromocion />} />
+        <Route path="dashboard-admin/gestion-de-servicios/editar-promociones" element={<EditarPromocion />} />  
+        <Route path="dashboard-admin/gestion-de-servicios/borrar-promociones" element={<BorrarPromocion />} />  
 
         <Route path="dashboard-admin/gestion-usuarios" element={<GestionUsuarios />} />
 

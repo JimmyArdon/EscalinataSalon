@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import FiltroCitas from "../../../components/FiltroCitas";
 import Pagination from "../../../components/Pagination";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 interface Appointment {
     id: number;
@@ -60,17 +60,12 @@ const GestionCitas: React.FC = () => {
         setCurrentPage(1);
     };
 
-    const handleDelete = (id: number) => {
-        const updatedAppointments = filteredAppointments.filter(appointment => appointment.id !== id);
-        setFilteredAppointments(updatedAppointments);
-    };
-
     return (
         <div className="container mx-auto p-4">
             <div className="block md:flex items-center justify-between mb-4 mt-2">
                 <FiltroCitas aplicarFiltros={aplicarFiltros} />
 
-                <NavLink to="/dashboard-admin/agregar-cita">
+                <NavLink to="/dashboard-admin/gestion-citas/agregar-cita">
                     <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200 flex items-center">
                         <FontAwesomeIcon icon={faPlus} className="mr-2" />
                         Agregar Cita
@@ -92,8 +87,6 @@ const GestionCitas: React.FC = () => {
                                 <th className="p-2 font-bold md:border md:border-grey-500 text-left block md:table-cell">Fecha</th>
                                 <th className="p-2 font-bold md:border md:border-grey-500 text-left block md:table-cell">Hora</th>
                                 <th className="p-2 font-bold md:border md:border-grey-500 text-left block md:table-cell">Servicio</th>
-                                <th className="p-2 font-bold md:border md:border-grey-500 text-left block md:table-cell">Editar</th>
-                                <th className="p-2 font-bold md:border md:border-grey-500 text-left block md:table-cell">Borrar</th>
                             </tr>
                         </thead>
                         <tbody className="block md:table-row-group text-sm md:text-xs">
@@ -110,18 +103,6 @@ const GestionCitas: React.FC = () => {
                                     </td>
                                     <td className="p-1 md:border md:border-gray-500 block md:table-cell">
                                         <span className="inline-block w-1/3 md:hidden font-bold mr-4">Servicio:</span>{item.servicio}
-                                    </td>
-                                    <td className="p-1 md:border md:border-gray-500 block md:table-cell">
-                                        <NavLink to={`/dashboard-admin/editar-cita/${index}`}>
-                                            <FontAwesomeIcon icon={faEdit} className="text-blue-500 hover:text-blue-700 cursor-pointer" />
-                                        </NavLink>
-                                    </td>
-                                    <td className="p-1 md:border md:border-gray-500 block md:table-cell">
-                                        <FontAwesomeIcon
-                                            icon={faTrash}
-                                            className="text-red-500 hover:text-red-700 cursor-pointer"
-                                            onClick={() => handleDelete(item.id)}
-                                        />
                                     </td>
                                 </tr>
                             ))}
