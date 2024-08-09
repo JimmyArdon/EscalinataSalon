@@ -22,10 +22,11 @@ import CambiarContrasena from "./components/pages/CambiarContraseña";
 import GestionDeServicios from "./pages/admin_dashboard/GestionServicios/GestionDeServicios";
 import AgregarServicio from "./pages/admin_dashboard/GestionServicios/AgregarServicio";
 import EditarServicio from "./pages/admin_dashboard/GestionServicios/EditarServicio";
-import AgregarPromocion from "./pages/admin_dashboard/GestionServicios/AgregarPromocion";
-import EditarPromocion from "./pages/admin_dashboard/GestionServicios/EditarPromocion";
+import AgregarPromocion from "./pages/admin_dashboard/Bonificaciones/AgregarPromocion";
+import EditarPromocion from "./pages/admin_dashboard/Bonificaciones/EditarPromocion";
 import BorrarServicio from "./pages/admin_dashboard/GestionServicios/BorrarServicio";
-import BorrarPromocion from "./pages/admin_dashboard/GestionServicios/BorrarPromocion";
+import BorrarPromocion from "./pages/admin_dashboard/Bonificaciones/BorrarPromocion";
+import Bonificaciones from "./pages/admin_dashboard/Bonificaciones/Bonificaciones";
 
 
 
@@ -76,12 +77,14 @@ root.render(
         <Route path="dashboard-admin/gestion-de-servicios" element={<GestionDeServicios />} />
         <Route path="dashboard-admin/gestion-de-servicios/agregar-servicio" element={<AgregarServicio />}/>
         <Route path="dashboard-admin/gestion-de-servicios/editar-servicio" element={<EditarServicio />}/> 
-        <Route path="dashboard-admin/gestion-de-servicios/borrar-servicio" element={<BorrarServicio />} />  
-        <Route path="dashboard-admin/gestion-de-servicios/agregar-promociones" element={<AgregarPromocion />} />
-        <Route path="dashboard-admin/gestion-de-servicios/editar-promociones" element={<EditarPromocion />} />  
-        <Route path="dashboard-admin/gestion-de-servicios/borrar-promociones" element={<BorrarPromocion />} />  
+        <Route path="dashboard-admin/gestion-de-servicios/borrar-servicio" element={<BorrarServicio />} />    
 
         <Route path="dashboard-admin/gestion-usuarios" element={<GestionUsuarios />} />
+
+        <Route path="dashboard-admin/bonificaciones" element={<Bonificaciones/>}/>
+        <Route path="dashboard-admin/bonificaciones/agregar-promociones" element={<AgregarPromocion />} />
+        <Route path="dashboard-admin/bonificaciones/editar-promociones" element={<EditarPromocion />} />  
+        <Route path="dashboard-admin/bonificaciones/borrar-promociones" element={<BorrarPromocion />} />
 
 
         {/* Rutas Estilista*/}

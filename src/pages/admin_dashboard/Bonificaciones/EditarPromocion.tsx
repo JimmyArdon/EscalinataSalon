@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
@@ -20,6 +20,7 @@ const Container = styled.div`
 
 const FormGroup = styled.div`
   margin-bottom: 15px;
+  position: relative; /* Asegura que el dropdown se posicione correctamente */
 `;
 
 const Label = styled.label`
@@ -48,6 +49,7 @@ const Button = styled.button`
 `;
 
 const ClearButton = styled(Button)`
+  margin-left: 15px;
   background-color: #f44336;
   &:hover {
     background-color: #d32f2f;
@@ -75,25 +77,60 @@ const ErrorMessage = styled.p`
   font-weight: bold;
 `;
 
+const Dropdown = styled.ul`
+  position: absolute;
+  top: 100%; /* Posiciona el dropdown justo debajo del input */
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`;
+
+const DropdownItem = styled.li`
+  padding: 10px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
+
 const EditarPromocion = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
   const [promocion, setPromocion] = useState({
+    id: "",
     descripcion: "",
     precio: "",
     descuento: ""
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [opcionesFiltradas, setOpcionesFiltradas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${id}`)
+    if (searchQuery) {
+      setLoading(true);
+      axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones?descripcion=${searchQuery}`)
         .then((response) => {
-          setPromocion(response.data);
+          setOpcionesFiltradas(response.data);
+        })
+        .catch(() => {
+          setOpcionesFiltradas([]);
+        })
+        .finally(() => {
+          setLoading(false);
         });
+    } else {
+      setOpcionesFiltradas([]);
     }
-  }, [id]);
+  }, [searchQuery]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPromocion({
@@ -117,23 +154,31 @@ const EditarPromocion = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    axios.put(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${id}`, promocion)
+    axios.put(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${promocion.id}`, promocion)
       .then(() => {
-        navigate('/dashboard-admin/gestion-de-servicios');
+        navigate('/dashboard-admin/bonificaciones');
       });
   };
 
   const handleClear = () => {
     setPromocion({
+      id: "",
       descripcion: "",
       precio: "",
       descuento: ""
     });
     setSearchQuery("");
+    setOpcionesFiltradas([]);
   };
 
   const manejarOnClickSalir = () => {
-    navigate("/dashboard-admin/gestion-de-servicios");
+    navigate("/dashboard-admin/bonificaciones");
+  };
+
+  const seleccionarOpcion = (opcion: any) => {
+    setPromocion(opcion);
+    setSearchQuery(opcion.descripcion);
+    setOpcionesFiltradas([]);
   };
 
   return (
@@ -143,7 +188,7 @@ const EditarPromocion = () => {
       <form onSubmit={handleSearch} className="bg-slate-500 p-10 rounded-[15px] w-2/4">
         <FormGroup>
           <Label>Buscar por Nombre</Label>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ position: 'relative' }}>
             <Input
               type="text"
               value={searchQuery}
@@ -151,11 +196,24 @@ const EditarPromocion = () => {
               placeholder="Nombre de la promoción"
               required
             />
-            <Button type="submit">Buscar</Button>
-            <ClearButton type="button" onClick={handleClear}>Limpiar</ClearButton>
+            {searchQuery && opcionesFiltradas.length > 0 && (
+              <Dropdown>
+                {opcionesFiltradas.map((opcion) => (
+                  <DropdownItem
+                    key={opcion.id}
+                    onClick={() => seleccionarOpcion(opcion)}
+                  >
+                    {opcion.descripcion}
+                  </DropdownItem>
+                ))}
+              </Dropdown>
+            )}
+            {loading && <p>Cargando...</p>}
           </div>
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
         </FormGroup>
+        <Button type="submit">Buscar</Button>
+        <ClearButton type="button" onClick={handleClear}>Limpiar</ClearButton>
       </form>
       {promocion.descripcion && (
         <form onSubmit={handleSubmit} className="bg-slate-500 p-10 rounded-[15px] w-2/4">

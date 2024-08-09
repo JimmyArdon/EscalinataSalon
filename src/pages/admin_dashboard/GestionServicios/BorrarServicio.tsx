@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
@@ -83,24 +83,65 @@ const Input = styled.input`
   border-radius: 4px;
 `;
 
+const ResultList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: #fff;
+`;
+
+const ResultItem = styled.li`
+  padding: 8px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
+
 const BorrarServicio = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [servicio, setServicio] = useState<{ id?: string; nombre: string; duracion?: string; precio?: string }>({ nombre: "" });
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [allServicios, setAllServicios] = useState<any[]>([]);
+  const [filteredServicios, setFilteredServicios] = useState<any[]>([]);
+
+  useEffect(() => {
+    axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios`)
+      .then((response) => {
+        setAllServicios(response.data);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery) {
+      setFilteredServicios(
+        allServicios.filter((servicio) =>
+          servicio.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    } else {
+      setFilteredServicios([]);
+    }
+  }, [searchQuery, allServicios]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios?nombre=${searchQuery}`)
-      .then((response) => {
-        if (response.data.length > 0) {
-          setServicio(response.data[0]);
-          setErrorMessage("");
-        } else {
-          setErrorMessage('No se encontró ningún servicio con ese nombre.');
-        }
-      });
+    const result = allServicios.find((servicio) =>
+      servicio.nombre.toLowerCase() === searchQuery.toLowerCase()
+    );
+    if (result) {
+      setServicio(result);
+      setErrorMessage("");
+    } else {
+      setServicio({ nombre: "" });
+      setErrorMessage('No se encontró ningún servicio con ese nombre.');
+    }
   };
 
   const handleDelete = () => {
@@ -122,6 +163,13 @@ const BorrarServicio = () => {
     navigate("/dashboard-admin/gestion-de-servicios");
   };
 
+  const handleSelectService = (selectedService: any) => {
+    setServicio(selectedService);
+    setSearchQuery(selectedService.nombre);
+    setFilteredServicios([]);
+    setErrorMessage("");
+  };
+
   return (
     <Container>
       <Salir onClick={manejarOnClickSalir} />
@@ -141,6 +189,15 @@ const BorrarServicio = () => {
             <ClearButton type="button" onClick={() => setSearchQuery("")}>Limpiar</ClearButton>
           </div>
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+          {filteredServicios.length > 0 && (
+            <ResultList>
+              {filteredServicios.map((servicio) => (
+                <ResultItem key={servicio.id} onClick={() => handleSelectService(servicio)}>
+                  {servicio.nombre}
+                </ResultItem>
+              ))}
+            </ResultList>
+          )}
         </FormGroup>
       </form>
       {servicio.nombre && (
