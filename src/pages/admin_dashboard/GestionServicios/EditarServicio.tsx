@@ -77,6 +77,25 @@ const ErrorMessage = styled.p`
   font-weight: bold;
 `;
 
+const ResultList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: #fff;
+`;
+
+const ResultItem = styled.li`
+  padding: 8px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
+
 const EditarServicio = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -87,6 +106,15 @@ const EditarServicio = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [allServicios, setAllServicios] = useState<any[]>([]);
+  const [filteredServicios, setFilteredServicios] = useState<any[]>([]);
+
+  useEffect(() => {
+    axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios`)
+      .then((response) => {
+        setAllServicios(response.data);
+      });
+  }, []);
 
   useEffect(() => {
     if (id) {
@@ -97,6 +125,18 @@ const EditarServicio = () => {
     }
   }, [id]);
 
+  useEffect(() => {
+    if (searchQuery) {
+      setFilteredServicios(
+        allServicios.filter((servicio) =>
+          servicio.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    } else {
+      setFilteredServicios([]);
+    }
+  }, [searchQuery, allServicios]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setServicio({
       ...servicio,
@@ -106,20 +146,20 @@ const EditarServicio = () => {
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios?nombre=${searchQuery}`)
-      .then((response) => {
-        if (response.data.length > 0) {
-          setServicio(response.data[0]);
-          setErrorMessage("");
-        } else {
-          setServicio({
-            nombre: "",
-            duracion: "",
-            precio: ""
-          });
-          setErrorMessage('No se encontró ningún servicio con ese nombre.');
-        }
+    const result = allServicios.find((servicio) =>
+      servicio.nombre.toLowerCase() === searchQuery.toLowerCase()
+    );
+    if (result) {
+      setServicio(result);
+      setErrorMessage("");
+    } else {
+      setServicio({
+        nombre: "",
+        duracion: "",
+        precio: ""
       });
+      setErrorMessage('No se encontró ningún servicio con ese nombre.');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -146,6 +186,13 @@ const EditarServicio = () => {
     navigate("/dashboard-admin/gestion-de-servicios");
   };
 
+  const handleSelectService = (selectedService: any) => {
+    setServicio(selectedService);
+    setSearchQuery(selectedService.nombre);
+    setFilteredServicios([]);
+    setErrorMessage("");
+  };
+
   return (
     <Container>
       <Salir onClick={manejarOnClickSalir} />
@@ -165,6 +212,15 @@ const EditarServicio = () => {
             <ClearButton type="button" onClick={handleClear}>Limpiar</ClearButton>
           </div>
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+          {filteredServicios.length > 0 && (
+            <ResultList>
+              {filteredServicios.map((servicio) => (
+                <ResultItem key={servicio.id} onClick={() => handleSelectService(servicio)}>
+                  {servicio.nombre}
+                </ResultItem>
+              ))}
+            </ResultList>
+          )}
         </FormGroup>
       </form>
       {servicio.nombre && (

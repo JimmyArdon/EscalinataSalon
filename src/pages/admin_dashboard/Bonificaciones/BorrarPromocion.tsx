@@ -1,9 +1,8 @@
-import {useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
-
 
 const Container = styled.div`
   margin: 40px auto;
@@ -22,7 +21,7 @@ const Container = styled.div`
 `;
 
 const Button = styled.button`
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 10px 15px;
   border: none;
@@ -35,6 +34,7 @@ const Button = styled.button`
 
 const ClearButton = styled(Button)`
   background-color: #f44336;
+  margin-left: 20px;
   &:hover {
     background-color: #d32f2f;
   }
@@ -57,7 +57,7 @@ const Salir = styled(IoMdCloseCircleOutline)`
 `;
 
 const Message = styled.p`
-  color: #4CAF50;
+  color: #4caf50;
   font-weight: bold;
 `;
 
@@ -68,6 +68,7 @@ const ErrorMessage = styled.p`
 
 const FormGroup = styled.div`
   margin-bottom: 15px;
+  position: relative; /* Asegura que el dropdown se posicione correctamente */
 `;
 
 const Label = styled.label`
@@ -83,24 +84,70 @@ const Input = styled.input`
   border-radius: 4px;
 `;
 
+const Dropdown = styled.ul`
+  position: absolute;
+  top: 100%; /* Posiciona el dropdown justo debajo del input */
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`;
+
+const DropdownItem = styled.li`
+  padding: 10px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
+
 const BorrarPromocion = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [promocion, setPromocion] = useState<{ id?: string; descripcion: string; precio?: string; descuento?: string }>({ descripcion: "" });
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [opcionesFiltradas, setOpcionesFiltradas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchPromociones = async () => {
+      if (searchQuery.length > 0) {
+        setLoading(true);
+        try {
+          const response = await axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones?descripcion=${searchQuery}`);
+          setOpcionesFiltradas(response.data);
+        } catch {
+          setOpcionesFiltradas([]);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setOpcionesFiltradas([]);
+      }
+    };
+
+    fetchPromociones();
+  }, [searchQuery]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones?descripcion=${searchQuery}`)
-      .then((response) => {
-        if (response.data.length > 0) {
-          setPromocion(response.data[0]);
-          setErrorMessage("");
-        } else {
-          setErrorMessage('No se encontró ninguna promoción con ese nombre.');
-        }
-      });
+    if (promocion.id) {
+      axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${promocion.id}`)
+        .then((response) => {
+          setPromocion(response.data);
+        })
+        .catch(() => {
+          setErrorMessage('No se encontró la promoción.');
+        });
+    }
   };
 
   const handleDelete = () => {
@@ -109,7 +156,7 @@ const BorrarPromocion = () => {
         .then(() => {
           setMessage('Promoción eliminada con éxito.');
           setTimeout(() => {
-            navigate('/dashboard-admin/gestion-de-servicios');
+            navigate('/dashboard-admin/bonificaciones');
           }, 2000);
         })
         .catch(() => {
@@ -119,7 +166,13 @@ const BorrarPromocion = () => {
   };
 
   const manejarOnClickSalir = () => {
-    navigate("/dashboard-admin/gestion-de-servicios");
+    navigate("/dashboard-admin/bonificaciones");
+  };
+
+  const seleccionarOpcion = (opcion: any) => {
+    setSearchQuery(opcion.descripcion);
+    setPromocion(opcion);
+    setOpcionesFiltradas([]); // Limpiar las opciones después de seleccionar
   };
 
   return (
@@ -129,7 +182,7 @@ const BorrarPromocion = () => {
       <form onSubmit={handleSearch} className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md">
         <FormGroup>
           <Label>Buscar por Nombre</Label>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ position: 'relative' }}>
             <Input
               type="text"
               value={searchQuery}
@@ -137,18 +190,31 @@ const BorrarPromocion = () => {
               placeholder="Nombre de la promoción"
               required
             />
-            <Button type="submit">Buscar</Button>
-            <ClearButton type="button" onClick={() => setSearchQuery("")}>Limpiar</ClearButton>
+            {searchQuery && opcionesFiltradas.length > 0 && (
+              <Dropdown>
+                {opcionesFiltradas.map((opcion) => (
+                  <DropdownItem
+                    key={opcion.id}
+                    onClick={() => seleccionarOpcion(opcion)}
+                  >
+                    {opcion.descripcion}
+                  </DropdownItem>
+                ))}
+              </Dropdown>
+            )}
+            {loading && <p>Cargando...</p>}
           </div>
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
         </FormGroup>
+        <Button type="submit">Buscar</Button>
+        <ClearButton type="button" onClick={() => setSearchQuery("")}>Limpiar</ClearButton>
       </form>
       {promocion.descripcion && (
         <div className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md text-center">
           <h3>¿Estás seguro de que deseas eliminar la promoción "{promocion.descripcion}"?</h3>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
             <Button onClick={handleDelete}>Eliminar</Button>
-            <ClearButton onClick={() => navigate('/dashboard-admin/gestion-de-servicios')}>Cancelar</ClearButton>
+            <ClearButton onClick={() => navigate('/dashboard-admin/bonificaciones')}>Cancelar</ClearButton>
           </div>
           {message && <Message>{message}</Message>}
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}

@@ -41,15 +41,15 @@ const ShowPromociones: React.FC = () => {
 
   return (
     <Container>
-      <h3 className="text-body-secondary">Promociones</h3>
+      <h3 className="text-body-secondary">Promociones en Servicios</h3>
       <div className="box-border">
         <table className="table">
           <thead>
             <tr className="table-active">
               <th scope="col">ID</th>
-              <th scope="col">Descripcion</th>
+              <th scope="col">Servicio</th>
               <th scope="col">Descuento</th>
-              <th scope="col">Precio</th>
+              <th scope="col">PrecioD</th>
             </tr>
           </thead>
           <tbody>
