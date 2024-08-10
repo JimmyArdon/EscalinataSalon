@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import MostrarServicios from "./MostrarServicios";
-import ShowPromociones from "./ShowPromociones";
+
 
 const Container = styled.div`
     margin: 40px;

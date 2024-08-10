@@ -1,101 +1,164 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import { IoMdCloseCircleOutline } from "react-icons/io";
+import axios from "axios";
 
-interface Cita {
-    nombre: string;
-    fecha: string;
-    hora: string;
-    detalle: string;
-}
+const Container = styled.div`
+  margin: 40px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #d9d9d9;
+  padding: 40px 0;
+  border-radius: 10px;
+  position: relative;
+  height: 100%;
+  box-sizing: border-box;
+`;
 
-const AgregarCita: React.FC = () => {
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState<Cita>({
-        nombre: "",
-        fecha: "",
-        hora: "",
-        detalle: "",
-    });
+const FormGroup = styled.div`
+  margin-bottom: 15px;
+  position: relative;
+`;
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
+const Label = styled.label`
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
+const Button = styled.button`
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: #45a049;
+  }
+`;
+
+const ClearButton = styled(Button)`
+  margin-left: 15px;
+  background-color: #f44336;
+  &:hover {
+    background-color: #d32f2f;
+  }
+`;
+
+const Salir = styled(IoMdCloseCircleOutline)`
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    width: 60px;
+    height: 60px;
+    color: #8b4513;
+  }
+`;
+
+const AgregarCita = () => {
+  const navigate = useNavigate();
+  const [cliente, setCliente] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [hora, setHora] = useState("");
+  const [servicio, setServicio] = useState("");
+  const [estilista, setEstilista] = useState("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const nuevaCita = {
+      cliente,
+      fecha,
+      hora,
+      servicio,
+      estilista
     };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log('Cita added:', formData);
-
+    axios.post("https://example.com/api/citas", nuevaCita)
+      .then(() => {
         navigate("/dashboard-admin/gestion-citas");
-    };
+      });
+  };
 
-    return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-xl font-bold mb-4">Agregar Cita</h1>
-            <form onSubmit={handleSubmit} className="bg-white p-4 rounded-lg shadow-md">
-                <div className="flex flex-col mb-4">
-                    <label htmlFor="nombre" className="font-bold mb-1">Nombre del Cliente:</label>
-                    <input
-                        type="text"
-                        id="nombre"
-                        name="nombre"
-                        value={formData.nombre}
-                        onChange={handleInputChange}
-                        className="p-2 border rounded-md"
-                        required
-                    />
-                </div>
-                <div className="flex flex-col mb-4">
-                    <label htmlFor="fecha" className="font-bold mb-1">Fecha:</label>
-                    <input
-                        type="date"
-                        id="fecha"
-                        name="fecha"
-                        value={formData.fecha}
-                        onChange={handleInputChange}
-                        className="p-2 border rounded-md"
-                        required
-                    />
-                </div>
-                <div className="flex flex-col mb-4">
-                    <label htmlFor="hora" className="font-bold mb-1">Hora:</label>
-                    <input
-                        type="time"
-                        id="hora"
-                        name="hora"
-                        value={formData.hora}
-                        onChange={handleInputChange}
-                        className="p-2 border rounded-md"
-                        required
-                    />
-                </div>
-                <div className="flex flex-col mb-4">
-                    <label htmlFor="detalle" className="font-bold mb-1">Detalles:</label>
-                    <textarea
-                        id="detalle"
-                        name="detalle"
-                        value={formData.detalle}
-                        onChange={handleInputChange}
-                        className="p-2 border rounded-md"
-                        rows={4}
-                    />
-                </div>
-                <div className="flex justify-between">
-                    <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200">Guardar</button>
-                    <button
-                        type="button"
-                        onClick={() => navigate("/dashboard-admin/gestion-citas")}
-                        className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition duration-200"
-                    >
-                        Cancelar
-                    </button>
-                </div>
-            </form>
-        </div>
-    );
+  const manejarOnClickSalir = () => {
+    navigate("/dashboard-admin/gestion-citas");
+  };
+
+  return (
+    <Container>
+      <Salir onClick={manejarOnClickSalir} />
+      <h2>Agregar Cita</h2>
+      <form onSubmit={handleSubmit} className="bg-slate-500 p-10 rounded-[15px] w-2/4">
+        <FormGroup>
+          <Label>Cliente</Label>
+          <Input
+            type="text"
+            value={cliente}
+            onChange={(e) => setCliente(e.target.value)}
+            placeholder="Nombre del cliente"
+            required
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Fecha</Label>
+          <Input
+            type="date"
+            value={fecha}
+            onChange={(e) => setFecha(e.target.value)}
+            required
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Hora</Label>
+          <Input
+            type="time"
+            value={hora}
+            onChange={(e) => setHora(e.target.value)}
+            required
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Servicio</Label>
+          <Input
+            type="text"
+            value={servicio}
+            onChange={(e) => setServicio(e.target.value)}
+            placeholder="Servicio"
+            required
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Estilista</Label>
+          <Input
+            type="text"
+            value={estilista}
+            onChange={(e) => setEstilista(e.target.value)}
+            placeholder="Nombre del estilista"
+            required
+          />
+        </FormGroup>
+        <Button type="submit">Agregar</Button>
+        <ClearButton type="button" onClick={() => navigate("/dashboard-admin/gestion-citas")}>
+          Cancelar
+        </ClearButton>
+      </form>
+    </Container>
+  );
 };
 
 export default AgregarCita;

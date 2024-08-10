@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import FiltroCitas from "../../../components/FiltroCitas";
 import Pagination from "../../../components/Pagination";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import styled from "styled-components";
+
 
 interface Appointment {
     id: number;
@@ -14,6 +14,45 @@ interface Appointment {
     estilista: string;
 }
 
+const Container = styled.div`
+  margin: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border: 1px solid #ddd;
+
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+
+  tr:hover {
+    background-color: #f1f1f1;
+  }
+`;
+
+const Title = styled.h3`
+  color: #333;
+  margin-bottom: 20px;
+`;
+
+const ButtonGroup = styled.div`
+    display: flex;
+    gap: 10px;
+`;
+
 const GestionCitas: React.FC = () => {
     useEffect(() => {
         document.title = "Gestión de Citas - Salón de Belleza Escalinata";
@@ -23,16 +62,7 @@ const GestionCitas: React.FC = () => {
         { id: 0, cliente: "Juan Pérez", fecha: new Date("2024-08-03"), hora: "10:00 AM", servicio: "Manicura", estilista: "Ana Gómez" },
         { id: 2, cliente: "María López", fecha: new Date("2024-08-04"), hora: "11:00 AM", servicio: "Corte Pelo", estilista: "Carlos Díaz" },
         { id: 3, cliente: "Luis Martínez", fecha: new Date("2024-08-05"), hora: "12:00 PM", servicio: "Nanoplastia", estilista: "Ana Gómez" },
-        { id: 4, cliente: "Juan Pérez", fecha: new Date("2024-08-03"), hora: "10:00 AM", servicio: "Manicura", estilista: "Ana Gómez" },
-        { id: 5, cliente: "María López", fecha: new Date("2024-08-04"), hora: "11:00 AM", servicio: "Corte Pelo", estilista: "Carlos Díaz" },
-        { id: 6, cliente: "Luis Martínez", fecha: new Date("2024-08-05"), hora: "12:00 PM", servicio: "Nanoplastia", estilista: "Ana Gómez" },
-        { id: 7, cliente: "Juan Pérez", fecha: new Date("2024-08-03"), hora: "10:00 AM", servicio: "Manicura", estilista: "Ana Gómez" },
-        { id: 8, cliente: "María López", fecha: new Date("2024-08-04"), hora: "11:00 AM", servicio: "Corte Pelo", estilista: "Carlos Díaz" },
-        { id: 9, cliente: "Luis Martínez", fecha: new Date("2024-08-05"), hora: "12:00 PM", servicio: "Nanoplastia", estilista: "Ana Gómez" },
-        { id: 10, cliente: "Juan Pérez", fecha: new Date("2024-08-03"), hora: "10:00 AM", servicio: "Manicura", estilista: "Ana Gómez" },
-        { id: 11, cliente: "María López", fecha: new Date("2024-08-04"), hora: "11:00 AM", servicio: "Corte Pelo", estilista: "Carlos Díaz" },
-        { id: 12, cliente: "Luis Martínez", fecha: new Date("2024-08-05"), hora: "12:00 PM", servicio: "Nanoplastia", estilista: "Ana Gómez" },
-        
+        // Add more initial appointments here
     ];
 
     const [filteredAppointments, setFilteredAppointments] = useState(initialAppointments);
@@ -61,58 +91,44 @@ const GestionCitas: React.FC = () => {
     };
 
     return (
-        <div className="container mx-auto p-4">
-            <div className="block md:flex items-center justify-between mb-4 mt-2">
+        <Container>
+            <div className="flex items-center justify-between mb-4">
                 <FiltroCitas aplicarFiltros={aplicarFiltros} />
+                <div>
+                <ButtonGroup>
+                    <Link className="btn btn-outline-secondary w-40" to='agregar-cita'>+ Añadir </Link>
+                    <Link className="btn btn-outline-secondary w-40" to='editar-cita'>Editar</Link>
+                    <Link className="btn btn-outline-secondary w-40" to='borrar-cita' >Borrar </Link>
 
-                <NavLink to="/dashboard-admin/gestion-citas/agregar-cita">
-                    <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200 flex items-center">
-                        <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                        Agregar Cita
-                    </button>
-                </NavLink>
-                <NavLink to="/dashboard-admin/main">
-                    <button className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition duration-200 flex items-center">
-                        Salir
-                    </button>
-                </NavLink>
-            </div>
-
-            <div className="rounded-xl">
-                <div className="overflow-x-auto">
-                    <table className="border-collapse block md:table min-w-full table-auto bg-white border border-gray-200">
-                        <thead className="block md:table-header-group">
-                            <tr className="border text-sm border-gray-500 md:border-none block md:table-row absolute -top-full md:top-auto -left-full md:left-auto md:relative bg-[#CCC5B7] text-black">
-                                <th className="p-2 font-bold md:border md:border-grey-500 text-left block md:table-cell">Cliente</th>
-                                <th className="p-2 font-bold md:border md:border-grey-500 text-left block md:table-cell">Fecha</th>
-                                <th className="p-2 font-bold md:border md:border-grey-500 text-left block md:table-cell">Hora</th>
-                                <th className="p-2 font-bold md:border md:border-grey-500 text-left block md:table-cell">Servicio</th>
-                            </tr>
-                        </thead>
-                        <tbody className="block md:table-row-group text-sm md:text-xs">
-                            {paginatedAppointments.map((item,index) => (
-                                <tr key={index} className="bg-[#CCC5B7] md:bg-white text-left md:text-center hover:bg-gray-200 transition-colors duration-200 border border-gray-500 md:border-none block md:table-row">
-                                    <td className="p-1 md:border md:border-gray-500 block md:table-cell">
-                                        <span className="inline-block w-1/3 md:hidden font-bold mr-4">Cliente:</span>{item.cliente}
-                                    </td>
-                                    <td className="p-1 md:border md:border-gray-500 block md:table-cell">
-                                        <span className="inline-block w-1/3 md:hidden font-bold mr-4">Fecha:</span>{item.fecha.toLocaleDateString()}
-                                    </td>
-                                    <td className="p-1 md:border md:border-gray-500 block md:table-cell">
-                                        <span className="inline-block w-1/3 md:hidden font-bold mr-4">Hora:</span>{item.hora}
-                                    </td>
-                                    <td className="p-1 md:border md:border-gray-500 block md:table-cell">
-                                        <span className="inline-block w-1/3 md:hidden font-bold mr-4">Servicio:</span>{item.servicio}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                </ButtonGroup>
                 </div>
             </div>
 
+            <Title>Gestión de Citas</Title>
+            
+            <Table>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Servicio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {paginatedAppointments.map((item) => (
+                        <tr key={item.id}>
+                            <td>{item.cliente}</td>
+                            <td>{item.fecha.toLocaleDateString()}</td>
+                            <td>{item.hora}</td>
+                            <td>{item.servicio}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
-        </div>
+        </Container>
     );
 };
 

@@ -5,6 +5,7 @@ import { FiUsers} from "react-icons/fi";
 import { LiaCalendarWeekSolid } from "react-icons/lia";
 import { TbReport } from "react-icons/tb";
 import { BsShop } from "react-icons/bs";
+import { MdInfoOutline } from "react-icons/md";
 import { adminRoutes, AdminRouteKeys } from "../../api/routesConfig";
 
 const DashboardAdmin: React.FC = () => {
@@ -29,7 +30,9 @@ const DashboardAdmin: React.FC = () => {
       case "Reportes y Analisis":
           return <TbReport size={32} />;
       case "Información":
-        return <TbReport size={32} />;
+          return <MdInfoOutline  size={32} />;
+      case "Promociones y Bonificaciones":
+          return <TbReport size={32} />;
       default:
         return null;
        

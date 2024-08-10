@@ -46,10 +46,10 @@ const ShowPromociones: React.FC = () => {
         <table className="table">
           <thead>
             <tr className="table-active">
-              <th scope="col">ID</th>
+             
               <th scope="col">Servicio</th>
               <th scope="col">Descuento</th>
-              <th scope="col">PrecioD</th>
+              <th scope="col">Precio con Descuento</th>
             </tr>
           </thead>
           <tbody>

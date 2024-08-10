@@ -4,6 +4,14 @@ import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
 
+// Define the interface for a promotion
+interface Promocion {
+  id: string;
+  descripcion: string;
+  precio: string;
+  descuento: string;
+}
+
 const Container = styled.div`
   margin: 40px;
   display: flex;
@@ -20,7 +28,7 @@ const Container = styled.div`
 
 const FormGroup = styled.div`
   margin-bottom: 15px;
-  position: relative; /* Asegura que el dropdown se posicione correctamente */
+  position: relative;
 `;
 
 const Label = styled.label`
@@ -79,7 +87,7 @@ const ErrorMessage = styled.p`
 
 const Dropdown = styled.ul`
   position: absolute;
-  top: 100%; /* Posiciona el dropdown justo debajo del input */
+  top: 100%;
   left: 0;
   background-color: #fff;
   border: 1px solid #ccc;
@@ -103,7 +111,7 @@ const DropdownItem = styled.li`
 
 const EditarPromocion = () => {
   const navigate = useNavigate();
-  const [promocion, setPromocion] = useState({
+  const [promocion, setPromocion] = useState<Promocion>({
     id: "",
     descripcion: "",
     precio: "",
@@ -111,13 +119,16 @@ const EditarPromocion = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [opcionesFiltradas, setOpcionesFiltradas] = useState<any[]>([]);
+  const [opcionesFiltradas, setOpcionesFiltradas] = useState<Promocion[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (searchQuery) {
       setLoading(true);
-      axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones?descripcion=${searchQuery}`)
+      axios
+        .get(
+          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones?descripcion=${searchQuery}`
+        )
         .then((response) => {
           setOpcionesFiltradas(response.data);
         })
@@ -141,22 +152,29 @@ const EditarPromocion = () => {
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones?descripcion=${searchQuery}`)
+    axios
+      .get(
+        `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones?descripcion=${searchQuery}`
+      )
       .then((response) => {
         if (response.data.length > 0) {
           setPromocion(response.data[0]);
           setErrorMessage("");
         } else {
-          setErrorMessage('No se encontró ninguna promoción con ese nombre.');
+          setErrorMessage("No se encontró ninguna promoción con ese nombre.");
         }
       });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    axios.put(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${promocion.id}`, promocion)
+    axios
+      .put(
+        `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${promocion.id}`,
+        promocion
+      )
       .then(() => {
-        navigate('/dashboard-admin/bonificaciones');
+        navigate("/dashboard-admin/bonificaciones");
       });
   };
 
@@ -175,7 +193,7 @@ const EditarPromocion = () => {
     navigate("/dashboard-admin/bonificaciones");
   };
 
-  const seleccionarOpcion = (opcion: any) => {
+  const seleccionarOpcion = (opcion: Promocion) => {
     setPromocion(opcion);
     setSearchQuery(opcion.descripcion);
     setOpcionesFiltradas([]);
@@ -185,10 +203,13 @@ const EditarPromocion = () => {
     <Container>
       <Salir onClick={manejarOnClickSalir} />
       <h2>Editar Promoción</h2>
-      <form onSubmit={handleSearch} className="bg-slate-500 p-10 rounded-[15px] w-2/4">
+      <form
+        onSubmit={handleSearch}
+        className="bg-slate-500 p-10 rounded-[15px] w-2/4"
+      >
         <FormGroup>
           <Label>Buscar por Nombre</Label>
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: "relative" }}>
             <Input
               type="text"
               value={searchQuery}
@@ -213,10 +234,15 @@ const EditarPromocion = () => {
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
         </FormGroup>
         <Button type="submit">Buscar</Button>
-        <ClearButton type="button" onClick={handleClear}>Limpiar</ClearButton>
+        <ClearButton type="button" onClick={handleClear}>
+          Limpiar
+        </ClearButton>
       </form>
       {promocion.descripcion && (
-        <form onSubmit={handleSubmit} className="bg-slate-500 p-10 rounded-[15px] w-2/4">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-slate-500 p-10 rounded-[15px] w-2/4"
+        >
           <FormGroup>
             <Label>Descripción</Label>
             <Input

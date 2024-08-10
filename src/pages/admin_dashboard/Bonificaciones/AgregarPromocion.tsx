@@ -3,6 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import styled from "styled-components";
 
+interface Servicio {
+  id: string;
+  nombre: string;
+  precio: string;
+
+}
+
 const Container = styled.div`
   margin: 40px;
   display: flex;
@@ -34,13 +41,13 @@ const Salir = styled(IoMdCloseCircleOutline)`
 `;
 
 const AgregarPromocion: React.FC = () => {
-  const [listaServicios, setListaServicios] = useState<any[]>([]);
+  const [listaServicios, setListaServicios] = useState<Servicio[]>([]);
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState("");
   const [precioOriginal, setPrecioOriginal] = useState(""); // Almacenar el precio original del servicio
   const [descuento, setDescuento] = useState("");
   const [busqueda, setBusqueda] = useState("");
-  const [opcionesFiltradas, setOpcionesFiltradas] = useState<any[]>([]);
+  const [opcionesFiltradas, setOpcionesFiltradas] = useState<Servicio[]>([]);
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
@@ -213,37 +220,26 @@ const AgregarPromocion: React.FC = () => {
         <input
           value={descuento}
           onChange={manejarDescuento}
-          required
-          type="number"
-          id="descuento"
-          min="1"
-          max="100"
-          className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
-          placeholder="Descuento"
-        />
-        <label htmlFor="precio" className="font-bold text-sm text-white">
-          Precio
-        </label>
-        <input
-          value={precio}
-          readOnly
           type="text"
-          id="precio"
+          id="descuento"
           className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
-          placeholder="Precio"
+          placeholder="Ingrese el descuento en %"
         />
-        {error && <p className="text-red-500">{error}</p>}
-        <div className="flex justify-between">
-          <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            Guardar
+        {error && <div className="text-red-500">{error}</div>}
+        <div className="flex justify-center">
+          <button
+            className="bg-slate-800 text-white px-4 py-2 mt-4 rounded hover:bg-slate-500"
+            type="submit"
+          >
+            {id ? 'Actualizar Promoción' : 'Agregar Promoción'}
           </button>
           {id && (
-            <button 
-              type="button"
+            <button
+              className="bg-red-500 text-white px-4 py-2 mt-4 ml-4 rounded hover:bg-red-700"
               onClick={manejarEliminar}
-              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              type="button"
             >
-              Eliminar
+              Eliminar Promoción
             </button>
           )}
         </div>
