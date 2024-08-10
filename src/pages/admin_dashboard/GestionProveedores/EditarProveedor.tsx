@@ -1,19 +1,17 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import { IoMdCloseCircleOutline } from 'react-icons/io';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import { IoMdCloseCircleOutline } from "react-icons/io";
+import axios from "axios";
 
+// Define the interface for a supplier
 interface Proveedor {
-    proveedor: string;
-    dirección: string;
-    telefono: string;
-    email: string;
+  id: string;
+  nombre: string;
+  contacto: string;
+  telefono: string;
+  direccion: string;
 }
-
-const initialData: Proveedor[] = [
-    { proveedor: "Proveedor 1", dirección: "SPS 1", telefono: "12345678", email: "contacto1@example.com" },
-    { proveedor: "Proveedor 2", dirección: "SPS 2", telefono: "87654321", email: "contacto2@example.com" },
-];
 
 const Container = styled.div`
   margin: 40px;
@@ -29,6 +27,44 @@ const Container = styled.div`
   box-sizing: border-box;
 `;
 
+const FormGroup = styled.div`
+  margin-bottom: 15px;
+  position: relative;
+`;
+
+const Label = styled.label`
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
+const Button = styled.button`
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: #45a049;
+  }
+`;
+
+const ClearButton = styled(Button)`
+  margin-left: 15px;
+  background-color: #f44336;
+  &:hover {
+    background-color: #d32f2f;
+  }
+`;
+
 const Salir = styled(IoMdCloseCircleOutline)`
   width: 50px;
   height: 50px;
@@ -36,7 +72,7 @@ const Salir = styled(IoMdCloseCircleOutline)`
   right: 0;
   top: 0;
   cursor: pointer;
-  transition: all 3s ease;
+  transition: all 0.3s ease;
 
   &:hover {
     width: 60px;
@@ -45,133 +81,216 @@ const Salir = styled(IoMdCloseCircleOutline)`
   }
 `;
 
-const EditarProveedor: React.FC = () => {
-    const navigate = useNavigate();
-    const [searchName, setSearchName] = useState<string>('');
-    const [proveedor, setProveedor] = useState<Proveedor | null>(null);
+const ErrorMessage = styled.p`
+  color: #f44336;
+  font-weight: bold;
+`;
 
-    const fetchProveedorByName = async (nombre: string) => {
-        const foundProveedor = initialData.find(prov => prov.proveedor.toLowerCase() === nombre.toLowerCase());
-        setProveedor(foundProveedor || null);
-    };
+const Dropdown = styled.ul`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`;
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        fetchProveedorByName(searchName);
-    };
+const DropdownItem = styled.li`
+  padding: 10px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        if (proveedor) {
-            setProveedor({
-                ...proveedor,
-                [name]: value,
-            });
+const EditarProveedor = () => {
+  const navigate = useNavigate();
+  const [proveedor, setProveedor] = useState<Proveedor>({
+    id: "",
+    nombre: "",
+    contacto: "",
+    telefono: "",
+    direccion: ""
+  });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [opcionesFiltradas, setOpcionesFiltradas] = useState<Proveedor[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (searchQuery) {
+      setLoading(true);
+      axios
+        .get(
+          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores?nombre=${searchQuery}`
+        )
+        .then((response) => {
+          setOpcionesFiltradas(response.data);
+        })
+        .catch(() => {
+          setOpcionesFiltradas([]);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setOpcionesFiltradas([]);
+    }
+  }, [searchQuery]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProveedor({
+      ...proveedor,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    axios
+      .get(
+        `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores?nombre=${searchQuery}`
+      )
+      .then((response) => {
+        if (response.data.length > 0) {
+          setProveedor(response.data[0]);
+          setErrorMessage("");
+        } else {
+          setErrorMessage("No se encontró ningún proveedor con ese nombre.");
         }
-    };
+      });
+  };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log('Proveedor updated:', proveedor);
-        navigate('/dashboard-admin/gestion-proveedores');
-    };
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    axios
+      .put(
+        `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores/${proveedor.id}`,
+        proveedor
+      )
+      .then(() => {
+        navigate("/dashboard-admin/proveedores");
+      });
+  };
 
-    const handleExit = () => {
-        navigate('/dashboard-admin/gestion-proveedores');
-    };
+  const handleClear = () => {
+    setProveedor({
+      id: "",
+      nombre: "",
+      contacto: "",
+      telefono: "",
+      direccion: ""
+    });
+    setSearchQuery("");
+    setOpcionesFiltradas([]);
+  };
 
-    const handleClear = () => {
-        setSearchName('');
-        setProveedor(null);
-    };
+  const manejarOnClickSalir = () => {
+    navigate("/dashboard-admin/gestion-proveedores");
+  };
 
-    return (
-        <Container>
-            <Salir onClick={handleExit} />
-            <h1 className="text-body-secondary mb-10 font-bold">
-                Editar Proveedor
-            </h1>
-            <form onSubmit={handleSearch} className="mb-4">
-                <label htmlFor="searchName" className="font-bold text-sm text-black mb-1">
-                    Buscar por nombre:
-                </label>
-                <input
-                    type="text"
-                    id="searchName"
-                    name="searchName"
-                    value={searchName}
-                    onChange={(e) => setSearchName(e.target.value)}
-                    className="p-2 border rounded-md mb-4 w-full text-black"
-                />
-                <div className="flex space-between">
-                    <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
-                        Buscar
-                    </button>
-                    <button type="button" onClick={handleClear} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                        Limpiar
-                    </button>
-                </div>
-            </form>
-            {proveedor ? (
-                <form onSubmit={handleSubmit} className="bg-slate-700 p-10 rounded-[15px] w-2/4">
-                    <div className="flex flex-col mb-4">
-                        <label htmlFor="proveedor" className="font-bold text-sm text-white mb-1">Proveedor:</label>
-                        <input
-                            type="text"
-                            id="proveedor"
-                            name="proveedor"
-                            value={proveedor.proveedor}
-                            onChange={handleInputChange}
-                            className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
-                        />
-                    </div>
-                    <div className="flex flex-col mb-4">
-                        <label htmlFor="dirección" className="font-bold text-sm text-white mb-1">Dirección:</label>
-                        <input
-                            type="text"
-                            id="dirección"
-                            name="dirección"
-                            value={proveedor.dirección}
-                            onChange={handleInputChange}
-                            className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
-                        />
-                    </div>
-                    <div className="flex flex-col mb-4">
-                        <label htmlFor="telefono" className="font-bold text-sm text-white mb-1">Teléfono:</label>
-                        <input
-                            type="text"
-                            id="telefono"
-                            name="telefono"
-                            value={proveedor.telefono}
-                            onChange={handleInputChange}
-                            className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
-                        />
-                    </div>
-                    <div className="flex flex-col mb-4">
-                        <label htmlFor="email" className="font-bold text-sm text-white mb-1">Email:</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={proveedor.email}
-                            onChange={handleInputChange}
-                            className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
-                        />
-                    </div>
-                    <div className="flex space-between">
-                        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
-                            Guardar Cambios
-                        </button>
-                        <button type="button" onClick={handleExit} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                            Salir
-                        </button>
-                    </div>
-                </form>
-            ) : (
-                <p></p>
+  const seleccionarOpcion = (opcion: Proveedor) => {
+    setProveedor(opcion);
+    setSearchQuery(opcion.nombre);
+    setOpcionesFiltradas([]);
+  };
+
+  return (
+    <Container>
+      <Salir onClick={manejarOnClickSalir} />
+      <h2>Editar Proveedor</h2>
+      <form
+        onSubmit={handleSearch}
+        className="bg-slate-500 p-10 rounded-[15px] w-2/4"
+      >
+        <FormGroup>
+          <Label>Buscar por Nombre</Label>
+          <div style={{ position: "relative" }}>
+            <Input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Nombre del proveedor"
+              required
+            />
+            {searchQuery && opcionesFiltradas.length > 0 && (
+              <Dropdown>
+                {opcionesFiltradas.map((opcion) => (
+                  <DropdownItem
+                    key={opcion.id}
+                    onClick={() => seleccionarOpcion(opcion)}
+                  >
+                    {opcion.nombre}
+                  </DropdownItem>
+                ))}
+              </Dropdown>
             )}
-        </Container>
-    );
+            {loading && <p>Cargando...</p>}
+          </div>
+          {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+        </FormGroup>
+        <Button type="submit">Buscar</Button>
+        <ClearButton type="button" onClick={handleClear}>
+          Limpiar
+        </ClearButton>
+      </form>
+      {proveedor.nombre && (
+        <form
+          onSubmit={handleSubmit}
+          className="bg-slate-500 p-10 rounded-[15px] w-2/4"
+        >
+          <FormGroup>
+            <Label>Nombre</Label>
+            <Input
+              type="text"
+              name="nombre"
+              value={proveedor.nombre}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Contacto</Label>
+            <Input
+              type="text"
+              name="contacto"
+              value={proveedor.contacto}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Teléfono</Label>
+            <Input
+              type="text"
+              name="telefono"
+              value={proveedor.telefono}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Dirección</Label>
+            <Input
+              type="text"
+              name="direccion"
+              value={proveedor.direccion}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <Button type="submit">Guardar Cambios</Button>
+        </form>
+      )}
+    </Container>
+  );
 };
 
 export default EditarProveedor;

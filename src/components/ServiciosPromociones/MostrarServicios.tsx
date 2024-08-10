@@ -45,7 +45,6 @@ const MostrarServicios: React.FC = () => {
         <table className="table">
           <thead>
             <tr className="table-active">
-              <th scope="col">ID</th>
               <th scope="col">Nombre</th>
               <th scope="col">Duracion</th>
               <th scope="col">Precio</th>

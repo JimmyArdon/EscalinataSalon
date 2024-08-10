@@ -96,21 +96,31 @@ const ResultItem = styled.li`
   }
 `;
 
+// Define the type for a service
+interface Service {
+  id: string;
+  nombre: string;
+  duracion: string;
+  precio: string;
+}
+
 const EditarServicio = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [servicio, setServicio] = useState({
+  const [servicio, setServicio] = useState<Service>({
+    id: "",
     nombre: "",
     duracion: "",
-    precio: ""
+    precio: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [allServicios, setAllServicios] = useState<any[]>([]);
-  const [filteredServicios, setFilteredServicios] = useState<any[]>([]);
+  const [allServicios, setAllServicios] = useState<Service[]>([]);
+  const [filteredServicios, setFilteredServicios] = useState<Service[]>([]);
 
   useEffect(() => {
-    axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios`)
+    axios
+      .get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios`)
       .then((response) => {
         setAllServicios(response.data);
       });
@@ -118,7 +128,8 @@ const EditarServicio = () => {
 
   useEffect(() => {
     if (id) {
-      axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`)
+      axios
+        .get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`)
         .then((response) => {
           setServicio(response.data);
         });
@@ -140,34 +151,36 @@ const EditarServicio = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setServicio({
       ...servicio,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = allServicios.find((servicio) =>
-      servicio.nombre.toLowerCase() === searchQuery.toLowerCase()
+    const result = allServicios.find(
+      (servicio) => servicio.nombre.toLowerCase() === searchQuery.toLowerCase()
     );
     if (result) {
       setServicio(result);
       setErrorMessage("");
     } else {
       setServicio({
+        id: "",
         nombre: "",
         duracion: "",
-        precio: ""
+        precio: "",
       });
-      setErrorMessage('No se encontró ningún servicio con ese nombre.');
+      setErrorMessage("No se encontró ningún servicio con ese nombre.");
     }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (id) {
-      axios.put(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`, servicio)
+      axios
+        .put(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`, servicio)
         .then(() => {
-          navigate('/dashboard-admin/gestion-de-servicios');
+          navigate("/dashboard-admin/gestion-de-servicios");
         });
     }
   };
@@ -175,9 +188,10 @@ const EditarServicio = () => {
   const handleClear = () => {
     setSearchQuery("");
     setServicio({
+      id: "",
       nombre: "",
       duracion: "",
-      precio: ""
+      precio: "",
     });
     setErrorMessage("");
   };
@@ -186,7 +200,7 @@ const EditarServicio = () => {
     navigate("/dashboard-admin/gestion-de-servicios");
   };
 
-  const handleSelectService = (selectedService: any) => {
+  const handleSelectService = (selectedService: Service) => {
     setServicio(selectedService);
     setSearchQuery(selectedService.nombre);
     setFilteredServicios([]);
@@ -200,7 +214,7 @@ const EditarServicio = () => {
       <form onSubmit={handleSearch} className="bg-slate-500 p-10 rounded-[15px] w-full">
         <FormGroup>
           <Label>Buscar por Nombre</Label>
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
             <Input
               type="text"
               value={searchQuery}
@@ -209,7 +223,9 @@ const EditarServicio = () => {
               required
             />
             <Button type="submit">Buscar</Button>
-            <ClearButton type="button" onClick={handleClear}>Limpiar</ClearButton>
+            <ClearButton type="button" onClick={handleClear}>
+              Limpiar
+            </ClearButton>
           </div>
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
           {filteredServicios.length > 0 && (

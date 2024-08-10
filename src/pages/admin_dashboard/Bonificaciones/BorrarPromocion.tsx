@@ -4,6 +4,13 @@ import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
 
+interface Promocion {
+  id: string;
+  descripcion: string;
+  precio?: string;
+  descuento?: string;
+}
+
 const Container = styled.div`
   margin: 40px auto;
   display: flex;
@@ -68,7 +75,7 @@ const ErrorMessage = styled.p`
 
 const FormGroup = styled.div`
   margin-bottom: 15px;
-  position: relative; /* Asegura que el dropdown se posicione correctamente */
+  position: relative;
 `;
 
 const Label = styled.label`
@@ -86,7 +93,7 @@ const Input = styled.input`
 
 const Dropdown = styled.ul`
   position: absolute;
-  top: 100%; /* Posiciona el dropdown justo debajo del input */
+  top: 100%;
   left: 0;
   background-color: #fff;
   border: 1px solid #ccc;
@@ -111,10 +118,10 @@ const DropdownItem = styled.li`
 const BorrarPromocion = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [promocion, setPromocion] = useState<{ id?: string; descripcion: string; precio?: string; descuento?: string }>({ descripcion: "" });
+  const [promocion, setPromocion] = useState<Partial<Promocion>>({ descripcion: "" });
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [opcionesFiltradas, setOpcionesFiltradas] = useState<any[]>([]);
+  const [opcionesFiltradas, setOpcionesFiltradas] = useState<Promocion[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -122,7 +129,9 @@ const BorrarPromocion = () => {
       if (searchQuery.length > 0) {
         setLoading(true);
         try {
-          const response = await axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones?descripcion=${searchQuery}`);
+          const response = await axios.get<Promocion[]>(
+            `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones?descripcion=${searchQuery}`
+          );
           setOpcionesFiltradas(response.data);
         } catch {
           setOpcionesFiltradas([]);
@@ -140,27 +149,33 @@ const BorrarPromocion = () => {
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (promocion.id) {
-      axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${promocion.id}`)
+      axios
+        .get<Promocion>(
+          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${promocion.id}`
+        )
         .then((response) => {
           setPromocion(response.data);
         })
         .catch(() => {
-          setErrorMessage('No se encontró la promoción.');
+          setErrorMessage("No se encontró la promoción.");
         });
     }
   };
 
   const handleDelete = () => {
     if (promocion.id) {
-      axios.delete(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${promocion.id}`)
+      axios
+        .delete(
+          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${promocion.id}`
+        )
         .then(() => {
-          setMessage('Promoción eliminada con éxito.');
+          setMessage("Promoción eliminada con éxito.");
           setTimeout(() => {
-            navigate('/dashboard-admin/bonificaciones');
+            navigate("/dashboard-admin/bonificaciones");
           }, 2000);
         })
         .catch(() => {
-          setErrorMessage('No se pudo eliminar la promoción.');
+          setErrorMessage("No se pudo eliminar la promoción.");
         });
     }
   };
@@ -169,7 +184,7 @@ const BorrarPromocion = () => {
     navigate("/dashboard-admin/bonificaciones");
   };
 
-  const seleccionarOpcion = (opcion: any) => {
+  const seleccionarOpcion = (opcion: Promocion) => {
     setSearchQuery(opcion.descripcion);
     setPromocion(opcion);
     setOpcionesFiltradas([]); // Limpiar las opciones después de seleccionar
@@ -179,10 +194,13 @@ const BorrarPromocion = () => {
     <Container>
       <Salir onClick={manejarOnClickSalir} />
       <h2>Eliminar Promoción</h2>
-      <form onSubmit={handleSearch} className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md">
+      <form
+        onSubmit={handleSearch}
+        className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md"
+      >
         <FormGroup>
           <Label>Buscar por Nombre</Label>
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: "relative" }}>
             <Input
               type="text"
               value={searchQuery}
@@ -207,14 +225,30 @@ const BorrarPromocion = () => {
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
         </FormGroup>
         <Button type="submit">Buscar</Button>
-        <ClearButton type="button" onClick={() => setSearchQuery("")}>Limpiar</ClearButton>
+        <ClearButton type="button" onClick={() => setSearchQuery("")}>
+          Limpiar
+        </ClearButton>
       </form>
       {promocion.descripcion && (
         <div className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md text-center">
-          <h3>¿Estás seguro de que deseas eliminar la promoción "{promocion.descripcion}"?</h3>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+          <h3>
+            ¿Estás seguro de que deseas eliminar la promoción "
+            {promocion.descripcion}"?
+          </h3>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "10px",
+              marginTop: "20px",
+            }}
+          >
             <Button onClick={handleDelete}>Eliminar</Button>
-            <ClearButton onClick={() => navigate('/dashboard-admin/bonificaciones')}>Cancelar</ClearButton>
+            <ClearButton
+              onClick={() => navigate("/dashboard-admin/bonificaciones")}
+            >
+              Cancelar
+            </ClearButton>
           </div>
           {message && <Message>{message}</Message>}
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}

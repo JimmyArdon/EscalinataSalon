@@ -17,11 +17,12 @@ const ButtonGroup = styled.div`
 const Bonificaciones : React.FC = () => {
     return (
         <Container>
-        <h3 className="text-body-secondary">Tarifas y Promociones</h3>
+        <h3 className="text-body-secondary">Promociones y Bonificaciones</h3>
         <ButtonGroup>
             <Link className="btn btn-outline-secondary w-40" to='agregar-promociones'>+ Añadir </Link>
             <Link className="btn btn-outline-secondary w-40" to='editar-promociones'>Editar</Link>
             <Link className="btn btn-outline-secondary w-40" to='borrar-promociones' >Borrar </Link>
+
         </ButtonGroup>
         <ShowPromociones />
     </Container>

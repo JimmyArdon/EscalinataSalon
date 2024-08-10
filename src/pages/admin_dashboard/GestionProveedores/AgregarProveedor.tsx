@@ -1,5 +1,5 @@
-import { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { FormEvent, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 
@@ -16,6 +16,7 @@ const Container = styled.div`
   height: 100%;
   box-sizing: border-box;
 `;
+
 const Salir = styled(IoMdCloseCircleOutline)`
   width: 50px;
   height: 50px;
@@ -26,8 +27,8 @@ const Salir = styled(IoMdCloseCircleOutline)`
   transition: all 0.3s ease;
 
   &:hover {
-    width: 60px; /* Aumenta el tamaño en el hover */
-    height: 60px; /* Aumenta el tamaño en el hover */
+    width: 60px;
+    height: 60px;
     color: #8b4513;
   }
 `;
@@ -40,6 +41,7 @@ interface Proveedor {
 }
 
 const AgregarProveedor: React.FC = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<Proveedor>({
     proveedor: "",
@@ -47,6 +49,22 @@ const AgregarProveedor: React.FC = () => {
     telefono: "",
     email: "",
   });
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (id) {
+      fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setFormData({
+            proveedor: data.proveedor,
+            dirección: data.dirección,
+            telefono: data.telefono,
+            email: data.email,
+          });
+        });
+    }
+  }, [id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -56,25 +74,58 @@ const AgregarProveedor: React.FC = () => {
     });
   };
 
+  const validarFormulario = (): boolean => {
+    const { proveedor, dirección, telefono, email } = formData;
+    if (!proveedor || !dirección || !telefono || !email) {
+      setError("Todos los campos son obligatorios.");
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError("El email no es válido.");
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    console.log("Proveedor added:", formData);
+    if (!validarFormulario()) return;
 
-    // Simulación de guardar el proveedor
-    // Aquí deberías hacer la llamada a la API para guardar el proveedor
-    // ...
+    const url = id
+      ? `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores/${id}`
+      : "https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores";
 
-    navigate("/dashboard-admin/gestion-proveedores");
+    const method = id ? "PUT" : "POST";
+
+    fetch(url, {
+      method,
+      body: JSON.stringify(formData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then(() => navigate("/dashboard-admin/gestion-proveedores"));
   };
 
   const manejarOnClickSalir = () => {
     navigate("/dashboard-admin/gestion-proveedores");
   };
 
+  const manejarEliminar = async () => {
+    if (id) {
+      await fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores/${id}`, {
+        method: "DELETE",
+      });
+      navigate('/dashboard-admin/gestion-proveedores');
+    }
+  };
+
   return (
     <Container>
       <Salir onClick={manejarOnClickSalir} />
-      <h1 className="text-body-secondary mb-10 font-bold">Agregar Proveedor</h1>
+      <h1 className="text-body-secondary mb-10 font-bold">
+        {id ? 'Editar Proveedor' : 'Agregar Proveedor'}
+      </h1>
       <form
         onSubmit={handleSubmit}
         className="bg-slate-700 p-10 rounded-[15px] w-2/4"
@@ -131,13 +182,23 @@ const AgregarProveedor: React.FC = () => {
           className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
           placeholder="Email"
         />
+        {error && <div className="text-red-500">{error}</div>}
         <div className="flex justify-between">
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
-            Guardar
+            {id ? 'Actualizar Proveedor' : 'Guardar Proveedor'}
           </button>
+          {id && (
+            <button
+              type="button"
+              onClick={manejarEliminar}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Eliminar Proveedor
+            </button>
+          )}
           <button
             type="button"
             onClick={manejarOnClickSalir}

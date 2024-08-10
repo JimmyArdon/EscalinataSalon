@@ -1,9 +1,16 @@
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
 
+interface Cita {
+  id: number;
+  cliente: string;
+  fecha: string;
+  hora: string;
+  servicio: string;
+}
 
 const Container = styled.div`
   margin: 40px auto;
@@ -22,7 +29,7 @@ const Container = styled.div`
 `;
 
 const Button = styled.button`
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 10px 15px;
   border: none;
@@ -35,6 +42,7 @@ const Button = styled.button`
 
 const ClearButton = styled(Button)`
   background-color: #f44336;
+  margin-left: 20px;
   &:hover {
     background-color: #d32f2f;
   }
@@ -57,7 +65,7 @@ const Salir = styled(IoMdCloseCircleOutline)`
 `;
 
 const Message = styled.p`
-  color: #4CAF50;
+  color: #4caf50;
   font-weight: bold;
 `;
 
@@ -68,6 +76,7 @@ const ErrorMessage = styled.p`
 
 const FormGroup = styled.div`
   margin-bottom: 15px;
+  position: relative;
 `;
 
 const Label = styled.label`
@@ -83,148 +92,149 @@ const Input = styled.input`
   border-radius: 4px;
 `;
 
-const ResultList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
+const Dropdown = styled.ul`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 4px;
+  width: 100%;
   max-height: 150px;
   overflow-y: auto;
-  background-color: #fff;
+  z-index: 10;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 `;
 
-const ResultItem = styled.li`
-  padding: 8px;
+const DropdownItem = styled.li`
+  padding: 10px;
   cursor: pointer;
   &:hover {
     background-color: #f0f0f0;
   }
 `;
 
-// Define the service type
-type Service = {
-  id: string;
-  nombre: string;
-  duracion?: string;
-  precio?: string;
-};
-
-const BorrarServicio = () => {
+const BorrarCita = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [servicio, setServicio] = useState<Service | null>(null);
+  const [cita, setCita] = useState<Partial<Cita>>({ cliente: "" });
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [allServicios, setAllServicios] = useState<Service[]>([]);
-  const [filteredServicios, setFilteredServicios] = useState<Service[]>([]);
+  const [opcionesFiltradas, setOpcionesFiltradas] = useState<Cita[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    axios
-      .get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios`)
-      .then((response) => {
-        setAllServicios(response.data);
-      });
-  }, []);
+    const fetchCitas = async () => {
+      if (searchQuery.length > 0) {
+        setLoading(true);
+        try {
+          const response = await axios.get<Cita[]>(
+            `https://api.example.com/citas?cliente=${searchQuery}`
+          );
+          setOpcionesFiltradas(response.data);
+        } catch {
+          setOpcionesFiltradas([]);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setOpcionesFiltradas([]);
+      }
+    };
 
-  useEffect(() => {
-    if (searchQuery) {
-      setFilteredServicios(
-        allServicios.filter((servicio) =>
-          servicio.nombre.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      );
-    } else {
-      setFilteredServicios([]);
-    }
-  }, [searchQuery, allServicios]);
+    fetchCitas();
+  }, [searchQuery]);
 
-  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = allServicios.find(
-      (servicio) =>
-        servicio.nombre.toLowerCase() === searchQuery.toLowerCase()
-    );
-    if (result) {
-      setServicio(result);
-      setErrorMessage("");
-    } else {
-      setServicio(null);
-      setErrorMessage("No se encontró ningún servicio con ese nombre.");
+    if (cita.id) {
+      axios
+        .get<Cita>(
+          `https://api.example.com/citas/${cita.id}`
+        )
+        .then((response) => {
+          setCita(response.data);
+        })
+        .catch(() => {
+          setErrorMessage("No se encontró la cita.");
+        });
     }
   };
 
   const handleDelete = () => {
-    if (servicio && servicio.id) {
+    if (cita.id) {
       axios
         .delete(
-          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${servicio.id}`
+          `https://api.example.com/citas/${cita.id}`
         )
         .then(() => {
-          setMessage("Servicio eliminado con éxito.");
+          setMessage("Cita eliminada con éxito.");
           setTimeout(() => {
-            navigate("/dashboard-admin/gestion-de-servicios");
+            navigate("/dashboard-admin/gestion-citas");
           }, 2000);
         })
         .catch(() => {
-          setErrorMessage("No se pudo eliminar el servicio.");
+          setErrorMessage("No se pudo eliminar la cita.");
         });
     }
   };
 
   const manejarOnClickSalir = () => {
-    navigate("/dashboard-admin/gestion-de-servicios");
+    navigate("/dashboard-admin/gestion-citas");
   };
 
-  const handleSelectService = (selectedService: Service) => {
-    setServicio(selectedService);
-    setSearchQuery(selectedService.nombre);
-    setFilteredServicios([]);
-    setErrorMessage("");
+  const seleccionarOpcion = (opcion: Cita) => {
+    setSearchQuery(opcion.cliente);
+    setCita(opcion);
+    setOpcionesFiltradas([]); // Limpiar las opciones después de seleccionar
   };
 
   return (
     <Container>
       <Salir onClick={manejarOnClickSalir} />
-      <h2>Eliminar Servicio</h2>
+      <h2>Eliminar Cita</h2>
       <form
         onSubmit={handleSearch}
         className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md"
       >
         <FormGroup>
-          <Label>Buscar por Nombre</Label>
-          <div style={{ display: "flex", gap: "10px" }}>
+          <Label>Buscar por Cliente</Label>
+          <div style={{ position: "relative" }}>
             <Input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Nombre del servicio"
+              placeholder="Nombre del cliente"
               required
             />
-            <Button type="submit">Buscar</Button>
-            <ClearButton type="button" onClick={() => setSearchQuery("")}>
-              Limpiar
-            </ClearButton>
+            {searchQuery && opcionesFiltradas.length > 0 && (
+              <Dropdown>
+                {opcionesFiltradas.map((opcion) => (
+                  <DropdownItem
+                    key={opcion.id}
+                    onClick={() => seleccionarOpcion(opcion)}
+                  >
+                    {opcion.cliente}
+                  </DropdownItem>
+                ))}
+              </Dropdown>
+            )}
+            {loading && <p>Cargando...</p>}
           </div>
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-          {filteredServicios.length > 0 && (
-            <ResultList>
-              {filteredServicios.map((servicio) => (
-                <ResultItem
-                  key={servicio.id}
-                  onClick={() => handleSelectService(servicio)}
-                >
-                  {servicio.nombre}
-                </ResultItem>
-              ))}
-            </ResultList>
-          )}
         </FormGroup>
+        <Button type="submit">Buscar</Button>
+        <ClearButton type="button" onClick={() => setSearchQuery("")}>
+          Limpiar
+        </ClearButton>
       </form>
-      {servicio && (
+      {cita.cliente && (
         <div className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md text-center">
           <h3>
-            ¿Estás seguro de que deseas eliminar el servicio "{servicio.nombre}"?
+            ¿Estás seguro de que deseas eliminar la cita con el cliente "
+            {cita.cliente}"?
           </h3>
           <div
             style={{
@@ -236,7 +246,7 @@ const BorrarServicio = () => {
           >
             <Button onClick={handleDelete}>Eliminar</Button>
             <ClearButton
-              onClick={() => navigate("/dashboard-admin/gestion-de-servicios")}
+              onClick={() => navigate("/dashboard-admin/gestion-citas")}
             >
               Cancelar
             </ClearButton>
@@ -249,4 +259,4 @@ const BorrarServicio = () => {
   );
 };
 
-export default BorrarServicio;
+export default BorrarCita;

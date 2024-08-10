@@ -27,6 +27,10 @@ import EditarPromocion from "./pages/admin_dashboard/Bonificaciones/EditarPromoc
 import BorrarServicio from "./pages/admin_dashboard/GestionServicios/BorrarServicio";
 import BorrarPromocion from "./pages/admin_dashboard/Bonificaciones/BorrarPromocion";
 import Bonificaciones from "./pages/admin_dashboard/Bonificaciones/Bonificaciones";
+import BorrarProveedor from "./pages/admin_dashboard/GestionProveedores/BorrarProveedor";
+import BorrarCita from "./pages/admin_dashboard/GestionCitas/BorrarCita";
+import DetallesEmpresa from "./pages/admin_dashboard/InformacionEmpresa/DetallesEmpresa";
+import EditarDetallesEmpresa from "./pages/admin_dashboard/InformacionEmpresa/EditarDetallesEmpresa";
 
 
 
@@ -66,10 +70,12 @@ root.render(
         <Route path="dashboard-admin/gestion-proveedores/editar-proveedor" element={<EditarProveedor />} />
         <Route path="dashboard-admin/gestion-proveedores/productos-proveedor/:id" element={<ProductosProveedor />} />
         <Route path="dashboard-admin/gestion-proveedores/agregar-proveedor" element={<AgregarProveedor />} />
+        <Route path="dashboard-admin/gestion-proveedores/borrar-proveedor" element={<BorrarProveedor />} />
 
         <Route path="dashboard-admin/gestion-citas/" element={<GestionCitas />} />
         <Route path="dashboard-admin/gestion-citas/agregar-cita/" element={<AgregarCita />} />
-        <Route path="dashboard-admin/gestion-citas/editar-cita/:id" element={<EditarCita />} />
+        <Route path="dashboard-admin/gestion-citas/editar-cita/" element={<EditarCita />} />
+        <Route path="dashboard-admin/gestion-citas/borrar-cita/" element={<BorrarCita/>} />
 
         <Route path="dashboard-admin/perfil" element={<Perfil />} />
         <Route path="dashboard-admin/cambiar-contrasena" element={<CambiarContrasena />} />
@@ -85,6 +91,11 @@ root.render(
         <Route path="dashboard-admin/bonificaciones/agregar-promociones" element={<AgregarPromocion />} />
         <Route path="dashboard-admin/bonificaciones/editar-promociones" element={<EditarPromocion />} />  
         <Route path="dashboard-admin/bonificaciones/borrar-promociones" element={<BorrarPromocion />} />
+
+        <Route path="dashboard-admin/informacion-empresa" element={<DetallesEmpresa />} />
+        <Route path="dashboard-admin/informacion-empresa/editar-detalles" element={<EditarDetallesEmpresa />} />
+
+
 
 
         {/* Rutas Estilista*/}
