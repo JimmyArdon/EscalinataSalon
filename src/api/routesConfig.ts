@@ -19,6 +19,7 @@ export const recepcionistaRoutes = {
   "Gestión de Servicios": "/dashboard-admin/gestion-de-servicios",
   "Gestión de Proveedores": "/dashboard-admin/gestion-proveedores",
   "Reportes y Analisis": "#",
+  "Bonificaciones": "/dashboard-admin/bonificaciones",
    
 } as const;
 
