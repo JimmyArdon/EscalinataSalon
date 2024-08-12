@@ -31,6 +31,10 @@ import BorrarProveedor from "./pages/admin_dashboard/GestionProveedores/BorrarPr
 import BorrarCita from "./pages/admin_dashboard/GestionCitas/BorrarCita";
 import DetallesEmpresa from "./pages/admin_dashboard/InformacionEmpresa/DetallesEmpresa";
 import EditarDetallesEmpresa from "./pages/admin_dashboard/InformacionEmpresa/EditarDetallesEmpresa";
+import GestionInventario from './pages/admin_dashboard/GestionInventario/GestionInventario';
+import AgregarProducto from "./pages/admin_dashboard/GestionInventario/AgregarProducto";
+import EditarProducto from "./pages/admin_dashboard/GestionInventario/EditarProducto";
+import BorrarProducto from "./pages/admin_dashboard/GestionInventario/BorrarProducto";
 
 
 
@@ -93,16 +97,17 @@ root.render(
         <Route path="dashboard-admin/bonificaciones/borrar-promociones" element={<BorrarPromocion />} />
 
         <Route path="dashboard-admin/informacion-empresa" element={<DetallesEmpresa />} />
-        <Route path="dashboard-admin/informacion-empresa/editar-detalles" element={<EditarDetallesEmpresa />} />
+        <Route path="dashboard-admin/informacion-empresa/editar-detalles" element={<EditarDetallesEmpresa />} />  
 
-
-
+        <Route path="dashboard-admin/inventario" element={<GestionInventario />} />
+        <Route path="dashboard-admin/inventario/agregar-producto" element={<AgregarProducto />}/>
+        <Route path="dashboard-admin/inventario/editar-producto" element={<EditarProducto />}/> 
+        <Route path="dashboard-admin/inventario/borrar-producto" element={<BorrarProducto />} />   
 
         {/* Rutas Estilista*/}
           <Route path="dashboard-estilista/main" element={<DashboardEstilista />}/>
           <Route path="dashboard-estilista/perfil" element={<Perfil />} />
           <Route path="dashboard-estilista/cambiar-contrasena" element={<CambiarContrasena />} />
-
 
         </Route>
       </Routes>
