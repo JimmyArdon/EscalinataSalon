@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import FiltroCitas from "../../../components/FiltroCitas";
+import FiltroCitas from "../../../components/FiltroInventario";
 import Pagination from "../../../components/Pagination";
 import styled from "styled-components";
 
