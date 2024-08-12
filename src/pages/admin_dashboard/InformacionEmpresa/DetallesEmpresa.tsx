@@ -110,7 +110,7 @@ const DetallesEmpresa = () => {
 
   return (
     <Container>
-      <Salir onClick={() => navigate("/dashboard-admin/informacion-empresa")} />
+      <Salir onClick={() => navigate("/dashboard-admin/main")} />
       <h2>Detalles del Negocio</h2>
       <FormGroup>
         <Label>Nombre</Label>

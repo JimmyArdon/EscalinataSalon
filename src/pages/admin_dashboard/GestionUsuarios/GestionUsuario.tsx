@@ -7,6 +7,8 @@ interface User {
   lastName: string;
   phoneNumber: string;
   email: string;
+  user: string;
+  password: string;
   role: string;
 }
 
@@ -18,6 +20,8 @@ const GestionUsuarios: React.FC = () => {
     lastName: "",
     phoneNumber: "",
     email: "",
+    user: "",
+    password: "",
     role: "Estilista",
   });
   const [showForm, setShowForm] = useState(false);
@@ -72,6 +76,8 @@ const GestionUsuarios: React.FC = () => {
       lastName: "",
       phoneNumber: "",
       email: "",
+      user: "",
+      password: "",
       role: "Estilista",
     });
     setShowForm(false);
@@ -104,6 +110,8 @@ const GestionUsuarios: React.FC = () => {
       lastName: "",
       phoneNumber: "",
       email: "",
+      user: "",
+      password: "",
       role: "Estilista",
     });
     setShowForm(false);
@@ -176,6 +184,30 @@ const GestionUsuarios: React.FC = () => {
               />
               {errors.email && <p className="error-message text-red-500 mt-1">{errors.email}</p>}
             </div>
+            <div className="input-container mb-4 w-full">
+              <label htmlFor="user" className="block text-gray-700">Usuario</label>
+              <input
+                type="user"
+                id="user"
+                name="user"
+                value={newUser.user}
+                onChange={handleInputChange}
+                className={`input border p-2 w-full ${errors.users ? 'border-red-500' : ''}`}
+              />
+              {errors.users && <p className="error-message text-red-500 mt-1">{errors.users}</p>}
+            </div>
+            <div className="input-container mb-4 w-full">
+              <label htmlFor="password" className="block text-gray-700">Contraseña</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={newUser.password}
+                onChange={handleInputChange}
+                className={`input border p-2 w-full ${errors.password ? 'border-red-500' : ''}`}
+              />
+              {errors.password && <p className="error-message text-red-500 mt-1">{errors.password}</p>}
+            </div>
           </div>
           <div className="select-container mb-3">
             <select id="role" name="role" value={newUser.role} onChange={handleInputChange} className="input border p-2 w-full">
@@ -212,6 +244,7 @@ const GestionUsuarios: React.FC = () => {
                     <th className="table-cell">Apellido</th>
                     <th className="table-cell">Teléfono</th>
                     <th className="table-cell">Correo Electrónico</th>
+                    <th className="table-cell">Usuario</th>
                     <th className="table-cell">Rol</th>
                     <th className="table-cell">Acciones</th>
                   </tr>
@@ -223,6 +256,7 @@ const GestionUsuarios: React.FC = () => {
                       <td className="table-cell">{user.lastName}</td>
                       <td className="table-cell">{user.phoneNumber}</td>
                       <td className="table-cell">{user.email}</td>
+                      <td className="table-cell">{user.user}</td>
                       <td className="table-cell">{user.role}</td>
                       <td className="table-cell">
                         <button onClick={() => handleEditUser(user.id)} className="btn-edit bg-yellow-500 text-white p-1">
