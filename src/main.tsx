@@ -35,6 +35,15 @@ import GestionInventario from './pages/admin_dashboard/GestionInventario/Gestion
 import AgregarProducto from "./pages/admin_dashboard/GestionInventario/AgregarProducto";
 import EditarProducto from "./pages/admin_dashboard/GestionInventario/EditarProducto";
 import BorrarProducto from "./pages/admin_dashboard/GestionInventario/BorrarProducto";
+import Dashboard from "./pages/admin_dashboard/ControlVentas/Dashboard";
+import Venta from "./pages/admin_dashboard/ControlVentas/RealizarVenta";
+import Cotizacion from "./pages/admin_dashboard/ControlVentas/Cotizacion";
+import HistorialVenta from "./pages/admin_dashboard/ControlVentas/HistorialVenta";
+import GestionClientes from "./pages/admin_dashboard/ControlVentas/BDClientes/Clientes";
+import AgregarCliente from "./pages/admin_dashboard/ControlVentas/BDClientes/AgregarCliente";
+import EditarCliente from "./pages/admin_dashboard/ControlVentas/BDClientes/EditarCliente";
+import BorrarCliente from "./pages/admin_dashboard/ControlVentas/BDClientes/BorrarCliente";
+import VentasCredito from "./pages/admin_dashboard/ControlVentas/VentasCredito";
 
 
 
@@ -103,6 +112,18 @@ root.render(
         <Route path="dashboard-admin/inventario/agregar-producto" element={<AgregarProducto />}/>
         <Route path="dashboard-admin/inventario/editar-producto" element={<EditarProducto />}/> 
         <Route path="dashboard-admin/inventario/borrar-producto" element={<BorrarProducto />} />   
+
+        <Route path="dashboard-admin/control-ventas" element={<Dashboard />} />  
+        <Route path="dashboard-admin/control-ventas/venta" element={<Venta />} />  
+        <Route path="dashboard-admin/control-ventas/cotizacion" element={<Cotizacion />} />  
+        <Route path="dashboard-admin/control-ventas/historial-venta" element={<HistorialVenta />} />   
+        <Route path="dashboard-admin/control-ventas/gestion-clientes" element={<GestionClientes />} /> 
+        <Route path="dashboard-admin/control-ventas/gestion-clientes/agregar-cliente" element={<AgregarCliente />} /> 
+        <Route path="dashboard-admin/control-ventas/gestion-clientes/editar-cliente" element={<EditarCliente />} /> 
+        <Route path="dashboard-admin/control-ventas/gestion-clientes/borrar-cliente" element={<BorrarCliente />} /> 
+        <Route path="dashboard-admin/control-ventas/ventas-creditos" element={<VentasCredito/>} /> 
+
+
 
         {/* Rutas Estilista*/}
           <Route path="dashboard-estilista/main" element={<DashboardEstilista />}/>

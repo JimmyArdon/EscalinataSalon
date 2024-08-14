@@ -53,6 +53,8 @@ const GestionUsuarios: React.FC = () => {
         formErrors.email = "El correo electrónico no es válido.";
       }
     }
+    if (!newUser.user) formErrors.user = "El usuario es obligatorio.";
+    if (!newUser.password) formErrors.password = "La contraseñas es obligatoria.";
 
     setErrors(formErrors);
     return Object.keys(formErrors).length === 0;
@@ -192,9 +194,9 @@ const GestionUsuarios: React.FC = () => {
                 name="user"
                 value={newUser.user}
                 onChange={handleInputChange}
-                className={`input border p-2 w-full ${errors.users ? 'border-red-500' : ''}`}
+                className={`input border p-2 w-full ${errors.user ? 'border-red-500' : ''}`}
               />
-              {errors.users && <p className="error-message text-red-500 mt-1">{errors.users}</p>}
+              {errors.user && <p className="error-message text-red-500 mt-1">{errors.user}</p>}
             </div>
             <div className="input-container mb-4 w-full">
               <label htmlFor="password" className="block text-gray-700">Contraseña</label>
