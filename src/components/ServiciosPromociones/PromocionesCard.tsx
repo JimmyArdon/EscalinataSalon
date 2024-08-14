@@ -11,14 +11,14 @@ interface Promocion {
     promocion: Promocion; 
   }
 
-const PromocionesCard: React.FC<PromocionCardProps> = ({promocion}) => {
+const   PromocionesCard: React.FC<PromocionCardProps> = ({promocion}) => {
 
     return (
             <tr className="cursor-pointer transform transition-transform duration-300 hover:scale-105 border-black">
               
-              <td>{promocion.descripcion}</td>
-              <td>{promocion.descuento}%</td>
-              <td>Lps.{promocion.precio}</td>
+              <td className="text-center">{promocion.descripcion}</td>
+              <td className="text-center">{promocion.descuento}%</td>
+              <td className="text-center">Lps.{promocion.precio}</td>
             </tr>
     )
 }

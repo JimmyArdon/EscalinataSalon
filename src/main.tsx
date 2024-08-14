@@ -31,6 +31,9 @@ import BorrarProveedor from "./pages/admin_dashboard/GestionProveedores/BorrarPr
 import BorrarCita from "./pages/admin_dashboard/GestionCitas/BorrarCita";
 import DetallesEmpresa from "./pages/admin_dashboard/InformacionEmpresa/DetallesEmpresa";
 import EditarDetallesEmpresa from "./pages/admin_dashboard/InformacionEmpresa/EditarDetallesEmpresa";
+import AgregarBonificacion from "./pages/admin_dashboard/Bonificaciones/AgregarBonificacion";
+import EditarBonificacion from "./pages/admin_dashboard/Bonificaciones/EditarBonificacion";
+import BorrarBonificacion from "./pages/admin_dashboard/Bonificaciones/BorrarBonificacion";
 
 
 
@@ -91,6 +94,10 @@ root.render(
         <Route path="dashboard-admin/bonificaciones/agregar-promociones" element={<AgregarPromocion />} />
         <Route path="dashboard-admin/bonificaciones/editar-promociones" element={<EditarPromocion />} />  
         <Route path="dashboard-admin/bonificaciones/borrar-promociones" element={<BorrarPromocion />} />
+        <Route path="dashboard-admin/bonificaciones/agregar-bonificacion" element={<AgregarBonificacion/>}/>
+        <Route path="dashboard-admin/bonificaciones/editar-bonificacion" element={<EditarBonificacion/>}/>
+        <Route path="dashboard-admin/bonificaciones/borrar-bonificacion" element={<BorrarBonificacion/>}/>
+
 
         <Route path="dashboard-admin/informacion-empresa" element={<DetallesEmpresa />} />
         <Route path="dashboard-admin/informacion-empresa/editar-detalles" element={<EditarDetallesEmpresa />} />
