@@ -120,7 +120,7 @@ const EditarDetallesEmpresa = () => {
 
   return (
     <Container>
-      <Salir onClick={() => navigate("/dashboard-admin")} />
+      <Salir onClick={() => navigate("/dashboard-admin/informacion-empresa")} />
       <h2>Editar Detalles del Negocio</h2>
       <FormGroup>
         <Label>Nombre</Label>
