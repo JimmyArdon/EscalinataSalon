@@ -5,6 +5,7 @@ import { FiUsers} from "react-icons/fi";
 import { LiaCalendarWeekSolid } from "react-icons/lia";
 import { TbReport } from "react-icons/tb";
 import { BsShop } from "react-icons/bs";
+import { LiaBullhornSolid } from "react-icons/lia";
 import { MdInfoOutline } from "react-icons/md";
 import { adminRoutes, AdminRouteKeys } from "../../api/routesConfig";
 
@@ -32,7 +33,7 @@ const DashboardAdmin: React.FC = () => {
       case "Información":
           return <MdInfoOutline  size={32} />;
       case "Promociones y Bonificaciones":
-          return <TbReport size={32} />;
+          return <LiaBullhornSolid  size={32} />;
       default:
         return null;
        
