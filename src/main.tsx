@@ -35,6 +35,9 @@ import GestionInventario from './pages/admin_dashboard/GestionInventario/Gestion
 import AgregarProducto from "./pages/admin_dashboard/GestionInventario/AgregarProducto";
 import EditarProducto from "./pages/admin_dashboard/GestionInventario/EditarProducto";
 import BorrarProducto from "./pages/admin_dashboard/GestionInventario/BorrarProducto";
+import AgregarBonificacion from "./pages/admin_dashboard/Bonificaciones/AgregarBonificacion";
+import EditarBonificacion from "./pages/admin_dashboard/Bonificaciones/EditarBonificacion";
+import BorrarBonificacion from "./pages/admin_dashboard/Bonificaciones/BorrarBonificacion";
 import Dashboard from "./pages/admin_dashboard/ControlVentas/Dashboard";
 import Venta from "./pages/admin_dashboard/ControlVentas/RealizarVenta";
 import Cotizacion from "./pages/admin_dashboard/ControlVentas/Cotizacion";
@@ -44,6 +47,7 @@ import AgregarCliente from "./pages/admin_dashboard/ControlVentas/BDClientes/Agr
 import EditarCliente from "./pages/admin_dashboard/ControlVentas/BDClientes/EditarCliente";
 import BorrarCliente from "./pages/admin_dashboard/ControlVentas/BDClientes/BorrarCliente";
 import VentasCredito from "./pages/admin_dashboard/ControlVentas/VentasCredito";
+
 
 
 
@@ -104,6 +108,10 @@ root.render(
         <Route path="dashboard-admin/bonificaciones/agregar-promociones" element={<AgregarPromocion />} />
         <Route path="dashboard-admin/bonificaciones/editar-promociones" element={<EditarPromocion />} />  
         <Route path="dashboard-admin/bonificaciones/borrar-promociones" element={<BorrarPromocion />} />
+        <Route path="dashboard-admin/bonificaciones/agregar-bonificacion" element={<AgregarBonificacion/>}/>
+        <Route path="dashboard-admin/bonificaciones/editar-bonificacion" element={<EditarBonificacion/>}/>
+        <Route path="dashboard-admin/bonificaciones/borrar-bonificacion" element={<BorrarBonificacion/>}/>
+
 
         <Route path="dashboard-admin/informacion-empresa" element={<DetallesEmpresa />} />
         <Route path="dashboard-admin/informacion-empresa/editar-detalles" element={<EditarDetallesEmpresa />} />  
