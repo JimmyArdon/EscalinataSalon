@@ -75,21 +75,25 @@ const Salir = styled(IoMdCloseCircleOutline)`
 const AgregarProducto = () => {
   const navigate = useNavigate();
   const [marca, setMarca] = useState("");
+  const [codigoBarras, setCodigoBarras] = useState("");
   const [nombreProducto, setNombreProducto] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precioCompra, setPrecioCompra] = useState("");
   const [precioVenta, setPrecioVenta] = useState("");
   const [impuesto, setImpuesto] = useState("");
+  const [stock, setStock] = useState("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const nuevoProducto = {
       marca,
+      codigoBarras: parseInt(codigoBarras),
       nombreProducto,
       descripcion,
       precioCompra: parseFloat(precioCompra),
       precioVenta: parseFloat(precioVenta),
-      impuesto: parseFloat(impuesto)
+      impuesto: parseFloat(impuesto),
+      stock: parseInt(stock)
     };
     axios.post("https://example.com/api/productos", nuevoProducto)
       .then(() => {
@@ -113,6 +117,17 @@ const AgregarProducto = () => {
             value={marca}
             onChange={(e) => setMarca(e.target.value)}
             placeholder="Marca del producto"
+            required
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Codigo de Barras</Label>
+          <Input
+            type="number"
+            step="0"
+            value={codigoBarras}
+            onChange={(e) => setCodigoBarras(e.target.value)}
+            placeholder="Codigo de Barras"
             required
           />
         </FormGroup>
@@ -169,6 +184,28 @@ const AgregarProducto = () => {
             required
           />
         </FormGroup>
+        <FormGroup>
+          <Label>Precio de Venta</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={precioVenta}
+            onChange={(e) => setPrecioVenta(e.target.value)}
+            placeholder="Precio de venta"
+            required
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Stock</Label>
+          <Input
+            type="number"
+            step="0"
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+            placeholder="Stock"
+            required
+          />
+        </FormGroup>        
         <Button type="submit">Agregar</Button>
         <ClearButton type="button" onClick={manejarOnClickSalir}>
           Cancelar

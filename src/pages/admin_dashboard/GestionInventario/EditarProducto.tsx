@@ -76,22 +76,26 @@ const EditarProducto = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [marca, setMarca] = useState("");
+  const [codigoBarras, setCodigoBarras] = useState("");
   const [nombreProducto, setNombreProducto] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precioCompra, setPrecioCompra] = useState("");
   const [precioVenta, setPrecioVenta] = useState("");
   const [impuesto, setImpuesto] = useState("");
+  const [stock, setStock] = useState("");
 
   useEffect(() => {
     axios.get(`https://example.com/api/productos/${id}`)
       .then((response) => {
         const producto = response.data;
         setMarca(producto.marca);
+        setCodigoBarras(producto.codigoBarras);
         setNombreProducto(producto.nombreProducto);
         setDescripcion(producto.descripcion);
         setPrecioCompra(producto.precioCompra);
         setPrecioVenta(producto.precioVenta);
         setImpuesto(producto.impuesto);
+        setStock(producto.stock);
       });
   }, [id]);
 
@@ -99,11 +103,13 @@ const EditarProducto = () => {
     e.preventDefault();
     const productoActualizado = {
       marca,
+      codigoBarras: parseInt(stock),
       nombreProducto,
       descripcion,
       precioCompra: parseFloat(precioCompra),
       precioVenta: parseFloat(precioVenta),
-      impuesto: parseFloat(impuesto)
+      impuesto: parseFloat(impuesto),
+      stock: parseInt(stock)
     };
     axios.put(`https://example.com/api/productos/${id}`, productoActualizado)
       .then(() => {
@@ -127,6 +133,17 @@ const EditarProducto = () => {
             value={marca}
             onChange={(e) => setMarca(e.target.value)}
             placeholder="Marca del producto"
+            required
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Codigo de Barras</Label>
+          <Input
+            type="number"
+            step="0"
+            value={codigoBarras}
+            onChange={(e) => setCodigoBarras(e.target.value)}
+            placeholder="Codigo de Barras"
             required
           />
         </FormGroup>
@@ -180,6 +197,17 @@ const EditarProducto = () => {
             value={impuesto}
             onChange={(e) => setImpuesto(e.target.value)}
             placeholder="Impuesto en porcentaje"
+            required
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Stock</Label>
+          <Input
+            type="number"
+            step="0"
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+            placeholder="Stock disponible"
             required
           />
         </FormGroup>
