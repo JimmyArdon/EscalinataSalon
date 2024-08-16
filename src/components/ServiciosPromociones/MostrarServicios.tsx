@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ServicioCard from "./ServicioCard";
 import styled from "styled-components";
 import Pagination from "../Pagination";
+import InputTexto from "./InputTexto";
 
 interface Servicio {
   id: string;
@@ -40,6 +41,7 @@ const MostrarServicios: React.FC = () => {
 
   return (
     <Container>
+      <InputTexto setServicio={setServicios}/>
       <h3 className="text-body-secondary">Servicios</h3>
       <div className="box-border">
         <table className="table">

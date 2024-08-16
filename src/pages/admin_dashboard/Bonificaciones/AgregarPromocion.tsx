@@ -6,8 +6,8 @@ import styled from "styled-components";
 interface Servicio {
   id: string;
   nombre: string;
+  duracion:string;
   precio: string;
-
 }
 
 const Container = styled.div`
