@@ -91,8 +91,8 @@ root.render(
 
         <Route path="dashboard-admin/gestion-citas/" element={<GestionCitas />} />
         <Route path="dashboard-admin/gestion-citas/agregar-cita/" element={<AgregarCita />} />
-        <Route path="dashboard-admin/gestion-citas/editar-cita/" element={<EditarCita />} />
-        <Route path="dashboard-admin/gestion-citas/borrar-cita/" element={<BorrarCita/>} />
+        <Route path="dashboard-admin/gestion-citas/editar-cita/:id" element={<EditarCita />} />
+        <Route path="dashboard-admin/gestion-citas/borrar-cita/:id" element={<BorrarCita/>} />
 
         <Route path="dashboard-admin/perfil" element={<Perfil />} />
         <Route path="dashboard-admin/cambiar-contrasena" element={<CambiarContrasena />} />

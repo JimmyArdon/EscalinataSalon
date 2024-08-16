@@ -16,7 +16,6 @@ interface DetallesEmpresa {
   tipoDocumento: string;
   facturaInicio: string;
   facturaLimite: string;
-  facturaActual: string;
   fechaLimiteEmision: string;
   fechaInicio: string;
 }
@@ -100,7 +99,6 @@ const EditarDetallesEmpresa = () => {
     tipoDocumento: "01",
     facturaInicio: "00000301",
     facturaLimite: "00000400",
-    facturaActual: "0000314",
     fechaLimiteEmision: "09/10/2024",
     fechaInicio: "09/08/2024"
   });
@@ -227,15 +225,6 @@ const EditarDetallesEmpresa = () => {
           type="text"
           name="facturaLimite"
           value={detallesEmpresa.facturaLimite}
-          onChange={handleChange}
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label>Factura Actual</Label>
-        <Input
-          type="text"
-          name="facturaActual"
-          value={detallesEmpresa.facturaActual}
           onChange={handleChange}
         />
       </FormGroup>

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import FiltroCitas from "../../../components/FiltroCitas";
 import Pagination from "../../../components/Pagination";
 import styled from "styled-components";
-
+import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // Asegúrate de instalar react-icons
 
 interface Appointment {
     id: number;
@@ -53,6 +53,11 @@ const ButtonGroup = styled.div`
     gap: 10px;
 `;
 
+const ActionsContainer = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
 const GestionCitas: React.FC = () => {
     useEffect(() => {
         document.title = "Gestión de Citas - Salón de Belleza Escalinata";
@@ -94,14 +99,9 @@ const GestionCitas: React.FC = () => {
         <Container>
             <div className="flex items-center justify-between mb-4">
                 <FiltroCitas aplicarFiltros={aplicarFiltros} />
-                <div>
                 <ButtonGroup>
                     <Link className="btn btn-outline-secondary w-40" to='agregar-cita'>+ Añadir </Link>
-                    <Link className="btn btn-outline-secondary w-40" to='editar-cita'>Editar</Link>
-                    <Link className="btn btn-outline-secondary w-40" to='borrar-cita' >Borrar </Link>
-
                 </ButtonGroup>
-                </div>
             </div>
 
             <Title>Gestión de Citas</Title>
@@ -113,6 +113,7 @@ const GestionCitas: React.FC = () => {
                         <th>Fecha</th>
                         <th>Hora</th>
                         <th>Servicio</th>
+                        <th>Acciones</th> {/* Nueva columna para acciones */}
                     </tr>
                 </thead>
                 <tbody>
@@ -122,6 +123,12 @@ const GestionCitas: React.FC = () => {
                             <td>{item.fecha.toLocaleDateString()}</td>
                             <td>{item.hora}</td>
                             <td>{item.servicio}</td>
+                            <td>
+                                <ActionsContainer>
+                                    <Link to={`editar-cita/${item.id}`}><FaEdit color="#007bff" /></Link>
+                                    <Link to={`borrar-cita/${item.id}`}><FaTrashAlt color="#dc3545" /></Link>
+                                </ActionsContainer>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
