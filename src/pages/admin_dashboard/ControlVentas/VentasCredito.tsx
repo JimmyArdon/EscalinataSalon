@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
 import FiltroClientes from "../../../components/FiltroClientes"; 
 import Pagination from "../../../components/Pagination";
 
@@ -117,7 +116,7 @@ const VentasCredito: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 5; // Número de ítems por página
-  const navigate = useNavigate();
+
 
   const filteredVentas = ventas.filter((venta) =>
     venta.cliente.toLowerCase().includes(searchTerm.toLowerCase())
@@ -133,10 +132,7 @@ const VentasCredito: React.FC = () => {
     setSelectedVenta(venta);
   };
 
-  const handleAgregarVenta = () => {
-    navigate('/agregar-venta-credito');
-  };
-
+ 
   const handleRegistrarPago = async () => {
     if (selectedVenta) {
       try {
@@ -164,7 +160,6 @@ const VentasCredito: React.FC = () => {
     <Container>
       <Title>Ventas al Crédito</Title>
       <FiltroClientes aplicarFiltros={setSearchTerm} />
-      <Button onClick={handleAgregarVenta}>Agregar Nueva Venta</Button>
       <Table>
         <thead>
           <tr>
