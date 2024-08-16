@@ -46,6 +46,8 @@ const AgregarPromocion: React.FC = () => {
   const [precio, setPrecio] = useState("");
   const [precioOriginal, setPrecioOriginal] = useState(""); // Almacenar el precio original del servicio
   const [descuento, setDescuento] = useState("");
+  const [fechaInicio, setFechaInicio] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [fechaFinal, setFechaFinal] = useState<string>(new Date().toISOString().split('T')[0]);
   const [busqueda, setBusqueda] = useState("");
   const [opcionesFiltradas, setOpcionesFiltradas] = useState<Servicio[]>([]);
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string>("");
@@ -133,7 +135,7 @@ const AgregarPromocion: React.FC = () => {
 
     await fetch(url, {
       method,
-      body: JSON.stringify({ descripcion: opcionSeleccionada, precio, descuento }),
+      body: JSON.stringify({ descripcion: opcionSeleccionada, precio, descuento, fechaInicio, fechaFinal}),
       headers: {
         "Content-Type": "application/json",
       },
@@ -224,6 +226,28 @@ const AgregarPromocion: React.FC = () => {
           id="descuento"
           className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
           placeholder="Ingrese el descuento en %"
+        />
+        <label htmlFor="fechaInicio" className="font-bold text-sm text-white">
+          Fecha Inicial
+        </label>
+        <input
+          value={fechaInicio.split('T'[0])}
+          onChange={(e) => setFechaInicio(e.target.value)}
+          type="date"
+          id="fechaInicio"
+          className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
+          placeholder="Ingrese la fecha de Inicio"
+        />
+        <label htmlFor="fechaFinal" className="font-bold text-sm text-white">
+          Fecha de Finalizacion
+        </label>
+        <input
+          value={fechaFinal.split('T'[0])}
+          onChange={(e) => setFechaFinal(e.target.value)}
+          type="date"
+          id="fechaFinal"
+          className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
+          placeholder="Ingrese la fecha de finalizacion"
         />
         {error && <div className="text-red-500">{error}</div>}
         <div className="flex justify-center">
