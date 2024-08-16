@@ -185,17 +185,6 @@ const AgregarProducto = () => {
           />
         </FormGroup>
         <FormGroup>
-          <Label>Precio de Venta</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={precioVenta}
-            onChange={(e) => setPrecioVenta(e.target.value)}
-            placeholder="Precio de venta"
-            required
-          />
-        </FormGroup>
-        <FormGroup>
           <Label>Stock</Label>
           <Input
             type="number"
