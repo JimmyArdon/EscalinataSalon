@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FaTrashAlt } from 'react-icons/fa';
 
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -130,6 +129,25 @@ const Cotizacion: React.FC = () => {
     // Más filas de productos aquí
   ]);
 
+  const [expiryDate, setExpiryDate] = useState<string>('');
+
+  // Obtén la fecha actual
+  const today = new Date().toLocaleDateString('es-HN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  // Función para formatear la fecha en el formato deseado
+  const formatDate = (date: string) => {
+    const dateObj = new Date(date);
+    return dateObj.toLocaleDateString('es-HN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
   const filteredProducts = products.filter((product) =>
     product.concept.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -210,12 +228,12 @@ const Cotizacion: React.FC = () => {
         </FormSection>
       </TopSection>
       <h2>Busca un Producto</h2>
-        <Input
-          type="text"
-          placeholder="Escanear el código de barras o escribir el nombre"
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
+      <Input
+        type="text"
+        placeholder="Escanear el código de barras o escribir el nombre"
+        value={searchTerm}
+        onChange={handleSearchChange}
+      />
       <TopSection>
         <TableContainer>
           <Table>
@@ -273,6 +291,22 @@ const Cotizacion: React.FC = () => {
           </Table>
         </TableContainer>
       </TopSection>
+      <FormSection>
+        <Input
+          type="date"
+          value={expiryDate}
+          onChange={(e) => setExpiryDate(e.target.value)}
+          placeholder="Fecha de Vigencia"
+        />
+        <p>
+          <strong>
+            Esta cotización de nuestros productos y servicios es válida desde el día {today}{' '}
+            hasta el: {expiryDate ? formatDate(expiryDate) : 'No especificada'}.
+          </strong>
+          {' '}<br />
+          Para más información, comuníquese con nosotros. Será un placer atenderle.
+        </p>
+      </FormSection>
     </Container>
   );
 };
