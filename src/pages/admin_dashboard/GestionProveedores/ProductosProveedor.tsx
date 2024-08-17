@@ -37,7 +37,7 @@ const ProductosProveedor: React.FC = () => {
                 { id:"12", nombre: "Loción Protectora", linea: "Protección", descripcion: "Loción que protege el cabello de daños por calor y styling.", precio: 14.50, idProveedor: "1" },
                 { id:"13", nombre: "Producto 1", linea: "Línea 1", descripcion: "Descripción del producto 1", precio: 100, idProveedor: "2" },
                 { id:"14", nombre: "Producto 2", linea: "Línea 2", descripcion: "Descripción del producto 2", precio: 200, idProveedor: "2" },
-                { id:"15", nombre: "Producto 1", linea: "Línea 1", descripcion: "Descripción del producto 1", precio: 100, idProveedor: "1" },
+                { id:"15", nombre: "Producto 1", linea: "Línea 1", descripcion: "Descripción del producto 1", precio: 100, idProveedor: "2" },
                 { id:"16", nombre: "Producto 2", linea: "Línea 2", descripcion: "Descripción del producto 2", precio: 200, idProveedor: "2" },
                 { id:"17", nombre: "Producto 1", linea: "Línea 1", descripcion: "Descripción del producto 1", precio: 100, idProveedor: "2" },
                 { id:"18", nombre: "Producto 2", linea: "Línea 2", descripcion: "Descripción del producto 2", precio: 200, idProveedor: "1" },
