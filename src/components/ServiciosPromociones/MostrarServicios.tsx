@@ -1,8 +1,14 @@
-import { useEffect, useState } from "react";
 import ServicioCard from "./ServicioCard";
 import styled from "styled-components";
 import Pagination from "../Pagination";
-import InputTexto from "./InputTexto";
+import { useState } from "react";
+
+const Container = styled.div`
+  margin: 0 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
 
 interface Servicio {
   id: string;
@@ -11,23 +17,14 @@ interface Servicio {
   precio: number;
 }
 
-const Container = styled.div`
-  margin: 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
+interface MostrarServiciosProps {
+  servicios: Servicio[];
+}
 
-const MostrarServicios: React.FC = () => {
-  const [servicios, setServicios] = useState<Servicio[]>([]);
+const MostrarServicios: React.FC<MostrarServiciosProps> = ({ servicios }) => {
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [serviciosPerPage] = useState(5);
-
-  useEffect(() => {
-    fetch("https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios")
-      .then((res) => res.json())
-      .then((data) => setServicios(data));
-  }, []);
 
   
   // Get current posts
@@ -41,7 +38,6 @@ const MostrarServicios: React.FC = () => {
 
   return (
     <Container>
-      <InputTexto setServicio={setServicios}/>
       <h3 className="text-body-secondary">Servicios</h3>
       <div className="box-border">
         <table className="table">
