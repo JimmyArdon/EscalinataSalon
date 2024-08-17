@@ -1,138 +1,194 @@
+:root {
+  --primary-color: #17a039;
+  --secondary-color: #007bff;
+  --background-color: #ffffff;
+  --text-color: #333;
+  --white: #ffffff;
+  --light-gray: #f7f7f7;
+  --dark-gray: rgba(0, 0, 0, 0.1);
+}
+
 .container {
-    padding: 10px;
-    background-color: #f0f4f8;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  .title {
-    text-align: center;
-    font-size: 2.5rem;
-    color: #000000;
-    margin-bottom: 20px;
-    margin-top: 20px;
-  }
-  
-  .table, .history-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .table thead, .history-table thead, .table th {
-    background-color: #69693e;
-    color: rgb(255, 255, 255);
-  }
-  
-  .table th, .table td, .history-table th, .history-table td {
-    padding: 12px;
-    text-align: center;
-  }
-  
-  .table tr:nth-child(even), .history-table tr:nth-child(even) {
-    background-color: #f7f7f7;
-  }
-  
-  .button{
-    background-color: #28a745;
-    color: rgb(255, 255, 255);
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-right: 10px;
-  }
+  padding: 10px;
+  background-color: var(--background-color);
+  font-family: 'Arial', sans-serif;
+}
 
-  .modal-button{
-    background-color: #28a745;
-    color: rgb(255, 255, 255);
-    padding: 10px 15px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 5px;
-  }
-  
-  .button:hover, .modal-button:hover {
-    background-color: #3d4d42;
-  }
-  
-  .details-container {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .modal {
-    position: fixed;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .modal-content {
-    background: rgb(177, 179, 147);
-    padding: 20px;
-    border-radius: 10px;
-    width: 300px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    text-align: center;
-  }
-  
-  input[type="number"] {
-    width: 100%;
-    padding: 8px;
-    margin-top: 8px;
-    margin-bottom: 10px;
-    border: 2px solid #0f0d0d;
-    border-radius: 10px;
-  }
-  
-  label {
-    font-weight: bold;
-    color: #333;
-  }
+.title {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #000000;
+  margin: 10px 0;
+}
 
- /* Paginación */
+/*Estilos de las tablas*/
+.table-primary, .table-secondary {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px var(--dark-gray);
+}
 
+.table-primary thead, .table-secondary thead {
+  background-color: #b7b778;
+  color: var(--white);
+}
+
+.table-primary th, .table-primary td, .table-secondary th, .table-secondary td {
+  padding: 10px;
+  text-align: center;
+}
+
+.table-primary tr:nth-child(even), .table-secondary tr:nth-child(even) {
+  background-color: var(--light-gray);
+}
+
+.table-primary tr:hover, .table-secondary tr:hover {
+  background-color: #aeaeae;
+}
+
+.table-primary .button, .table-secondary .button, .table-primary .modal-button, .table-secondary .modal-button {
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 0px 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.table-primary .button:hover, .table-secondary .button:hover, 
+.table .modal-button:hover, .table-secondary .modal-button:hover {
+  background-color: #3d4d42;
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.button:focus, .modal-button:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/*Detalles de la venta al darle click*/
+.details-container {
+  margin-top: 10px;
+  padding: 15px;
+  background-color: rgb(150, 126, 32);
+  border-radius: 20px;
+  box-shadow: 0 8px 10px var(--dark-gray);
+  width: 300px;
+}
+
+/*Vista Emegente*/
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #b8b6b6;
+  padding: 20px;
+  border-radius: 15px;
+  width: 300px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin: 0 0 20px;
+  font-size: 1.5rem;
+  color: #000000;
+}
+
+.modal-content label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.modal-content input[type="number"] {
+  width: calc(100% - 50px);
+  padding: 10px;
+  margin: 10px 0;
+  border: 2px solid var(--primary-color);
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.modal-button {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  margin: 10px 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-button:hover {
+  background-color: #3d4d42;
+}
+
+/* Detalles de la Paginación */
 .pagination {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.pagination button {
+  background-color: var(--secondary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  margin: 0 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.pagination button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.pagination button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+/* Ajustes para lograr un diseño responsivo */
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
   }
-  
-  .pagination button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 15px;
-    margin: 0 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+  .table, .history-table {
+    font-size: 0.9rem;
   }
-  
-  .pagination button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    width: 90%;
   }
-  
-  .pagination button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
-  
-  .pagination span {
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    font-weight: bold;
-    color: #333;
-  }
+}

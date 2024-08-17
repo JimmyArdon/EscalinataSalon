@@ -21,9 +21,10 @@ const Title = styled.h1`
 
 const ButtonContainer = styled.div`
   display: flex;
-  gap: 20px;
   flex-wrap: wrap;
   justify-content: center;
+  gap: 20px;
+  max-width: 100%;
 `;
 
 const Button = styled.button`
@@ -48,9 +49,15 @@ const Button = styled.button`
   }
 
   @media (max-width: 768px) {
-    width: 180px;
-    height: 140px;
+    width: 150px;
+    height: 120px;
     font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    width: 120px;
+    height: 100px;
+    font-size: 14px;
   }
 `;
 
