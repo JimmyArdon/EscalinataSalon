@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
@@ -72,150 +72,95 @@ const Salir = styled(IoMdCloseCircleOutline)`
   }
 `;
 
+interface Producto {
+  id: string;
+  nombreProducto: string;
+  marca: string;
+  // Otros campos que necesites
+}
+
 const EditarProducto = () => {
-  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [marca, setMarca] = useState("");
-  const [codigoBarras, setCodigoBarras] = useState("");
-  const [nombreProducto, setNombreProducto] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [precioCompra, setPrecioCompra] = useState("");
-  const [precioVenta, setPrecioVenta] = useState("");
-  const [impuesto, setImpuesto] = useState("");
-  const [stock, setStock] = useState("");
+  const [productos, setProductos] = useState<Producto[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<Producto | null>(null);
 
   useEffect(() => {
-    axios.get(`https://example.com/api/productos/${id}`)
+    axios.get("https://your-mockapi-url.mockapi.io/api/v1/productos")
       .then((response) => {
-        const producto = response.data;
-        setMarca(producto.marca);
-        setCodigoBarras(producto.codigoBarras);
-        setNombreProducto(producto.nombreProducto);
-        setDescripcion(producto.descripcion);
-        setPrecioCompra(producto.precioCompra);
-        setPrecioVenta(producto.precioVenta);
-        setImpuesto(producto.impuesto);
-        setStock(producto.stock);
+        setProductos(response.data);
       });
-  }, [id]);
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const productoActualizado = {
-      marca,
-      codigoBarras: parseInt(stock),
-      nombreProducto,
-      descripcion,
-      precioCompra: parseFloat(precioCompra),
-      precioVenta: parseFloat(precioVenta),
-      impuesto: parseFloat(impuesto),
-      stock: parseInt(stock)
-    };
-    axios.put(`https://example.com/api/productos/${id}`, productoActualizado)
-      .then(() => {
-        navigate("/dashboard-admin/inventario");
-      });
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredProductos = productos.filter((producto) =>
+    producto.nombreProducto.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleSelectProduct = (producto: Producto) => {
+    setSelectedProduct(producto);
   };
 
   const manejarOnClickSalir = () => {
     navigate("/dashboard-admin/inventario");
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!selectedProduct) return;
+
+    const productoActualizado = {
+      
+    };
+
+    axios.put(`https://your-mockapi-url.mockapi.io/api/v1/productos/${selectedProduct.id}`, productoActualizado)
+      .then(() => {
+        navigate("/dashboard-admin/inventario");
+      });
+  };
+
   return (
     <Container>
       <Salir onClick={manejarOnClickSalir} />
-      <h2>Editar Producto</h2>
-      <form onSubmit={handleSubmit} className="bg-slate-500 p-10 rounded-[15px] w-2/4">
-        <FormGroup>
-          <Label>Marca</Label>
-          <Input
-            type="text"
-            value={marca}
-            onChange={(e) => setMarca(e.target.value)}
-            placeholder="Marca del producto"
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Codigo de Barras</Label>
-          <Input
-            type="number"
-            step="0"
-            value={codigoBarras}
-            onChange={(e) => setCodigoBarras(e.target.value)}
-            placeholder="Codigo de Barras"
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Nombre del Producto</Label>
-          <Input
-            type="text"
-            value={nombreProducto}
-            onChange={(e) => setNombreProducto(e.target.value)}
-            placeholder="Nombre del producto"
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Descripción</Label>
-          <Input
-            type="text"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-            placeholder="Descripción del producto"
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Precio de Compra</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={precioCompra}
-            onChange={(e) => setPrecioCompra(e.target.value)}
-            placeholder="Precio de compra"
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Precio de Venta</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={precioVenta}
-            onChange={(e) => setPrecioVenta(e.target.value)}
-            placeholder="Precio de venta"
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Impuesto (%)</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={impuesto}
-            onChange={(e) => setImpuesto(e.target.value)}
-            placeholder="Impuesto en porcentaje"
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Stock</Label>
-          <Input
-            type="number"
-            step="0"
-            value={stock}
-            onChange={(e) => setStock(e.target.value)}
-            placeholder="Stock disponible"
-            required
-          />
-        </FormGroup>
-        <Button type="submit">Guardar Cambios</Button>
-        <ClearButton type="button" onClick={manejarOnClickSalir}>
-          Cancelar
-        </ClearButton>
-      </form>
+      <h2>Buscar Producto para Editar</h2>
+      <Input
+        type="text"
+        value={searchQuery}
+        onChange={handleSearchChange}
+        placeholder="Buscar producto por nombre"
+      />
+      <ul>
+        {filteredProductos.map((producto) => (
+          <li key={producto.id} onClick={() => handleSelectProduct(producto)}>
+            {producto.nombreProducto}
+          </li>
+        ))}
+      </ul>
+
+      {selectedProduct && (
+        <>
+          <h2>Editar Producto</h2>
+          <form onSubmit={handleSubmit}>
+            <FormGroup>
+              <Label>Nombre del Producto</Label>
+              <Input
+                type="text"
+                value={selectedProduct.nombreProducto}
+                onChange={(e) => setSelectedProduct({ ...selectedProduct, nombreProducto: e.target.value })}
+                placeholder="Nombre del producto"
+                required
+              />
+            </FormGroup>
+            <Button type="submit">Guardar Cambios</Button>
+            <ClearButton type="button" onClick={manejarOnClickSalir}>
+              Cancelar
+            </ClearButton>
+          </form>
+        </>
+      )}
     </Container>
   );
 };
