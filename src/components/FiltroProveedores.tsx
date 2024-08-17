@@ -10,7 +10,7 @@ type Servicio = { //Servicios
 
 interface FiltroProveedoresProps {
     aplicarFiltros: (proveedor: string) => void;
-    setServicios: React.Dispatch<React.SetStateAction<Servicio[]>>; //Servicios
+    setServicios?: React.Dispatch<React.SetStateAction<Servicio[]>>; //Servicios
 }
 
 const FiltroProveedores: React.FC<FiltroProveedoresProps> = ({ aplicarFiltros, setServicios }) => {
