@@ -74,23 +74,8 @@ const AgregarProveedor: React.FC = () => {
     });
   };
 
-  const validarFormulario = (): boolean => {
-    const { proveedor, dirección, telefono, email } = formData;
-    if (!proveedor || !dirección || !telefono || !email) {
-      setError("Todos los campos son obligatorios.");
-      return false;
-    }
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      setError("El email no es válido.");
-      return false;
-    }
-    setError(null);
-    return true;
-  };
-
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!validarFormulario()) return;
 
     const url = id
       ? `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores/${id}`
@@ -136,7 +121,7 @@ const AgregarProveedor: React.FC = () => {
         <input
           value={formData.proveedor}
           onChange={handleInputChange}
-          required
+          
           type="text"
           id="proveedor"
           name="proveedor"
@@ -149,7 +134,7 @@ const AgregarProveedor: React.FC = () => {
         <input
           value={formData.dirección}
           onChange={handleInputChange}
-          required
+          
           type="text"
           id="dirección"
           name="dirección"
@@ -162,7 +147,7 @@ const AgregarProveedor: React.FC = () => {
         <input
           value={formData.telefono}
           onChange={handleInputChange}
-          required
+          
           type="text"
           id="telefono"
           name="telefono"
@@ -175,7 +160,7 @@ const AgregarProveedor: React.FC = () => {
         <input
           value={formData.email}
           onChange={handleInputChange}
-          required
+          
           type="email"
           id="email"
           name="email"
