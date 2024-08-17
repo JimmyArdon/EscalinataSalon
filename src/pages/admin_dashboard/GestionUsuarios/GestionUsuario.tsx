@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../../../components/GestionUsuarios.css";
-import { IoPersonAddSharp, IoFilter } from "react-icons/io5"; // Importamos los iconos necesarios
+import { IoPersonAddSharp, IoFilter } from "react-icons/io5";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 interface User {

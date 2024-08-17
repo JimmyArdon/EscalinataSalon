@@ -1,82 +1,14 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  padding: 20px;
-`;
-
-const Title = styled.h1`
-  color: #333;
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-`;
-
-const FilterSection = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-`;
-
-const FilterButton = styled.button`
-  padding: 10px 20px;
-  margin-right: 10px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
-
-const TableContainer = styled.div`
-  max-height: 400px;
-  overflow-y: auto;
-  width: 100%;
-`;
-
-const Table = styled.table`
-  border-collapse: collapse;
-  width: 100%;
-  font-family: 'Arial', sans-serif;
-`;
-
-const TableHeader = styled.th`
-  border: 1px solid #ddd;
-  padding: 6px;
-  text-align: left;
-  background-color: #ccc5b7;
-  color: #333;
-  font-size: 0.875rem;
-`;
-
-const TableRow = styled.tr`
-  &:hover {
-    background-color: #f2f2f2;
-  }
-`;
-
-const TableCell = styled.td`
-  border: 1px solid #ddd;
-  padding: 6px;
-  text-align: left;
-  font-size: 0.875rem;
-`;
+import FiltroCitas from "../../../components/FiltroInventario";
+import "../../../components/HistorialDeVentas.css";
 
 interface Sale {
   invoiceNumber: string;
   clientName: string;
   totalAmount: number;
-  date: string; // Asume que la fecha es en formato DD/MM/YYYY
+  date: string;
 }
 
-// Función para convertir DD/MM/YYYY a objeto Date
 const parseDate = (dateString: string): Date => {
   const [day, month, year] = dateString.split('/').map(Number);
   return new Date(year, month - 1, day);
@@ -84,6 +16,9 @@ const parseDate = (dateString: string): Date => {
 
 const HistoricoVentas: React.FC = () => {
   const [filter, setFilter] = useState<string>('today');
+  const [clientFilter, setClientFilter] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 7;
   const [salesHistory] = useState<Sale[]>([
     {
       invoiceNumber: '001',
@@ -103,14 +38,110 @@ const HistoricoVentas: React.FC = () => {
       totalAmount: 150,
       date: '15/08/2024',
     },
+    {
+      invoiceNumber: '001',
+      clientName: 'Cliente A',
+      totalAmount: 100,
+      date: '13/08/2024',
+    },
+    {
+      invoiceNumber: '002',
+      clientName: 'Maria',
+      totalAmount: 200,
+      date: '14/08/2024',
+    },
+    {
+      invoiceNumber: '003',
+      clientName: 'Jose',
+      totalAmount: 150,
+      date: '15/03/2024',
+    },
+    {
+      invoiceNumber: '001',
+      clientName: 'Alberto',
+      totalAmount: 100,
+      date: '13/04/2024',
+    },
+    {
+      invoiceNumber: '002',
+      clientName: 'Blanca',
+      totalAmount: 200,
+      date: '14/05/2024',
+    },
+    {
+      invoiceNumber: '003',
+      clientName: 'Carlos',
+      totalAmount: 150,
+      date: '15/06/2024',
+    },
+    {
+      invoiceNumber: '001',
+      clientName: 'Cliente A',
+      totalAmount: 100,
+      date: '13/08/2024',
+    },
+    {
+      invoiceNumber: '002',
+      clientName: 'Cliente B',
+      totalAmount: 200,
+      date: '14/08/2024',
+    },
+    {
+      invoiceNumber: '003',
+      clientName: 'Cliente C',
+      totalAmount: 150,
+      date: '10/08/2024',
+    },
+    {
+      invoiceNumber: '001',
+      clientName: 'Cliente A',
+      totalAmount: 100,
+      date: '5/08/2024',
+    },
+    {
+      invoiceNumber: '002',
+      clientName: 'Maria',
+      totalAmount: 200,
+      date: '4/08/2024',
+    },
+    {
+      invoiceNumber: '001',
+      clientName: 'Cliente A',
+      totalAmount: 100,
+      date: '13/08/2024',
+    },
+    {
+      invoiceNumber: '002',
+      clientName: 'Cliente B',
+      totalAmount: 200,
+      date: '14/08/2024',
+    },
+    {
+      invoiceNumber: '003',
+      clientName: 'Cliente C',
+      totalAmount: 150,
+      date: '16/08/2024',
+    },
+    {
+      invoiceNumber: '001',
+      clientName: 'Cliente A',
+      totalAmount: 100,
+      date: '16/08/2024',
+    },
+    {
+      invoiceNumber: '002',
+      clientName: 'Maria',
+      totalAmount: 200,
+      date: '15/08/2024',
+    },
     // Más registros de ventas aquí
   ]);
+
 
   const filteredSalesHistory = salesHistory.filter((sale) => {
     const saleDate = parseDate(sale.date);
     const currentDate = new Date();
 
-    // Reset hours, minutes, seconds, and milliseconds to compare only the date part
     const startOfDay = new Date(currentDate);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(startOfDay);
@@ -123,56 +154,113 @@ const HistoricoVentas: React.FC = () => {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
 
-    switch (filter) {
-      case 'today': {
-        return saleDate >= startOfDay && saleDate < endOfDay;
-      }
-      case 'week': {
-        return saleDate >= startOfWeek && saleDate <= currentDate;
-      }
-      case 'month': {
-        return saleDate >= startOfMonth && saleDate <= endOfMonth;
-      }
-      case 'year': {
-        return saleDate.getFullYear() === currentDate.getFullYear();
-      }
-      default:
-        return true;
-    }
+    return (
+      sale.clientName.toLowerCase().includes(clientFilter.toLowerCase()) &&
+      ((filter === 'today' && saleDate >= startOfDay && saleDate < endOfDay) ||
+        (filter === 'week' && saleDate >= startOfWeek && saleDate <= currentDate) ||
+        (filter === 'month' && saleDate >= startOfMonth && saleDate <= endOfMonth) ||
+        (filter === 'year' && saleDate.getFullYear() === currentDate.getFullYear()))
+    );
   });
 
+  const totalSales = filteredSalesHistory.reduce((acc, sale) => acc + sale.totalAmount, 0);
+
+  const paginatedSales = filteredSalesHistory.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const totalPages = Math.ceil(filteredSalesHistory.length / itemsPerPage);
+
   return (
-    <Container>
-      <Title>Historia de Ventas</Title>
-      <FilterSection>
-        <FilterButton onClick={() => setFilter('today')}>Hoy</FilterButton>
-        <FilterButton onClick={() => setFilter('week')}>Semana</FilterButton>
-        <FilterButton onClick={() => setFilter('month')}>Mes</FilterButton>
-        <FilterButton onClick={() => setFilter('year')}>Año</FilterButton>
-      </FilterSection>
-      <TableContainer>
-        <Table>
+    <div className="container">
+      <h1 className="title">Historial de Ventas</h1>
+      <div className="filter-section">
+        <FiltroCitas aplicarFiltros={setClientFilter} />
+        <div>
+          <button className="filter-button" onClick={() => setFilter('today')}>Hoy</button>
+          <button className="filter-button" onClick={() => setFilter('week')}>Semana</button>
+          <button className="filter-button" onClick={() => setFilter('month')}>Mes</button>
+          <button className="filter-button" onClick={() => setFilter('year')}>Año</button>
+        </div>
+      </div>
+      <label className="total-sales-label">Total Ventas: Lps. {totalSales.toFixed(2)}</label>
+      <div className="table-container">
+        <table>
           <thead>
             <tr>
-              <TableHeader>Número de Factura</TableHeader>
-              <TableHeader>Cliente</TableHeader>
-              <TableHeader>Total</TableHeader>
-              <TableHeader>Fecha</TableHeader>
+              <th>Número de Factura</th>
+              <th>Cliente</th>
+              <th>Total</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {filteredSalesHistory.map((sale, index) => (
-              <TableRow key={index}>
-                <TableCell>{sale.invoiceNumber}</TableCell>
-                <TableCell>{sale.clientName}</TableCell>
-                <TableCell>Lps. {sale.totalAmount.toFixed(2)}</TableCell>
-                <TableCell>{sale.date}</TableCell>
-              </TableRow>
+            {paginatedSales.map((sale, index) => (
+              <tr key={index}>
+                <td>{sale.invoiceNumber}</td>
+                <td>{sale.clientName}</td>
+                <td>Lps. {sale.totalAmount.toFixed(2)}</td>
+                <td>{sale.date}</td>
+                <td>
+                  <button className="view-button" onClick={() => alert(`Viewing details of ${sale.invoiceNumber}`)}>
+                    Ver
+                  </button>
+                </td>
+              </tr>
             ))}
           </tbody>
-        </Table>
-      </TableContainer>
-    </Container>
+        </table>
+      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
+    </div>
+  );
+};
+
+const Pagination: React.FC<{
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}> = ({ currentPage, totalPages, onPageChange }) => {
+  const pageNumbers = [];
+
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
+
+  return (
+    <div className="pagination">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Anterior
+      </button>
+      {pageNumbers.map((number) => (
+        <button
+          key={number}
+          onClick={() => onPageChange(number)}
+          className={currentPage === number ? 'active' : ''}
+        >
+          {number}
+        </button>
+      ))}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Siguiente
+      </button>
+    </div>
   );
 };
 
