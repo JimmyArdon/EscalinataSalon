@@ -78,6 +78,7 @@ const AgregarProducto = () => {
   const [codigoBarras, setCodigoBarras] = useState("");
   const [nombreProducto, setNombreProducto] = useState("");
   const [descripcion, setDescripcion] = useState("");
+  const [proveedor, setProveedor] = useState("");
   const [precioCompra, setPrecioCompra] = useState("");
   const [precioVenta, setPrecioVenta] = useState("");
   const [impuesto, setImpuesto] = useState("");
@@ -90,6 +91,7 @@ const AgregarProducto = () => {
       codigoBarras: parseInt(codigoBarras),
       nombreProducto,
       descripcion,
+      proveedor,
       precioCompra: parseFloat(precioCompra),
       precioVenta: parseFloat(precioVenta),
       impuesto: parseFloat(impuesto),
@@ -147,6 +149,16 @@ const AgregarProducto = () => {
             type="text"
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
+            placeholder="Descripción del producto"
+            required
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Proveedor</Label>
+          <Input
+            type="text"
+            value={proveedor}
+            onChange={(e) => setProveedor(e.target.value)}
             placeholder="Descripción del producto"
             required
           />
