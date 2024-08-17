@@ -10,6 +10,8 @@ interface Promocion {
   descripcion: string;
   precio: string;
   descuento: string;
+  fechaInicio: string,
+  fechaFinal: string
 }
 
 const Container = styled.div`
@@ -115,7 +117,9 @@ const EditarPromocion = () => {
     id: "",
     descripcion: "",
     precio: "",
-    descuento: ""
+    descuento: "",
+    fechaInicio: "",
+    fechaFinal: ""
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -183,7 +187,9 @@ const EditarPromocion = () => {
       id: "",
       descripcion: "",
       precio: "",
-      descuento: ""
+      descuento: "",
+      fechaInicio: "",
+      fechaFinal: ""
     });
     setSearchQuery("");
     setOpcionesFiltradas([]);
@@ -269,6 +275,26 @@ const EditarPromocion = () => {
               type="number"
               name="precio"
               value={promocion.precio}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Fecha Inicial</Label>
+            <Input
+              type="date"
+              name="fechaInicio"
+              value={promocion.fechaInicio}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Fecha de Finalizacion</Label>
+            <Input
+              type="date"
+              name="fechaFinal"
+              value={promocion.fechaFinal}
               onChange={handleChange}
               required
             />

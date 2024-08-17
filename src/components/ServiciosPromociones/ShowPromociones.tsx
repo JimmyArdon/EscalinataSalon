@@ -8,6 +8,8 @@ interface Promocion {
   descripcion: string;
   precio: number;
   descuento: number;
+  fechaInicio: string;
+  fechaFinal: string;
 }
 
 const Container = styled.div`
@@ -49,6 +51,8 @@ const ShowPromociones: React.FC = () => {
               <th className="text-center" scope="col">Servicio</th>
               <th className="text-center" scope="col">Descuento</th>
               <th className="text-center" scope="col">Precio con Descuento</th>
+              <th className="text-center" scope="col">Inicio</th>
+              <th className="text-center" scope="col">Final</th>
             </tr>
           </thead>
           <tbody>
