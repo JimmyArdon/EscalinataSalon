@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import FiltroClientes from "../../../components/FiltroClientes"; 
+import FiltroCitas from "../../../components/FiltroInventario"; 
 import Pagination from "../../../components/Pagination";
 import "../../../components/VentasAlCredito.css";
 
@@ -23,7 +22,7 @@ const VentasCredito: React.FC = () => {
   const [ventas, setVentas] = useState<VentaCredito[]>([
     { id: 1, cliente: 'Cliente A', monto: 1500, fecha: '2024-08-01', estado: 'Pendiente' },
     { id: 2, cliente: 'Cliente B', monto: 2000, fecha: '2024-08-05', estado: 'Pendiente' },
-    { id: 3, cliente: 'Cliente C', monto: 1200, fecha: '2024-08-10', estado: 'Pagado' },
+    { id: 3, cliente: 'Cliente C', monto: 1200, fecha: '2024-08-10', estado: 'Pendiente' },
   ]);
 
   const [historialPagos, setHistorialPagos] = useState<HistorialPago[]>([
@@ -37,7 +36,6 @@ const VentasCredito: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 5;
   const [currentPageHistorial, setCurrentPageHistorial] = useState<number>(1);
-  const navigate = useNavigate();
 
   const filteredVentas = ventas.filter((venta) =>
     venta.cliente.toLowerCase().includes(searchTerm.toLowerCase())
@@ -46,23 +44,17 @@ const VentasCredito: React.FC = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredVentas.slice(indexOfFirstItem, indexOfLastItem);
-
   const totalPages = Math.ceil(filteredVentas.length / itemsPerPage);
 
   const indexOfLastItemHistorial = currentPageHistorial * itemsPerPage;
   const indexOfFirstItemHistorial = indexOfLastItemHistorial - itemsPerPage;
   const currentHistorialItems = historialPagos.slice(indexOfFirstItemHistorial, indexOfLastItemHistorial);
-
   const totalPagesHistorial = Math.ceil(historialPagos.length / itemsPerPage);
-
-  const handleRowClick = (venta: VentaCredito) => {
-    setSelectedVenta(venta);
-  };
 
   const handleRegistrarPago = async () => {
     if (selectedVenta) {
       if (pago <= 0 || pago > selectedVenta.monto) {
-        alert("El pago no ser mayor al credito pendiente");
+        alert("El pago no puede ser mayor al crédito pendiente ni 0");
         return;
       }
       
@@ -99,8 +91,8 @@ const VentasCredito: React.FC = () => {
   return (
     <div className="container">
       <h2 className="title">Ventas al Crédito</h2>
-      <FiltroClientes aplicarFiltros={setSearchTerm} />
-      <table className="table">
+      <FiltroCitas aplicarFiltros={setSearchTerm} />
+      <table className="table-primary">
         <thead>
           <tr>
             <th>ID</th>
@@ -113,7 +105,7 @@ const VentasCredito: React.FC = () => {
         </thead>
         <tbody>
           {currentItems.map((venta) => (
-            <tr key={venta.id} onClick={() => handleRowClick(venta)}>
+            <tr key={venta.id}>
               <td>{venta.id}</td>
               <td>{venta.cliente}</td>
               <td>{venta.monto}</td>
@@ -126,16 +118,6 @@ const VentasCredito: React.FC = () => {
           ))}
         </tbody>
       </table>
-      {selectedVenta && (
-        <div className="details-container">
-          <h3>Detalles de la Venta</h3>
-          <p><strong>ID:</strong> {selectedVenta.id}</p>
-          <p><strong>Cliente:</strong> {selectedVenta.cliente}</p>
-          <p><strong>Monto:</strong> {selectedVenta.monto}</p>
-          <p><strong>Fecha:</strong> {selectedVenta.fecha}</p>
-          <p><strong>Estado:</strong> {selectedVenta.estado}</p>
-        </div>
-      )}
       {showModal && (
         <div className="modal">
           <div className="modal-content">
@@ -148,9 +130,10 @@ const VentasCredito: React.FC = () => {
                 onChange={(e) => setPago(Number(e.target.value))}
               />
             </label>
-            <br />
-            <button className="modal-button" onClick={handleRegistrarPago}>Registrar</button>
-            <button className="modal-button" onClick={() => setShowModal(false)}>Cancelar</button>
+            <div>
+              <button className="modal-button" onClick={handleRegistrarPago}>Registrar</button>
+              <button className="modal-button" onClick={() => setShowModal(false)}>Cancelar</button>
+            </div>
           </div>
         </div>
       )}
@@ -159,8 +142,8 @@ const VentasCredito: React.FC = () => {
         totalPages={totalPages}
         onPageChange={setCurrentPage}
       />
-      <h2 className="title">Ventas al Crédito</h2>
-      <table className="history-table">
+      <h2 className="title">Historial de Pagos</h2>
+      <table className="table-secondary">
         <thead>
           <tr>
             <th>ID</th>
