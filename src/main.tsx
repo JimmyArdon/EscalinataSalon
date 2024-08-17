@@ -51,6 +51,7 @@ import VentasCredito from "./pages/admin_dashboard/ControlVentas/VentasCredito";
 
 
 
+
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
@@ -123,6 +124,7 @@ root.render(
 
         <Route path="dashboard-admin/control-ventas" element={<Dashboard />} />  
         <Route path="dashboard-admin/control-ventas/venta" element={<Venta />} />  
+       
         <Route path="dashboard-admin/control-ventas/cotizacion" element={<Cotizacion />} />  
         <Route path="dashboard-admin/control-ventas/historial-venta" element={<HistorialVenta />} />   
         <Route path="dashboard-admin/control-ventas/gestion-clientes" element={<GestionClientes />} /> 

@@ -1,198 +1,27 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState, useRef } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import Modal from 'react-modal';
 import Select from 'react-select';
+import ModalConfirmarCompra from '../../../components/ModalConfirmarCompra'; 
+import { Container, TopSection, InfoSection, Title, InfoContainer, InfoItem, 
+  Input, TableContainer, Table, TableHeader, TableRow, TableCell, FormSection, 
+  InvoiceTable, InvoiceTableHeader, InvoiceTableCell, BottomSection, InputContainer, 
+  AddClientButton,ResetClientButton, ModalContent, ModalInput, ModalButton, ProceedButton, TotalRow, 
+  ClientList, ClientListItem} 
+from '../../../components/Estilos/ControlVentas/RealizarVentasStyle'; 
 
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  padding: 20px;
-`;
 
-const TopSection = styled.div`
-  display: flex;
-  justify-content: space-between;
-  flex: 1;
-  margin-bottom: 20px;
-`;
-
-const InfoSection = styled.div`
-  flex: 1;
-  padding-right: 20px;
-  text-align: left;
-`;
-
-const Title = styled.h1`
-  color: #333;
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-`;
-
-const InfoContainer = styled.div`
-  margin-bottom: 20px;
-`;
-
-const InfoItem = styled.p`
-  margin: 5px 0;
-  font-size: 1rem;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-`;
-
-const TableContainer = styled.div`
-  max-height: 400px; 
-  overflow-y: auto;
-  width: 100%;
-  margin-top: 20px;
-`;
-
-const Table = styled.table`
-  border-collapse: collapse;
-  width: 100%;
-  font-family: 'Arial', sans-serif;
-`;
-
-const TableHeader = styled.th`
-  border: 1px solid #ddd;
-  padding: 6px; /* Reducido el padding */
-  text-align: left;
-  background-color: #ccc5b7;
-  color: #333;
-  font-size: 0.875rem; /* Tamaño de fuente reducido */
-`;
-
-const TableRow = styled.tr`
-  &:hover {
-    background-color: #f2f2f2;
-  }
-`;
-
-const TableCell = styled.td`
-  border: 1px solid #ddd;
-  padding: 6px; /* Reducido el padding */
-  text-align: left;
-  font-size: 0.875rem; /* Tamaño de fuente reducido */
-`;
-
-const FormSection = styled.div`
-  flex: 1;
-  padding-left: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-`;
-
-const InvoiceTable = styled.table`
-  border-collapse: collapse;
-  width: 100%;
-  margin-bottom: 20px;
-`;
-
-const InvoiceTableHeader = styled.th`
-  border: 1px solid #ddd;
-  padding: 12px;
-  text-align: left;
-  background-color: #ccc5b7;
-  color: #333;
-`;
-
-const InvoiceTableCell = styled.td`
-  border: 1px solid #ddd;
-  padding: 12px;
-  text-align: left;
-`;
-
-const BottomSection = styled.div`
-  flex: 2;
-  display: flex;
-  flex-direction: column;
-`;
-
-const InputContainer = styled.div`
-  display: flex;
-  align-items: center;
-  width: 100%;
-`;
-
-const AddClientButton = styled.button`
-  padding: 5px 10px; /* Reducción de padding para hacer el botón más pequeño */
-  margin-left: 10px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.875rem; /* Tamaño de fuente reducido */
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
-
-// Estilos para el modal
-const ModalContent = styled.div`
-  padding: 20px;
-  max-width: 500px;
-  margin: auto;
-  background-color: #fff;
-  border-radius: 8px;
-`;
-
-const ModalInput = styled.input`
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-`;
-
-const ModalButton = styled.button<{ primary?: boolean }>`
-  padding: 10px 20px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  color: #fff;
-  background-color: ${(props: { primary?: boolean }) => (props.primary ? '#007bff' : '#6c757d')};
-  &:hover {
-    background-color: ${(props: { primary?: boolean }) => (props.primary ? '#0056b3' : '#5a6268')};
-  }
-`;
-
-const ProceedButton = styled.button`
-  background-color: #4CAF50; /* Color de fondo */
-  color: white; /* Color del texto */
-  padding: 10px 20px; /* Espaciado interno */
-  border: none; /* Sin borde */
-  border-radius: 5px; /* Bordes redondeados */
-  cursor: pointer; /* Cursor en forma de mano */
-  font-size: 16px; /* Tamaño de la fuente */
-  margin-top: 30px; /* Espacio superior */
-  margin-bottom: 30px; /* Espacio inferior */
-  &:hover {
-    background-color: #45a049; /* Color de fondo al pasar el ratón */
-  }
-`;
-
-
-const TotalRow = styled.tr`
-  background-color: #f2f2f2;
-  font-weight: bold;
-`;
-
+interface Client {
+  name: string;
+  rtn: string;
+  address : string;
+}
 
 const Venta: React.FC = () => {
+  
   const [searchTerm, setSearchTerm ] = useState('');
+  const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [products, setProducts] = useState([
     {
       code: '123456',
@@ -254,17 +83,28 @@ const Venta: React.FC = () => {
     // Más filas de productos aquí
   ]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false); 
+  const [clients, setClients] = useState<Client[]>([
+    { name: 'Juan Pérez', rtn: '0801-123456-001' , address:'SRC' },
+    { name: 'Ana Gómez', rtn: '0802-654321-001', address:'SRC'},
+    // Agrega más clientes aquí
+  ]);
+  const [filteredClients, setFilteredClients] = useState<Client[]>([]);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [paymentType, setPaymentType] = useState('contado')
+  const [isModalOpen, setIsModalOpen] = useState(false); 
   const [newClient, setNewClient] = useState({
     name: '',
     rtn: '',
     address: ''
   });
-
-
  
-  const [paymentType, setPaymentType] = useState('contado')
+
+  const sampleClient: Client = {
+    name: 'Juan Pérez',
+    rtn: '0801-123456-001',
+   address:'SRC'
+  };
 
   // Datos para el rango autorizado
   const establecimiento = '000';
@@ -284,8 +124,59 @@ const Venta: React.FC = () => {
     product.concept.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Maneja el cambio en el campo de búsqueda de productos
+  const handleProductSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSearchTerm(value);
+    // Lógica para búsqueda de productos
+  };
+
+  // Maneja el cambio en el campo de búsqueda de clientes
+  const handleClientSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setClientSearchTerm(value);
+    // Filtra los clientes basados en el término de búsqueda
+    setFilteredClients(clients.filter(client =>
+      client.name.toLowerCase().includes(value.toLowerCase())
+    ));
+  };
+
+  // Maneja la selección de un cliente de la lista
+  const handleClientSelect = (client: Client) => {
+    setSelectedClient(client);
+    setClientSearchTerm(client.name); // Establece el término de búsqueda al nombre del cliente seleccionado
+    setFilteredClients([]); // Limpia la lista filtrada
+  };
+
+  // Abre el modal para agregar un nuevo cliente
+  const handleAddClient = () => {
+    setIsModalOpen(true);
+  };
+
+  // Maneja el cambio en el modal para agregar un nuevo cliente
+  const handleModalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setNewClient((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Maneja el envío del nuevo cliente
+  const handleModalSubmit = () => {
+    console.log('Nuevo cliente agregado:', newClient);
+    setClients([...clients, newClient]);
+    handleCloseModal();
+  };
+
+  // Cierra el modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  // Maneja la confirmación del pago
+  const handleConfirm = () => {
+    console.log('Pago confirmado');
+    handleCloseModal();
   };
 
   const handleQuantityChange = (index: number, value: string) => {
@@ -328,43 +219,6 @@ const Venta: React.FC = () => {
 
   const handleDeleteProduct = (index: number) => {
     setProducts((prevProducts) => prevProducts.filter((_, i) => i !== index));
-  };
-
-  const handleAddClient = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleModalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setNewClient((prev) => ({ ...prev, [name]: value }));
-  };
-  const handleModalSubmit = () => {
-    // Aquí puedes manejar la lógica para guardar el nuevo cliente
-    console.log('Nuevo cliente agregado:', newClient);
-    handleCloseModal();
-  };
-
-  
-  const handleProceedToPayment = () => {
-    setIsPaymentModalOpen(true);
-  };
-
-  const handleClosePaymentModal = () => {
-    setIsPaymentModalOpen(false);
-  };
-
-  const handleConfirmPayment = () => {
-    console.log('Proceder al cobro del cliente con los siguientes datos:', {
-      client: newClient,
-      paymentType,
-      products,
-    });
-    handleClosePaymentModal();
-    // Aquí podrías redirigir a una página de cobro o realizar alguna acción adicional
   };
 
   const calculateTotalSale = () => {
@@ -424,6 +278,23 @@ const Venta: React.FC = () => {
       .reduce((acc, product) => acc + (product.subTotal * 0.18), 0);
   };
 
+  const handleOpenModal = (client: Client, paymentType: string, totalAmount: number) => {
+    setSelectedClient(client);
+    setPaymentType(paymentType);
+    setTotalAmount(totalAmount);
+    setIsModalOpen(true);
+  };
+
+ // Resetea el cliente seleccionado y el término de búsqueda
+ const handleResetClient = () => {
+  setSelectedClient(null);
+  setClientSearchTerm('');
+  setFilteredClients([]);
+  if (searchInputRef.current) {
+    searchInputRef.current.focus();
+  }
+};
+
   return (
     <Container>
       <Title>Factura</Title>
@@ -462,9 +333,7 @@ const Venta: React.FC = () => {
                     }}
                     options={[
                       { value: 'contado', label: 'Contado' },
-                      { value: 'tarjeta', label: 'Tarjeta' },
-                      { value: 'transferencia', label: 'Transferencia' },
-                      { value: 'credito', label: 'Crédito' },
+                      { value: 'credito', label: 'Crédito' }
                     ]}
                   />
               </InvoiceTableCell>
@@ -472,22 +341,42 @@ const Venta: React.FC = () => {
               </tr>
             </tbody>
           </InvoiceTable>
-          <InputContainer>
-            <Input placeholder="Nombre Cliente" />
+          <InputContainer style={{ position: 'relative' }}>
+            <Input
+              ref={searchInputRef}
+              placeholder="Buscar Cliente"
+              value={clientSearchTerm}
+              onChange={handleClientSearchChange}
+            />
+            {filteredClients.length > 0 && (
+              <ClientList>
+               {filteredClients.map((client, index) => (
+                <ClientListItem
+                key={index}
+                onClick={() => handleClientSelect(client)}
+                style={{ cursor: 'pointer', padding: '8px', borderBottom: '1px solid #ccc' }}
+              >
+                {client.name}
+              </ClientListItem>
+               ))}
+                  
+             </ClientList>
+             )}
             <AddClientButton onClick={handleAddClient}>Agregar Cliente</AddClientButton>
-          </InputContainer>
-          <Input placeholder="RTN" />
-          <Input placeholder="Dirección" />
+            <ResetClientButton onClick={handleResetClient}>Resetear</ResetClientButton>
+            </InputContainer>
+          <Input placeholder="RTN" value={selectedClient?.rtn || ''} readOnly />
+          <Input placeholder="Dirección" value={selectedClient?.address || ''} readOnly/>
         </FormSection>
         
       </TopSection>
       <h2>Busca un Producto</h2>
-        <Input
-          type="text"
-          placeholder="Escanear el código de barras o escribir el nombre"
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
+      <Input
+        type="text"
+        placeholder="Escanea el código de barras o escribe el nombre del Producto/Servicio"
+        value={searchTerm}
+        onChange={handleProductSearchChange}
+      />
       <BottomSection>
         <TableContainer>
           <Table>
@@ -573,17 +462,25 @@ const Venta: React.FC = () => {
             </tbody>
           </Table>
         </TableContainer>
-        <ProceedButton onClick={handleProceedToPayment}>Continuar al Cobro</ProceedButton>
       </BottomSection>
-      {/* Modal para el cobro */}
+     
      {/* Modal para confirmar pago */}
-      <Modal isOpen={isPaymentModalOpen} onRequestClose={handleClosePaymentModal}>
-        <h2>Confirmar Pago</h2>
-        <p>Cliente: {newClient.name}</p>
-        <p>Tipo de Pago: {paymentType}</p>
-        <button onClick={handleConfirmPayment}>Confirmar Pago</button>
-        <button onClick={handleClosePaymentModal}>Cerrar</button>
-      </Modal>
+     <div>
+     < BottomSection>
+      <ProceedButton onClick={() => handleOpenModal(sampleClient, '', 0)}>Realizar Venta</ProceedButton>
+      </BottomSection>
+
+      {selectedClient && (
+        <ModalConfirmarCompra
+        isOpen={isModalOpen}
+        onRequestClose={handleCloseModal}
+        client={selectedClient}
+        paymentType={paymentType}
+        totalAmount={totalAmount}
+        onConfirm={handleConfirm}
+        />
+      )}
+    </div>
       {/* Modal para agregar cliente */}
       <Modal
         isOpen={isModalOpen}
@@ -620,7 +517,7 @@ const Venta: React.FC = () => {
           <ModalInput 
             type="text" 
             name="address" 
-            placeholder="Dirección" 
+            placeholder="Dirección del Cliente" 
             value={newClient.address}
             onChange={handleModalChange}
           />
