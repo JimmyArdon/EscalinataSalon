@@ -12,6 +12,7 @@ interface Appointment {
     hora: string;
     servicio: string;
     estilista: string;
+    estado: string;
 }
 
 const Container = styled.div`
@@ -64,9 +65,9 @@ const GestionCitas: React.FC = () => {
     }, []);
 
     const initialAppointments: Appointment[] = [
-        { id: 0, cliente: "Juan Pérez", fecha: new Date("2024-08-03"), hora: "10:00 AM", servicio: "Manicura", estilista: "Ana Gómez" },
-        { id: 2, cliente: "María López", fecha: new Date("2024-08-04"), hora: "11:00 AM", servicio: "Corte Pelo", estilista: "Carlos Díaz" },
-        { id: 3, cliente: "Luis Martínez", fecha: new Date("2024-08-05"), hora: "12:00 PM", servicio: "Nanoplastia", estilista: "Ana Gómez" },
+        { id: 0, cliente: "Juan Pérez", fecha: new Date("2024-08-03"), hora: "10:00 AM", servicio: "Manicura", estilista: "Ana Gómez" , estado: "Pendiente"},
+        { id: 2, cliente: "María López", fecha: new Date("2024-08-04"), hora: "11:00 AM", servicio: "Corte Pelo", estilista: "Carlos Díaz", estado: "Cancelada"},
+        { id: 3, cliente: "Luis Martínez", fecha: new Date("2024-08-05"), hora: "12:00 PM", servicio: "Nanoplastia", estilista: "Ana Gómez", estado: "Realizada"},
         // Add more initial appointments here
     ];
 
@@ -113,7 +114,9 @@ const GestionCitas: React.FC = () => {
                         <th>Fecha</th>
                         <th>Hora</th>
                         <th>Servicio</th>
-                        <th>Acciones</th> {/* Nueva columna para acciones */}
+                        <th>Estilista</th> 
+                        <th>Estado Cita</th> 
+                        <th>Acciones</th> 
                     </tr>
                 </thead>
                 <tbody>
@@ -123,6 +126,8 @@ const GestionCitas: React.FC = () => {
                             <td>{item.fecha.toLocaleDateString()}</td>
                             <td>{item.hora}</td>
                             <td>{item.servicio}</td>
+                            <td>{item.estilista}</td>
+                            <td>{item.estado}</td>
                             <td>
                                 <ActionsContainer>
                                     <Link to={`editar-cita/${item.id}`}><FaEdit color="#007bff" /></Link>

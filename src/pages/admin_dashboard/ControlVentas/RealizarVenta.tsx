@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FaTrashAlt } from 'react-icons/fa';
+import Modal from 'react-modal';
+import Select from 'react-select';
+
 
 const Container = styled.div`
   display: flex;
@@ -135,69 +138,133 @@ const AddClientButton = styled.button`
   }
 `;
 
+// Estilos para el modal
+const ModalContent = styled.div`
+  padding: 20px;
+  max-width: 500px;
+  margin: auto;
+  background-color: #fff;
+  border-radius: 8px;
+`;
+
+const ModalInput = styled.input`
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+`;
+
+const ModalButton = styled.button<{ primary?: boolean }>`
+  padding: 10px 20px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #fff;
+  background-color: ${(props: { primary?: boolean }) => (props.primary ? '#007bff' : '#6c757d')};
+  &:hover {
+    background-color: ${(props: { primary?: boolean }) => (props.primary ? '#0056b3' : '#5a6268')};
+  }
+`;
+
+const ProceedButton = styled.button`
+  background-color: #4CAF50; /* Color de fondo */
+  color: white; /* Color del texto */
+  padding: 10px 20px; /* Espaciado interno */
+  border: none; /* Sin borde */
+  border-radius: 5px; /* Bordes redondeados */
+  cursor: pointer; /* Cursor en forma de mano */
+  font-size: 16px; /* Tamaño de la fuente */
+  margin-top: 30px; /* Espacio superior */
+  margin-bottom: 30px; /* Espacio inferior */
+  &:hover {
+    background-color: #45a049; /* Color de fondo al pasar el ratón */
+  }
+`;
+
+
 const TotalRow = styled.tr`
   background-color: #f2f2f2;
   font-weight: bold;
 `;
 
+
 const Venta: React.FC = () => {
   const [searchTerm, setSearchTerm ] = useState('');
   const [products, setProducts] = useState([
     {
-        code: '123456',
-        quantity: 2,
-        concept: 'Producto A',
-        unitPrice: 10,
-        subTotal: 20,
-        discount: 5,
-        total: 15,
-      },
+      code: '123456',
+      quantity: 2,
+      concept: 'Producto A',
+      unitPrice: 10,
+      subTotal: 20,
+      discount: 0,
+      total: 20,
+      taxRate: 15
+    }, {
+      code: '123456',
+      quantity: 2,
+      concept: 'Producto A',
+      unitPrice: 10,
+      subTotal: 20,
+      discount: 0,
+      total: 20,
+      taxRate: 15
+    },
+    {
+      code: '123456',
+      quantity: 2,
+      concept: 'Producto A',
+      unitPrice: 10,
+      subTotal: 20,
+      discount: 0,
+      total: 20,
+      taxRate: 15
+    }, {
+      code: '123456',
+      quantity: 2,
+      concept: 'Producto A',
+      unitPrice: 10,
+      subTotal: 20,
+      discount: 0,
+      total: 20,
+      taxRate: 15
+    },
       {
         code: '123456',
         quantity: 2,
         concept: 'Producto A',
         unitPrice: 10,
         subTotal: 20,
-        discount: 5,
-        total: 15,
-      },
-      {
-        code: '123456',
-        quantity: 2,
-        concept: 'Producto A',
-        unitPrice: 10,
-        subTotal: 20,
-        discount: 5,
-        total: 15,
-      },
-      {
-        code: '123456',
-        quantity: 2,
-        concept: 'Producto A',
-        unitPrice: 10,
-        subTotal: 20,
-        discount: 5,
-        total: 15,
-      },
-      {
-        code: '123456',
-        quantity: 2,
-        concept: 'Producto A',
-        unitPrice: 10,
-        subTotal: 20,
-        discount: 5,
-        total: 15,
+        discount: 0,
+        total: 20,
+        taxRate: 15
       }, {
         code: '123456',
         quantity: 2,
         concept: 'Producto A',
         unitPrice: 10,
         subTotal: 20,
-        discount: 5,
-        total: 15,
+        discount: 0,
+        total: 20,
+        taxRate: 15
       },
     // Más filas de productos aquí
   ]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false); 
+  const [newClient, setNewClient] = useState({
+    name: '',
+    rtn: '',
+    address: ''
+  });
+
+
+ 
+  const [paymentType, setPaymentType] = useState('contado')
 
   // Datos para el rango autorizado
   const establecimiento = '000';
@@ -228,7 +295,7 @@ const Venta: React.FC = () => {
       const product = { ...updatedProducts[index] };
       product.quantity = newQuantity;
       product.subTotal = product.unitPrice * newQuantity;
-      product.total = product.subTotal - product.discount;
+      product.total = product.subTotal;
       updatedProducts[index] = product;
       return updatedProducts;
     });
@@ -241,7 +308,7 @@ const Venta: React.FC = () => {
       const product = { ...updatedProducts[index] };
       product.unitPrice = newUnitPrice;
       product.subTotal = product.quantity * newUnitPrice;
-      product.total = product.subTotal - product.discount;
+      product.total = product.subTotal;
       updatedProducts[index] = product;
       return updatedProducts;
     });
@@ -253,7 +320,7 @@ const Venta: React.FC = () => {
       const updatedProducts = [...prevProducts];
       const product = { ...updatedProducts[index] };
       product.discount = newDiscount;
-      product.total = product.subTotal - newDiscount;
+      product.total = product.subTotal;
       updatedProducts[index] = product;
       return updatedProducts;
     });
@@ -264,12 +331,97 @@ const Venta: React.FC = () => {
   };
 
   const handleAddClient = () => {
-    // Implementar lógica para agregar un cliente aquí
-    alert('Funcionalidad para agregar cliente aún no implementada.');
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleModalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setNewClient((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleModalSubmit = () => {
+    // Aquí puedes manejar la lógica para guardar el nuevo cliente
+    console.log('Nuevo cliente agregado:', newClient);
+    handleCloseModal();
+  };
+
+  
+  const handleProceedToPayment = () => {
+    setIsPaymentModalOpen(true);
+  };
+
+  const handleClosePaymentModal = () => {
+    setIsPaymentModalOpen(false);
+  };
+
+  const handleConfirmPayment = () => {
+    console.log('Proceder al cobro del cliente con los siguientes datos:', {
+      client: newClient,
+      paymentType,
+      products,
+    });
+    handleClosePaymentModal();
+    // Aquí podrías redirigir a una página de cobro o realizar alguna acción adicional
   };
 
   const calculateTotalSale = () => {
-    return products.reduce((acc, product) => acc + product.total, 0);
+    let totalSubtotal = 0;
+    let totalTax = 0;
+    let totalDiscount = 0;
+  
+    // Calculamos el subtotal y el impuesto de cada producto
+    products.forEach(product => {
+      // Calcular el subtotal del producto (precio unitario * cantidad)
+      const subtotal = product.unitPrice * product.quantity;
+      // Calcular el impuesto del producto (subtotal * tasa de impuesto)
+      const tax = subtotal * (product.taxRate / 100);
+      // Agregar el subtotal y el impuesto al total
+      totalSubtotal += subtotal;
+      totalTax += tax;
+      // Agregar el descuento (si existe) al total de descuentos
+      totalDiscount += product.discount || 0; // Asegúrate de que `discount` pueda ser undefined
+    });
+  
+    // Calcular el subtotal real (total subtotal - la suma de impuestos)
+    const realSubtotal = totalSubtotal - totalTax;
+    // Calcular el total a pagar (subtotal real + impuestos - descuentos)
+    const total = realSubtotal + totalTax - totalDiscount;
+  
+    return total;
+  };
+  
+
+  const calculateDiscount = () => {
+    return products.reduce((acc, product) => acc + product.discount, 0);
+  };
+
+  const calculateSubtotal = () => {
+    return products.reduce((acc, product) => acc + product.subTotal, 0);
+  };
+
+  const calculateTaxExempt = () => {
+    // Puedes agregar lógica específica si hay productos exentos de impuestos
+    return 0;
+  };
+
+  const calculateExoneratedTax = () => {
+    // Puedes agregar lógica específica si hay productos exonerados de impuestos
+    return 0;
+  };
+
+  const calculateTax15 = () => {
+    return products
+      .filter(product => product.taxRate === 15)
+      .reduce((acc, product) => acc + (product.subTotal * 0.15), 0);
+  };
+
+  const calculateTax18 = () => {
+    return products
+      .filter(product => product.taxRate === 18)
+      .reduce((acc, product) => acc + (product.subTotal * 0.18), 0);
   };
 
   return (
@@ -294,24 +446,40 @@ const Venta: React.FC = () => {
               <tr>
                 <InvoiceTableHeader>N. Factura</InvoiceTableHeader>
                 <InvoiceTableHeader>Fecha</InvoiceTableHeader>
+                <InvoiceTableHeader>Terminos</InvoiceTableHeader>
               
               </tr>
             </thead>
             <tbody>
               <tr>
-                <InvoiceTableCell>{factActual}</InvoiceTableCell>
-                <InvoiceTableCell>08/08/2024</InvoiceTableCell>
+              <InvoiceTableCell>{factActual}</InvoiceTableCell>
+              <InvoiceTableCell>19/08/2024</InvoiceTableCell>
+              <InvoiceTableCell>
+              <Select
+                    value={{ value: paymentType, label: paymentType }}
+                    onChange={(selectedOption) => {
+                      if (selectedOption) setPaymentType(selectedOption.value);
+                    }}
+                    options={[
+                      { value: 'contado', label: 'Contado' },
+                      { value: 'tarjeta', label: 'Tarjeta' },
+                      { value: 'transferencia', label: 'Transferencia' },
+                      { value: 'credito', label: 'Crédito' },
+                    ]}
+                  />
+              </InvoiceTableCell>
                
               </tr>
             </tbody>
           </InvoiceTable>
           <InputContainer>
-            <Input placeholder="Cliente" />
+            <Input placeholder="Nombre Cliente" />
             <AddClientButton onClick={handleAddClient}>Agregar Cliente</AddClientButton>
           </InputContainer>
           <Input placeholder="RTN" />
           <Input placeholder="Dirección" />
         </FormSection>
+        
       </TopSection>
       <h2>Busca un Producto</h2>
         <Input
@@ -371,14 +539,96 @@ const Venta: React.FC = () => {
                 </TableRow>
               ))}
               <TotalRow>
-                <TableCell colSpan={6}>Total a Pagar</TableCell>
+                <TableCell colSpan={5}>Descuento/Promoción:</TableCell>
+                <TableCell>Lps.{calculateDiscount().toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>Sub Total:</TableCell>
+                <TableCell>Lps.{(calculateSubtotal() - calculateTax15() - calculateTax18()).toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>Impuesto Exonerado:</TableCell>
+                <TableCell>Lps.{calculateExoneratedTax().toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>Impuesto Exento:</TableCell>
+                <TableCell>Lps.{calculateTaxExempt().toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>Impuesto Gravado:</TableCell>
+                <TableCell>Lps.{(0 + 0).toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>ISV 15%:</TableCell>
+                <TableCell>Lps.{calculateTax15().toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>ISV 18%:</TableCell>
+                <TableCell>Lps.{calculateTax18().toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>Total a Pagar:</TableCell>
                 <TableCell>Lps.{calculateTotalSale().toFixed(2)}</TableCell>
-                
               </TotalRow>
             </tbody>
           </Table>
         </TableContainer>
+        <ProceedButton onClick={handleProceedToPayment}>Continuar al Cobro</ProceedButton>
       </BottomSection>
+      {/* Modal para el cobro */}
+     {/* Modal para confirmar pago */}
+      <Modal isOpen={isPaymentModalOpen} onRequestClose={handleClosePaymentModal}>
+        <h2>Confirmar Pago</h2>
+        <p>Cliente: {newClient.name}</p>
+        <p>Tipo de Pago: {paymentType}</p>
+        <button onClick={handleConfirmPayment}>Confirmar Pago</button>
+        <button onClick={handleClosePaymentModal}>Cerrar</button>
+      </Modal>
+      {/* Modal para agregar cliente */}
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={handleCloseModal}
+        ariaHideApp={false}
+        style={{
+          content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            transform: 'translate(-50%, -50%)',
+            border: 'none',
+            padding: '20px',
+          },
+        }}
+      >
+        <ModalContent>
+          <h2>Agregar Nuevo Cliente</h2>
+          <ModalInput 
+            type="text" 
+            name="name" 
+            placeholder="Nombre" 
+            value={newClient.name}
+            onChange={handleModalChange}
+          />
+          <ModalInput 
+            type="text" 
+            name="rtn" 
+            placeholder="RTN" 
+            value={newClient.rtn}
+            onChange={handleModalChange}
+          />
+          <ModalInput 
+            type="text" 
+            name="address" 
+            placeholder="Dirección" 
+            value={newClient.address}
+            onChange={handleModalChange}
+          />
+          <ModalButton primary onClick={handleModalSubmit}>Guardar</ModalButton>
+          <ModalButton onClick={handleCloseModal}>Cerrar</ModalButton>
+        </ModalContent>
+      </Modal>
+
     </Container>
   );
 };
