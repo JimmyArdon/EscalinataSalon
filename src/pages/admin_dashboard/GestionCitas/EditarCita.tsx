@@ -80,6 +80,7 @@ const EditarCita = () => {
   const [hora, setHora] = useState("");
   const [servicio, setServicio] = useState("");
   const [estilista, setEstilista] = useState("");
+  const [estado, setEstado] = useState("");
 
   useEffect(() => {
     axios.get(`https://example.com/api/citas/${id}`)
@@ -162,6 +163,16 @@ const EditarCita = () => {
             value={estilista}
             onChange={(e) => setEstilista(e.target.value)}
             placeholder="Nombre del estilista"
+            required
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Estado Cita</Label>
+          <Input
+            type="text"
+            value={estado}
+            onChange={(e) => setEstado(e.target.value)}
+            placeholder="Estado Cita"
             required
           />
         </FormGroup>
