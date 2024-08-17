@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import styled from "styled-components";
@@ -46,8 +46,9 @@ const AgregarPromocion: React.FC = () => {
   const [precio, setPrecio] = useState("");
   const [precioOriginal, setPrecioOriginal] = useState(""); // Almacenar el precio original del servicio
   const [descuento, setDescuento] = useState("");
-  const [fechaInicio, setFechaInicio] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [fechaFinal, setFechaFinal] = useState<string>(new Date().toISOString().split('T')[0]);
+  const hoy = new Date().toISOString().split('T')[0];
+  const [fechaInicio, setFechaInicio] = useState<string>(hoy);
+  const [fechaFinal, setFechaFinal] = useState<string>(hoy);
   const [busqueda, setBusqueda] = useState("");
   const [opcionesFiltradas, setOpcionesFiltradas] = useState<Servicio[]>([]);
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string>("");
@@ -96,11 +97,11 @@ const AgregarPromocion: React.FC = () => {
   const calcularPrecioConDescuento = (precioOriginal: string, descuento: string) => {
     const precioNum = parseFloat(precioOriginal);
     const descuentoNum = parseFloat(descuento);
-    if (isNaN(precioNum) || isNaN(descuentoNum)) return "";
+    if (isNaN(precioNum) || isNaN(descuentoNum)) return"";
     return (precioNum - (precioNum * descuentoNum / 100)).toFixed(2);
   };
-
-  const validarDescripcion = () => {
+  
+  const validarDescripcion = useCallback(() => {
     const servicioExiste = listaServicios.some(
       (servicio) => servicio.nombre.toLowerCase() === descripcion.toLowerCase()
     );
@@ -110,9 +111,9 @@ const AgregarPromocion: React.FC = () => {
     }
     setError(null);
     return true;
-  };
-
-  const validarDescuento = () => {
+  }, [descripcion, listaServicios]);
+  
+  const validarDescuento = useCallback(() => {
     const descuentoNumero = Number(descuento);
     if (isNaN(descuentoNumero) || descuentoNumero < 1 || descuentoNumero > 100) {
       setError("El descuento debe ser un número entre 1 y 100.");
@@ -120,12 +121,31 @@ const AgregarPromocion: React.FC = () => {
     }
     setError(null);
     return true;
-  };
+  }, [descuento]);
+  
+  const validarFechas = useCallback(() => {
+    const hoy = new Date().toISOString().split('T')[0];
+    
+  
+    if (fechaInicio < hoy) {
+      setError("La fecha de inicio no puede ser anterior a hoy.");
+      return false;
+    }
+  
+    if (fechaFinal <= fechaInicio) {
+      setError("La fecha final debe ser al menos un día después de la fecha de inicio.");
+      return false;
+    }
+  
+    setError(null);
+    return true;
+  }, [fechaInicio, fechaFinal]);
+  
 
   const manejarOnSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!validarDescripcion() || !validarDescuento()) return; // Validar antes de proceder
+    if (!validarDescripcion() || !validarDescuento() || !validarFechas()) return; // Validar antes de proceder
 
     const url = id
       ? `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${id}`
@@ -135,7 +155,13 @@ const AgregarPromocion: React.FC = () => {
 
     await fetch(url, {
       method,
-      body: JSON.stringify({ descripcion: opcionSeleccionada, precio, descuento, fechaInicio, fechaFinal}),
+      body: JSON.stringify({ 
+                             descripcion: opcionSeleccionada, 
+                             precio, 
+                             descuento, 
+                             fechaInicio, 
+                             fechaFinal,
+                            }),
       headers: {
         "Content-Type": "application/json",
       },
@@ -157,24 +183,24 @@ const AgregarPromocion: React.FC = () => {
     }
   };
 
-  const manejarBusqueda = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const manejarBusqueda = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setBusqueda(e.target.value);
-  };
-
-  const seleccionarOpcion = (opcion: string) => {
+  }, []);
+  
+  const seleccionarOpcion = useCallback((opcion: string) => {
     const servicioSeleccionado = listaServicios.find(
       (servicio) => servicio.nombre === opcion
     );
-
+  
     if (servicioSeleccionado) {
       setOpcionSeleccionada(opcion);
       setDescripcion(opcion);
-      setPrecioOriginal(servicioSeleccionado.precio); // Actualizar el precio original
-      setPrecio(calcularPrecioConDescuento(servicioSeleccionado.precio, descuento)); // Calcular el precio con el descuento actual
-      setBusqueda(opcion); // Mostrar la opción seleccionada en el input
-      setOpcionesFiltradas([]); // Limpiar las opciones filtradas
+      setPrecioOriginal(servicioSeleccionado.precio);
+      setPrecio(calcularPrecioConDescuento(servicioSeleccionado.precio, descuento));
+      setBusqueda(opcion);
+      setOpcionesFiltradas([]);
     }
-  };
+  }, [listaServicios, calcularPrecioConDescuento, descuento]);
 
   const manejarDescuento = (e: React.ChangeEvent<HTMLInputElement>) => {
     const nuevoDescuento = e.target.value;
@@ -231,18 +257,19 @@ const AgregarPromocion: React.FC = () => {
           Fecha Inicial
         </label>
         <input
-          value={fechaInicio.split('T'[0])}
+          value={fechaInicio}
           onChange={(e) => setFechaInicio(e.target.value)}
           type="date"
           id="fechaInicio"
           className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
           placeholder="Ingrese la fecha de Inicio"
+          min={hoy}
         />
         <label htmlFor="fechaFinal" className="font-bold text-sm text-white">
           Fecha de Finalizacion
         </label>
         <input
-          value={fechaFinal.split('T'[0])}
+          value={fechaFinal}
           onChange={(e) => setFechaFinal(e.target.value)}
           type="date"
           id="fechaFinal"

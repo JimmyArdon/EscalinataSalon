@@ -14,8 +14,6 @@ interface Promocion {
   }
 
 const   PromocionesCard: React.FC<PromocionCardProps> = ({promocion}) => {
-
-  console.log(promocion);
   
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
