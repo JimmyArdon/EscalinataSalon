@@ -57,6 +57,23 @@ const Cancelar = styled(Button)`
   }
 `;
 
+const FormGroup = styled.div`
+  margin-bottom: 15px;
+`;
+
+const Label = styled.label`
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
 const BorrarCliente = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -66,6 +83,11 @@ const BorrarCliente = () => {
     telefono: "",
     direccion: ""
   });
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [clientesFiltrados, setClientesFiltrados] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchPerformed, setSearchPerformed] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -77,22 +99,62 @@ const BorrarCliente = () => {
   }, [id]);
 
   const handleConfirmar = () => {
-    axios.delete(`https://example.com/api/clientes/${id}`)
-      .then(() => navigate("/dashboard-admin/control-ventas/gestion-clientes"));
+    if (clientesFiltrados.length > 0) {
+      axios.delete(`https://example.com/api/clientes/${id}`)
+        .then(() => navigate("/dashboard-admin/control-ventas/gestion-clientes"));
+    }
   };
 
   const manejarOnClickSalir = () => {
     navigate("/dashboard-admin/control-ventas/gestion-clientes");
   };
 
+  const handleSearch = () => {
+    if (searchQuery.length > 0) {
+      setLoading(true);
+      axios.get(`https://example.com/api/clientes?nombre=${searchQuery}`)
+        .then((response) => {
+          setClientesFiltrados(response.data);
+          setSearchPerformed(true);
+          setLoading(loading);
+        })
+        .catch(() => {
+          setLoading(false);
+        });
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setClientesFiltrados([]);
+    setSearchPerformed(false);
+  };
+
   return (
     <Container>
       <Salir onClick={manejarOnClickSalir} />
       <h1 className="text-body-secondary mb-10 font-bold">Eliminar Cliente</h1>
-      <p>¿Estás seguro de que deseas eliminar al cliente <strong>{cliente.nombre}</strong>?</p>
+      <FormGroup>
+        <Label>Buscar por Nombre</Label>
+        <Input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Nombre del cliente"
+        />
+        <button type="submit" onClick={handleSearch} className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Buscar</button>
+        <button type="button" onClick={handleClearSearch} className="ml-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">Limpiar</button>
+      </FormGroup>
+      {searchPerformed && clientesFiltrados.length > 0 && (
+        <p>¿Estás seguro de que deseas eliminar al cliente <strong>{cliente.nombre}</strong>?</p>
+      )}
       <div>
-        <Confirmar onClick={handleConfirmar}>Confirmar</Confirmar>
-        <Cancelar onClick={manejarOnClickSalir}>Cancelar</Cancelar>
+        {searchPerformed && clientesFiltrados.length > 0 && (
+          <>
+            <Confirmar onClick={handleConfirmar}>Confirmar</Confirmar>
+            <Cancelar onClick={manejarOnClickSalir}>Cancelar</Cancelar>
+          </>
+        )}
       </div>
     </Container>
   );

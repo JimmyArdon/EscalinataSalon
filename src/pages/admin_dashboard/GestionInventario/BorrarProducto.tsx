@@ -68,6 +68,9 @@ const ErrorMessage = styled.p`
 const FormGroup = styled.div`
   margin-bottom: 15px;
   position: relative;
+  display: flex;
+  gap: 10px;
+  align-items: center;
 `;
 
 const Label = styled.label`
@@ -77,7 +80,7 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  flex: 1;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -155,14 +158,20 @@ const BorrarProducto = () => {
     navigate("/dashboard-admin/inventario");
   };
 
+  const handleSearch = () => {
+    // Aquí puedes manejar la lógica de búsqueda si no deseas hacerla automática.
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setProductosFiltrados([]);
+  };
+
   return (
     <Container>
       <Salir onClick={manejarOnClickSalir} />
       <h2>Eliminar Producto</h2>
-      <form
-        onSubmit={(e) => e.preventDefault()}
-        className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md"
-      >
+      <form onSubmit={(e) => e.preventDefault()}>
         <FormGroup>
           <Label>Buscar por Nombre</Label>
           <Input
@@ -172,17 +181,19 @@ const BorrarProducto = () => {
             placeholder="Nombre del producto"
             required
           />
-          {loading && <p>Cargando...</p>}
-          {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+          <Button onClick={handleSearch}>Buscar</Button>
+          <Button onClick={handleClearSearch} style={{ backgroundColor: "#f44336" }}>
+            Limpiar
+          </Button>
         </FormGroup>
+        {loading && <p>Cargando...</p>}
+        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
       </form>
       <ListaProductos>
         {productosFiltrados.map((producto) => (
           <ProductoItem key={producto.id}>
             <span>{producto.nombre}</span>
-            <Button onClick={() => handleDelete(producto.id)}>
-              Eliminar
-            </Button>
+            <Button onClick={() => handleDelete(producto.id)}>Eliminar</Button>
           </ProductoItem>
         ))}
       </ListaProductos>
