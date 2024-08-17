@@ -117,7 +117,7 @@ const AgregarCliente: React.FC = () => {
   };
 
   const manejarOnClickSalir = () => {
-    navigate("../gestion-clientes");
+    navigate("/dashboard-admin/control-ventas/gestion-clientes");
   };
 
   return (
