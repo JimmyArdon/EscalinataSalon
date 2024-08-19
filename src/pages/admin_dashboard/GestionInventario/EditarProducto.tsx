@@ -191,7 +191,7 @@ const EditarProducto = () => {
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
         </FormGroup>
         <Button onClick={handleSearch}>Realizar Búsqueda</Button>
-        <Button onClick={handleClearSearch} style={{ marginLeft: "10px" }}>
+        <Button onClick={handleClearSearch} style={{ marginLeft: "10px", backgroundColor: "#F44336" }}>
           Limpiar Búsqueda
         </Button>
       </form>
