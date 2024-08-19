@@ -1,121 +1,40 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState, useRef } from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
+import Modal from 'react-modal';
+import styled from 'styled-components';
+import { Container, TopSection, InfoSection, Title, InfoContainer, InfoItem, 
+  Input, TableContainer, Table, TableHeader, TableRow, TableCell, FormSection, 
+  BottomSection, InputContainer,AddClientButton,ResetClientButton, ModalContent,
+   ModalInput, ModalButton,  TotalRow, ClientList, ClientListItem} 
+from '../../../components/Estilos/ControlVentas/RealizarVentasStyle'; 
+import { FacturaData } from '../../../components/Factura/PrintCotizacion';
+import PrintCotizacionModal   from '../../../components/Factura/PrintCotizacionModal'; 
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  padding: 20px;
-`;
-
-const TopSection = styled.div`
-  display: flex;
-  justify-content: space-between;
-  flex: 1;
-  margin-bottom: 20px;
-`;
-
-const InfoSection = styled.div`
-  flex: 1;
-  padding-right: 20px;
-  text-align: left;
-`;
-
-const Title = styled.h1`
-  color: #333;
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-`;
-
-const InfoContainer = styled.div`
-  margin-bottom: 20px;
-`;
-
-const InfoItem = styled.p`
-  margin: 5px 0;
-  font-size: 1rem;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-`;
-
-const TableContainer = styled.div`
-  max-height: 400px; 
-  overflow-y: auto;
-  width: 100%;
-  margin-top: 20px;
-`;
-
-const Table = styled.table`
-  border-collapse: collapse;
-  width: 100%;
-  font-family: 'Arial', sans-serif;
-`;
-
-const TableHeader = styled.th`
-  border: 1px solid #ddd;
-  padding: 6px;
-  text-align: left;
-  background-color: #ccc5b7;
-  color: #333;
-  font-size: 0.875rem;
-`;
-
-const TableRow = styled.tr`
+const ProceedButton = styled.button`
+  background-color: #4CAF50; /* Color de fondo */
+  color: white; /* Color del texto */
+  padding: 10px 20px; /* Espaciado interno */
+  border: none; /* Sin borde */
+  border-radius: 5px; /* Bordes redondeados */
+  cursor: pointer; /* Cursor en forma de mano */
+  font-size: 16px; /* Tamaño de la fuente */
+  margin-top: 30px; /* Espacio superior */
+  margin-bottom: 30px; /* Espacio inferior */
   &:hover {
-    background-color: #f2f2f2;
+    background-color: #45a049; /* Color de fondo al pasar el ratón */
   }
 `;
 
-const TableCell = styled.td`
-  border: 1px solid #ddd;
-  padding: 6px;
-  text-align: left;
-  font-size: 0.875rem;
-`;
-
-const FormSection = styled.div`
-  flex: 1;
-  padding-left: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-`;
-
-const InputContainer = styled.div`
-  display: flex;
-  align-items: center;
-  width: 100%;
-`;
-
-const AddClientButton = styled.button`
-  padding: 5px 10px;
-  margin-left: 10px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
-
-const TotalRow = styled.tr`
-  background-color: #f2f2f2;
-  font-weight: bold;
-`;
+interface Client {
+  name: string;
+  rtn: string;
+  address : string;
+}
 
 const Cotizacion: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  
+  const [searchTerm, setSearchTerm ] = useState('');
+  const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [products, setProducts] = useState([
     {
       code: '123456',
@@ -123,34 +42,100 @@ const Cotizacion: React.FC = () => {
       concept: 'Producto A',
       unitPrice: 10,
       subTotal: 20,
-      discount: 5,
-      total: 15,
+      discount: 0,
+      total: 20,
+      taxRate: 15
+    }, {
+      code: '123456',
+      quantity: 2,
+      concept: 'Producto A',
+      unitPrice: 10,
+      subTotal: 20,
+      discount: 0,
+      total: 20,
+      taxRate: 15
     },
+    {
+      code: '123456',
+      quantity: 2,
+      concept: 'Producto A',
+      unitPrice: 10,
+      subTotal: 20,
+      discount: 0,
+      total: 20,
+      taxRate: 15
+    }
     // Más filas de productos aquí
   ]);
 
-  const [expiryDate, setExpiryDate] = useState<string>('');
-
-  // Obtén la fecha actual
-  const today = new Date().toLocaleDateString('es-HN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  const [clients, setClients] = useState<Client[]>([
+    { name: 'Juan Pérez', rtn: '0801-123456-001' , address:'SRC' },
+    { name: 'Ana Gómez', rtn: '0802-654321-001', address:'SRC'},
+    // Agrega más clientes aquí
+  ]);
+  const [filteredClients, setFilteredClients] = useState<Client[]>([]);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [newClient, setNewClient] = useState({
+    name: '',
+    rtn: '',
+    address: ''
   });
-
-  // Función para formatear la fecha en el formato deseado
-  const formatDate = (date: string) => {
-    const dateObj = new Date(date);
-    return dateObj.toLocaleDateString('es-HN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+ 
 
   const filteredProducts = products.filter((product) =>
     product.concept.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Maneja el cambio en el campo de búsqueda de productos
+  const handleProductSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSearchTerm(value);
+    // Lógica para búsqueda de productos
+  };
+
+  // Maneja el cambio en el campo de búsqueda de clientes
+  const handleClientSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setClientSearchTerm(value);
+    // Filtra los clientes basados en el término de búsqueda
+    setFilteredClients(clients.filter(client =>
+      client.name.toLowerCase().includes(value.toLowerCase())
+    ));
+  };
+
+  // Maneja la selección de un cliente de la lista
+  const handleClientSelect = (client: Client) => {
+    setSelectedClient(client);
+    setClientSearchTerm(client.name); // Establece el término de búsqueda al nombre del cliente seleccionado
+    setFilteredClients([]); // Limpia la lista filtrada
+  };
+
+  // Abre el modal para agregar un nuevo cliente
+  const handleAddClient = () => {
+    setIsModalOpen(true);
+  };
+
+  // Maneja el cambio en el modal para agregar un nuevo cliente
+  const handleModalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setNewClient((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Maneja el envío del nuevo cliente
+  const handleModalSubmit = () => {
+    console.log('Nuevo cliente agregado:', newClient);
+    setClients([...clients, newClient]);
+    handleCloseModal();
+  };
+
+  // Cierra el modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
 
   const handleQuantityChange = (index: number, value: string) => {
     const newQuantity = parseInt(value, 10) || 0;
@@ -159,7 +144,7 @@ const Cotizacion: React.FC = () => {
       const product = { ...updatedProducts[index] };
       product.quantity = newQuantity;
       product.subTotal = product.unitPrice * newQuantity;
-      product.total = product.subTotal - product.discount;
+      product.total = product.subTotal;
       updatedProducts[index] = product;
       return updatedProducts;
     });
@@ -172,7 +157,7 @@ const Cotizacion: React.FC = () => {
       const product = { ...updatedProducts[index] };
       product.unitPrice = newUnitPrice;
       product.subTotal = product.quantity * newUnitPrice;
-      product.total = product.subTotal - product.discount;
+      product.total = product.subTotal;
       updatedProducts[index] = product;
       return updatedProducts;
     });
@@ -184,7 +169,7 @@ const Cotizacion: React.FC = () => {
       const updatedProducts = [...prevProducts];
       const product = { ...updatedProducts[index] };
       product.discount = newDiscount;
-      product.total = product.subTotal - newDiscount;
+      product.total = product.subTotal;
       updatedProducts[index] = product;
       return updatedProducts;
     });
@@ -194,18 +179,105 @@ const Cotizacion: React.FC = () => {
     setProducts((prevProducts) => prevProducts.filter((_, i) => i !== index));
   };
 
-  const handleAddClient = () => {
-    alert('Funcionalidad para agregar cliente aún no implementada.');
-  };
-
   const calculateTotalSale = () => {
-    return products.reduce((acc, product) => acc + product.total, 0);
+    let totalSubtotal = 0;
+    let totalTax = 0;
+    let totalDiscount = 0;
+  
+    // Calculamos el subtotal y el impuesto de cada producto
+    products.forEach(product => {
+      // Calcular el subtotal del producto (precio unitario * cantidad)
+      const subtotal = product.unitPrice * product.quantity;
+      // Calcular el impuesto del producto (subtotal * tasa de impuesto)
+      const tax = subtotal * (product.taxRate / 100);
+      // Agregar el subtotal y el impuesto al total
+      totalSubtotal += subtotal;
+      totalTax += tax;
+      // Agregar el descuento (si existe) al total de descuentos
+      totalDiscount += product.discount || 0; // Asegúrate de que `discount` pueda ser undefined
+    });
+  
+    // Calcular el subtotal real (total subtotal - la suma de impuestos)
+    const realSubtotal = totalSubtotal - totalTax;
+    // Calcular el total a pagar (subtotal real + impuestos - descuentos)
+    const total = realSubtotal + totalTax - totalDiscount;
+  
+    return total;
+  };
+  
+
+  const calculateDiscount = () => {
+    return products.reduce((acc, product) => acc + product.discount, 0);
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+  const calculateSubtotal = () => {
+    return products.reduce((acc, product) => acc + product.subTotal, 0);
   };
 
+  const calculateTaxExempt = () => {
+    // Puedes agregar lógica específica si hay productos exentos de impuestos
+    return 0;
+  };
+
+  const calculateExoneratedTax = () => {
+    // Puedes agregar lógica específica si hay productos exonerados de impuestos
+    return 0;
+  };
+
+  const calculateTax15 = () => {
+    return products
+      .filter(product => product.taxRate === 15)
+      .reduce((acc, product) => acc + (product.subTotal * 0.15), 0);
+  };
+
+  const calculateTax18 = () => {
+    return products
+      .filter(product => product.taxRate === 18)
+      .reduce((acc, product) => acc + (product.subTotal * 0.18), 0);
+  };
+
+ // Resetea el cliente seleccionado y el término de búsqueda
+ const handleResetClient = () => {
+  setSelectedClient(null);
+  setClientSearchTerm('');
+  setFilteredClients([]);
+  if (searchInputRef.current) {
+    searchInputRef.current.focus();
+  }
+};
+const [expiryDate, setExpiryDate] = useState<string>('');
+
+// Obtén la fecha actual
+const today = new Date().toLocaleDateString('es-HN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+// Función para formatear la fecha en el formato deseado
+const formatDate = (date: string) => {
+  const dateObj = new Date(date);
+  return dateObj.toLocaleDateString('es-HN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+
+const facturaData: FacturaData = {
+  nombreCliente: selectedClient?.name || '',
+  rtnCliente: selectedClient?.rtn || '',
+  productos: products.map(product => ({
+    descripcion: product.concept,
+    cantidad: product.quantity,
+    precioUnitario: product.unitPrice,
+  })),
+  subtotal: calculateSubtotal(),
+  descuento: calculateDiscount(),
+  impuesto: calculateTax15() + calculateTax18(),
+  total: calculateTotalSale(),
+};
   return (
     <Container>
       <Title>Cotización</Title>
@@ -213,28 +285,50 @@ const Cotizacion: React.FC = () => {
         <InfoSection>
           <InfoContainer>
             <InfoItem><strong>Nombre:</strong> Inversiones Estéticas C&C</InfoItem>
+            <InfoItem><strong>RTN:</strong> 05019021339269</InfoItem>
             <InfoItem><strong>Teléfono:</strong> +(504) 8912-6011</InfoItem>
             <InfoItem><strong>Correo:</strong> escalinatacys@gmail.com</InfoItem>
             <InfoItem><strong>Dirección Principal:</strong> Col. Osorio, calle principal, atrás de iglesia Renacer, Santa Rosa de Copán, Honduras</InfoItem>
           </InfoContainer>
         </InfoSection>
         <FormSection>
-          <InputContainer>
-            <Input placeholder="Cliente" />
+          <InputContainer style={{ position: 'relative' }}>
+            <Input
+              ref={searchInputRef}
+              placeholder="Buscar Cliente"
+              value={clientSearchTerm}
+              onChange={handleClientSearchChange}
+            />
+            {filteredClients.length > 0 && (
+              <ClientList>
+               {filteredClients.map((client, index) => (
+                <ClientListItem
+                key={index}
+                onClick={() => handleClientSelect(client)}
+                style={{ cursor: 'pointer', padding: '8px', borderBottom: '1px solid #ccc' }}
+              >
+                {client.name}
+              </ClientListItem>
+               ))}
+                  
+             </ClientList>
+             )}
             <AddClientButton onClick={handleAddClient}>Agregar Cliente</AddClientButton>
-          </InputContainer>
-          <Input placeholder="RTN" />
-          <Input placeholder="Dirección" />
+            <ResetClientButton onClick={handleResetClient}>Resetear</ResetClientButton>
+            </InputContainer>
+          <Input placeholder="RTN" value={selectedClient?.rtn || ''} readOnly />
+          <Input placeholder="Dirección" value={selectedClient?.address || ''} readOnly/>
         </FormSection>
+        
       </TopSection>
       <h2>Busca un Producto</h2>
       <Input
         type="text"
-        placeholder="Escanear el código de barras o escribir el nombre"
+        placeholder="Escanea el código de barras o escribe el nombre del Producto/Servicio"
         value={searchTerm}
-        onChange={handleSearchChange}
+        onChange={handleProductSearchChange}
       />
-      <TopSection>
+      <BottomSection>
         <TableContainer>
           <Table>
             <thead>
@@ -267,6 +361,7 @@ const Cotizacion: React.FC = () => {
                       onChange={(e) => handleUnitPriceChange(index, e.target.value)}
                     />
                   </TableCell>
+                 
                   <TableCell>
                     <Input
                       type="number"
@@ -284,13 +379,86 @@ const Cotizacion: React.FC = () => {
                 </TableRow>
               ))}
               <TotalRow>
-                <TableCell colSpan={6}>Total a Pagar</TableCell>
+                <TableCell colSpan={5}>Descuento/Promoción:</TableCell>
+                <TableCell>Lps.{calculateDiscount().toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>Sub Total:</TableCell>
+                <TableCell>Lps.{(calculateSubtotal() - calculateTax15() - calculateTax18()).toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>Impuesto Exonerado:</TableCell>
+                <TableCell>Lps.{calculateExoneratedTax().toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>Impuesto Exento:</TableCell>
+                <TableCell>Lps.{calculateTaxExempt().toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>Impuesto Gravado:</TableCell>
+                <TableCell>Lps.{(0 + 0).toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>ISV 15%:</TableCell>
+                <TableCell>Lps.{calculateTax15().toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>ISV 18%:</TableCell>
+                <TableCell>Lps.{calculateTax18().toFixed(2)}</TableCell>
+              </TotalRow>
+              <TotalRow>
+                <TableCell colSpan={5}>Total a Pagar:</TableCell>
                 <TableCell>Lps.{calculateTotalSale().toFixed(2)}</TableCell>
               </TotalRow>
             </tbody>
           </Table>
         </TableContainer>
-      </TopSection>
+        
+      </BottomSection>
+      {/* Modal para agregar cliente */}
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={handleCloseModal}
+        ariaHideApp={false}
+        style={{
+          content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            transform: 'translate(-50%, -50%)',
+            border: 'none',
+            padding: '20px',
+          },
+        }}
+      >
+        <ModalContent>
+          <h2>Agregar Nuevo Cliente</h2>
+          <ModalInput 
+            type="text" 
+            name="name" 
+            placeholder="Nombre" 
+            value={newClient.name}
+            onChange={handleModalChange}
+          />
+          <ModalInput 
+            type="text" 
+            name="rtn" 
+            placeholder="RTN" 
+            value={newClient.rtn}
+            onChange={handleModalChange}
+          />
+          <ModalInput 
+            type="text" 
+            name="address" 
+            placeholder="Dirección del Cliente" 
+            value={newClient.address}
+            onChange={handleModalChange}
+          />
+          <ModalButton primary onClick={handleModalSubmit}>Guardar</ModalButton>
+          <ModalButton onClick={handleCloseModal}>Cerrar</ModalButton>
+        </ModalContent>
+      </Modal>
       <FormSection>
         <Input
           type="date"
@@ -307,6 +475,27 @@ const Cotizacion: React.FC = () => {
           Para más información, comuníquese con nosotros. Será un placer atenderle.
         </p>
       </FormSection>
+      <div style={{ marginTop: '20px' }}>
+          <ProceedButton
+            onClick={() => setIsPrintModalOpen(true)}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#007bff',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              fontSize: '1rem',
+            }}
+          >
+            Imprimir/Descargar Cotización
+          </ProceedButton>
+        </div>
+        <PrintCotizacionModal
+        isOpen={isPrintModalOpen}
+        onRequestClose={() => setIsPrintModalOpen(false)}
+        facturaData={facturaData}
+      />
     </Container>
   );
 };

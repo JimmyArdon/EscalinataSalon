@@ -16,8 +16,11 @@
     "@react-pdf/renderer": "^3.4.4",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.7.2",
+    "convert-number-to-words": "^1.0.3",
     "date-fns": "^3.6.0",
     "framer-motion": "^11.2.12",
+    "number-to-words": "^1.2.4",
+    "numero-a-letras": "^1.0.6",
     "react": "^18.3.1",
     "react-calendar": "^5.0.0",
     "react-dom": "^18.3.1",
@@ -25,7 +28,8 @@
     "react-modal": "^3.16.1",
     "react-router-dom": "^6.23.1",
     "react-select": "^5.8.0",
-    "styled-components": "^6.1.12"
+    "styled-components": "^6.1.12",
+    "written-number": "^0.11.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
