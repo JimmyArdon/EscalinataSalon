@@ -18,8 +18,8 @@ const GestionProveedores: React.FC = () => {
     }, []);
 
     const initialData = [
-        { proveedor: "Proveedor 1", dirección: "sps", telefono: "12345678", email: "contacto1@example.com" },
-        { proveedor: "Proveedor 2", dirección: "src", telefono: "87654321", email: "contacto2@example.com" },
+        { idProveedor: "1", proveedor: "Proveedor 1", dirección: "sps", telefono: "12345678", email: "contacto1@example.com" },
+        { idProveedor: "2" ,proveedor: "Proveedor 2", dirección: "src", telefono: "87654321", email: "contacto2@example.com" },
     ];
 
     const [filteredData, setFilteredData] = useState(initialData);
@@ -85,7 +85,7 @@ const GestionProveedores: React.FC = () => {
                                     <td className="p-3 text-sm">{item.telefono}</td>
                                     <td className="p-3 text-sm">{item.email}</td>
                                     <td className="p-3 text-sm">
-                                        <NavLink to={`/dashboard-admin/productos-proveedor/${index}`}>
+                                        <NavLink to={`/dashboard-admin/gestion-proveedores/productos-proveedor/${item.idProveedor}`}>
                                             <FontAwesomeIcon icon={faBoxOpen} className="text-blue-500 hover:text-blue-700 cursor-pointer" />
                                         </NavLink>
                                     </td>
