@@ -11,10 +11,10 @@ const Container = styled.div`
 `;
 
 interface Servicio {
-  id: string;
-  nombre: string;
-  duracion: string;
-  precio: number;
+  Id: string;
+  Nombre: string;
+  Duracion: string;
+  Precio: number;
 }
 
 interface MostrarServiciosProps {
@@ -50,7 +50,7 @@ const MostrarServicios: React.FC<MostrarServiciosProps> = ({ servicios }) => {
           </thead>
           <tbody>
             {currentServicios.map((servicio) => (
-              <ServicioCard servicio={servicio} key={servicio.id}/>
+              <ServicioCard servicio={servicio} key={servicio.Id}/>
             ))}
           </tbody>
         </table>

@@ -41,12 +41,12 @@ const AgregarServicio: React.FC = () => {
   
   useEffect(() => {
     if (id) {
-      fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`)
+      fetch(`http://localhost:6500/servicios/${id}`)
         .then((res) => res.json())
         .then((data) => {
-          setNombre(data.nombre);
-          setDuracion(data.duracion);
-          setPrecio(data.precio);
+          setNombre(data.Nombre);
+          setDuracion(data.Duracion);
+          setPrecio(data.Precio);
         });
     }
   }, [id]);
@@ -58,10 +58,10 @@ const AgregarServicio: React.FC = () => {
     
     if (id) {
       await fetch(
-        `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`,
+        `http://localhost:6500/servicios/${id}`,
         {
           method: "PUT",
-          body: JSON.stringify({ nombre, duracion, precio }),
+          body: JSON.stringify({ Nombre: nombre, Duracion: duracion, Precio: precio }),
           headers: {
             "Content-Type": "application/json",
           },
@@ -69,10 +69,10 @@ const AgregarServicio: React.FC = () => {
       );
     } else {
       await fetch(
-        "https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios",
+        "http://localhost:6500/servicios",
         {
           method: "POST",
-          body: JSON.stringify({ nombre, duracion, precio }),
+          body: JSON.stringify({ Nombre: nombre, Duracion: duracion, Precio: precio }),
           headers: {
             "Content-Type": "application/json",
           },
@@ -140,7 +140,7 @@ const AgregarServicio: React.FC = () => {
           {id && (
             <button
               onClick={async () => {
-                await fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`, {
+                await fetch(`http://localhost:6500/servicios/${id}`, {
                   method: "DELETE",
                 });
                 navigate('/dashboard-recepcionista/main/gestion-de-servicios');

@@ -98,20 +98,20 @@ const ResultItem = styled.li`
 
 // Define the type for a service
 interface Service {
-  id: string;
-  nombre: string;
-  duracion: string;
-  precio: string;
+  Id: string;
+  Nombre: string;
+  Duracion: string;
+  Precio: string;
 }
 
 const EditarServicio = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [servicio, setServicio] = useState<Service>({
-    id: "",
-    nombre: "",
-    duracion: "",
-    precio: "",
+    Id: "",
+    Nombre: "",
+    Duracion: "",
+    Precio: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -120,7 +120,7 @@ const EditarServicio = () => {
 
   useEffect(() => {
     axios
-      .get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios`)
+      .get(`http://localhost:6500/servicios`)
       .then((response) => {
         setAllServicios(response.data);
       });
@@ -129,7 +129,7 @@ const EditarServicio = () => {
   useEffect(() => {
     if (id) {
       axios
-        .get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`)
+        .get(`http://localhost:6500/servicios/${id}`)
         .then((response) => {
           setServicio(response.data);
         });
@@ -140,7 +140,7 @@ const EditarServicio = () => {
     if (searchQuery) {
       setFilteredServicios(
         allServicios.filter((servicio) =>
-          servicio.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+          servicio.Nombre.toLowerCase().includes(searchQuery.toLowerCase())
         )
       );
     } else {
@@ -158,17 +158,17 @@ const EditarServicio = () => {
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const result = allServicios.find(
-      (servicio) => servicio.nombre.toLowerCase() === searchQuery.toLowerCase()
+      (servicio) => servicio.Nombre.toLowerCase() === searchQuery.toLowerCase()
     );
     if (result) {
       setServicio(result);
       setErrorMessage("");
     } else {
       setServicio({
-        id: "",
-        nombre: "",
-        duracion: "",
-        precio: "",
+        Id: "",
+        Nombre: "",
+        Duracion: "",
+        Precio: "",
       });
       setErrorMessage("No se encontró ningún servicio con ese nombre.");
     }
@@ -176,22 +176,24 @@ const EditarServicio = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (id) {
-      axios
-        .put(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${id}`, servicio)
+    
+      if(servicio.Id){
+        axios
+        .put(`http://localhost:6500/servicios/${servicio.Id}`, servicio)
         .then(() => {
           navigate("/dashboard-admin/gestion-de-servicios");
         });
-    }
+      }
+    
   };
 
   const handleClear = () => {
     setSearchQuery("");
     setServicio({
-      id: "",
-      nombre: "",
-      duracion: "",
-      precio: "",
+      Id: "",
+      Nombre: "",
+      Duracion: "",
+      Precio: "",
     });
     setErrorMessage("");
   };
@@ -202,7 +204,7 @@ const EditarServicio = () => {
 
   const handleSelectService = (selectedService: Service) => {
     setServicio(selectedService);
-    setSearchQuery(selectedService.nombre);
+    setSearchQuery(selectedService.Nombre);
     setFilteredServicios([]);
     setErrorMessage("");
   };
@@ -231,22 +233,22 @@ const EditarServicio = () => {
           {filteredServicios.length > 0 && (
             <ResultList>
               {filteredServicios.map((servicio) => (
-                <ResultItem key={servicio.id} onClick={() => handleSelectService(servicio)}>
-                  {servicio.nombre}
+                <ResultItem key={servicio.Id} onClick={() => handleSelectService(servicio)}>
+                  {servicio.Nombre}
                 </ResultItem>
               ))}
             </ResultList>
           )}
         </FormGroup>
       </form>
-      {servicio.nombre && (
+      {servicio.Nombre && (
         <form onSubmit={handleSubmit} className="bg-slate-500 p-10 rounded-[15px] w-full">
           <FormGroup>
             <Label>Nombre</Label>
             <Input
               type="text"
-              name="nombre"
-              value={servicio.nombre}
+              name="Nombre"
+              value={servicio.Nombre}
               onChange={handleChange}
               required
             />
@@ -255,8 +257,8 @@ const EditarServicio = () => {
             <Label>Duración</Label>
             <Input
               type="text"
-              name="duracion"
-              value={servicio.duracion}
+              name="Duracion"
+              value={servicio.Duracion}
               onChange={handleChange}
               required
             />
@@ -265,8 +267,8 @@ const EditarServicio = () => {
             <Label>Precio</Label>
             <Input
               type="number"
-              name="precio"
-              value={servicio.precio}
+              name="Precio"
+              value={servicio.Precio}
               onChange={handleChange}
               required
             />
