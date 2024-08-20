@@ -3,9 +3,17 @@ import { NavLink, Link } from "react-router-dom";
 import FiltroProveedores from "../../../components/FiltroProveedores";
 import Pagination from "../../../components/Pagination";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBoxOpen} from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
+import axios from "axios";
 
+interface Proveedor {
+    id: string;
+    Nombre: string;
+    Direccion: string;
+    Numero_Telefono: string;
+    email: string;
+}
 
 const ButtonGroup = styled.div`
     display: flex;
@@ -17,16 +25,26 @@ const GestionProveedores: React.FC = () => {
         document.title = "Gestión de Proveedores - Salón de Belleza Escalinata";
     }, []);
 
-    const initialData = [
-        { idProveedor: "1", proveedor: "Proveedor 1", dirección: "sps", telefono: "12345678", email: "contacto1@example.com" },
-        { idProveedor: "2" ,proveedor: "Proveedor 2", dirección: "src", telefono: "87654321", email: "contacto2@example.com" },
-    ];
-
-    const [filteredData, setFilteredData] = useState(initialData);
+    const [filteredData, setFilteredData] = useState<Proveedor[]>([]);
+    const [initialData, setInitialData] = useState<Proveedor[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
 
     const itemsPerPage = 10;
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://localhost:4000/proveedores');
+                setInitialData(response.data);
+                setFilteredData(response.data);
+            } catch (error) {
+                console.error('Error fetching proveedores:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -36,25 +54,22 @@ const GestionProveedores: React.FC = () => {
 
     const aplicarFiltros = (proveedor: string) => {
         const filtered = initialData.filter(item => {
-            return item.proveedor.includes(proveedor);
+            return item.Nombre.includes(proveedor);
         });
 
         setFilteredData(filtered);
         setCurrentPage(1);
     };
 
-
     return (
         <div className="container mx-auto p-4">
-             <h3 className="text-body-secondary">Gestión de Proveedores</h3>
+            <h3 className="text-body-secondary">Gestión de Proveedores</h3>
             <div className="flex items-center justify-between mb-4">
-                
-                
-                 <ButtonGroup>
+                <ButtonGroup>
                     <Link className="btn btn-outline-secondary w-40" to="/dashboard-admin/gestion-proveedores/agregar-proveedor">
                         + Añadir Proveedor
                     </Link>
-                     <Link className="btn btn-outline-secondary w-40" to="/dashboard-admin/gestion-proveedores/editar-proveedor">
+                    <Link className="btn btn-outline-secondary w-40" to="/dashboard-admin/gestion-proveedores/editar-proveedor">
                         Editar Proveedor
                     </Link>
                     <Link className="btn btn-outline-secondary w-40" to="/dashboard-admin/gestion-proveedores/borrar-proveedor">
@@ -63,7 +78,6 @@ const GestionProveedores: React.FC = () => {
                 </ButtonGroup>
                 <FiltroProveedores aplicarFiltros={aplicarFiltros} />
             </div>
-            
 
             <div className="rounded-xl bg-white shadow-md">
                 <div className="overflow-x-auto">
@@ -80,12 +94,12 @@ const GestionProveedores: React.FC = () => {
                         <tbody className="bg-white divide-y divide-gray-200">
                             {paginatedData.map((item, index) => (
                                 <tr key={index} className="hover:bg-gray-100 transition-colors duration-200">
-                                    <td className="p-3 text-sm">{item.proveedor}</td>
-                                    <td className="p-3 text-sm">{item.dirección}</td>
-                                    <td className="p-3 text-sm">{item.telefono}</td>
+                                    <td className="p-3 text-sm">{item.Nombre}</td>
+                                    <td className="p-3 text-sm">{item.Direccion}</td>
+                                    <td className="p-3 text-sm">{item.Numero_Telefono}</td>
                                     <td className="p-3 text-sm">{item.email}</td>
                                     <td className="p-3 text-sm">
-                                        <NavLink to={`/dashboard-admin/gestion-proveedores/productos-proveedor/${item.idProveedor}`}>
+                                        <NavLink to={`/dashboard-admin/gestion-proveedores/productos-proveedor/${item.id}`}>
                                             <FontAwesomeIcon icon={faBoxOpen} className="text-blue-500 hover:text-blue-700 cursor-pointer" />
                                         </NavLink>
                                     </td>

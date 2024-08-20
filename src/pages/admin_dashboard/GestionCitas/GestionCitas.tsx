@@ -1,18 +1,20 @@
+// GestionCitas.tsx (frontend)
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import FiltroCitas from "../../../components/FiltroCitas";
 import Pagination from "../../../components/Pagination";
 import styled from "styled-components";
-import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // Asegúrate de instalar react-icons
+import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import axios from 'axios';
 
 interface Appointment {
     id: number;
     cliente: string;
-    fecha: Date;
+    fecha: string;
     hora: string;
     servicio: string;
-    estilista: string;
-    estado: string;
+    usuario: string;
+    estado_cita: string;
 }
 
 const Container = styled.div`
@@ -60,19 +62,30 @@ const ActionsContainer = styled.div`
 `;
 
 const GestionCitas: React.FC = () => {
+    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([]);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+
     useEffect(() => {
         document.title = "Gestión de Citas - Salón de Belleza Escalinata";
+
+        const fetchAppointments = async () => {
+            try {
+                const response = await axios.get<Appointment[]>('http://localhost:4000/citas');
+                console.log('Datos recibidos:', response.data);
+                const data: Appointment[] = response.data.map(item => ({
+                    ...item,
+                    fecha: new Date(item.fecha).toISOString() // Ensure fecha is ISO string
+                }));
+                setAppointments(data);
+                setFilteredAppointments(data);
+            } catch (error) {
+                console.error('Error fetching appointments:', error);
+            }
+        };
+
+        fetchAppointments();
     }, []);
-
-    const initialAppointments: Appointment[] = [
-        { id: 0, cliente: "Juan Pérez", fecha: new Date("2024-08-03"), hora: "10:00 AM", servicio: "Manicura", estilista: "Ana Gómez" , estado: "Pendiente"},
-        { id: 2, cliente: "María López", fecha: new Date("2024-08-04"), hora: "11:00 AM", servicio: "Corte Pelo", estilista: "Carlos Díaz", estado: "Cancelada"},
-        { id: 3, cliente: "Luis Martínez", fecha: new Date("2024-08-05"), hora: "12:00 PM", servicio: "Nanoplastia", estilista: "Ana Gómez", estado: "Realizada"},
-        // Add more initial appointments here
-    ];
-
-    const [filteredAppointments, setFilteredAppointments] = useState(initialAppointments);
-    const [currentPage, setCurrentPage] = useState(1);
 
     const itemsPerPage = 10;
     const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
@@ -81,11 +94,14 @@ const GestionCitas: React.FC = () => {
         setCurrentPage(page);
     };
 
-    const paginatedAppointments = filteredAppointments.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const paginatedAppointments: Appointment[] = filteredAppointments.slice(
+        (currentPage - 1) * itemsPerPage, 
+        currentPage * itemsPerPage
+    );
 
     const aplicarFiltros = (nombre: string, fecha: string) => {
-        const filtered = initialAppointments.filter(appointment => {
-            const appointmentDate = appointment.fecha.toISOString().split('T')[0];
+        const filtered = appointments.filter(appointment => {
+            const appointmentDate = new Date(appointment.fecha).toISOString().split('T')[0];
             return (
                 appointment.cliente.toLowerCase().includes(nombre.toLowerCase()) &&
                 appointmentDate.includes(fecha)
@@ -114,28 +130,34 @@ const GestionCitas: React.FC = () => {
                         <th>Fecha</th>
                         <th>Hora</th>
                         <th>Servicio</th>
-                        <th>Estilista</th> 
-                        <th>Estado Cita</th> 
-                        <th>Acciones</th> 
+                        <th>Estilista</th>
+                        <th>Estado Cita</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {paginatedAppointments.map((item) => (
-                        <tr key={item.id}>
-                            <td>{item.cliente}</td>
-                            <td>{item.fecha.toLocaleDateString()}</td>
-                            <td>{item.hora}</td>
-                            <td>{item.servicio}</td>
-                            <td>{item.estilista}</td>
-                            <td>{item.estado}</td>
-                            <td>
-                                <ActionsContainer>
-                                    <Link to={`editar-cita/${item.id}`}><FaEdit color="#007bff" /></Link>
-                                    <Link to={`borrar-cita/${item.id}`}><FaTrashAlt color="#dc3545" /></Link>
-                                </ActionsContainer>
-                            </td>
+                    {paginatedAppointments.length > 0 ? (
+                        paginatedAppointments.map(item => (
+                            <tr key={item.id}>
+                                <td>{item.cliente}</td>
+                                <td>{new Date(item.fecha).toLocaleDateString()}</td>
+                                <td>{item.hora}</td>
+                                <td>{item.servicio}</td>
+                                <td>{item.usuario}</td>
+                                <td>{item.estado_cita}</td>
+                                <td>
+                                    <ActionsContainer>
+                                        <Link to={`editar-cita/${item.id}`}><FaEdit color="#007bff" /></Link>
+                                        <Link to={`borrar-cita/${item.id}`}><FaTrashAlt color="#dc3545" /></Link>
+                                    </ActionsContainer>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan={7}>No hay citas disponibles</td>
                         </tr>
-                    ))}
+                    )}
                 </tbody>
             </Table>
 

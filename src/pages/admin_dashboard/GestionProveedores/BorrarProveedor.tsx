@@ -6,10 +6,10 @@ import axios from "axios";
 
 interface Proveedor {
   id: string;
-  proveedor: string;
-  dirección: string;
-  telefono: string;
-  email: string;
+  Nombre: string;
+  Direccion: string;
+  Numero_Telefono: string;
+  Email: string;
 }
 
 const Container = styled.div`
@@ -119,7 +119,7 @@ const DropdownItem = styled.li`
 const BorrarProveedor = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [proveedor, setProveedor] = useState<Partial<Proveedor>>({ proveedor: "" });
+  const [proveedor, setProveedor] = useState<Partial<Proveedor>>({ Nombre: "" });
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [opcionesFiltradas, setOpcionesFiltradas] = useState<Proveedor[]>([]);
@@ -131,7 +131,7 @@ const BorrarProveedor = () => {
         setLoading(true);
         try {
           const response = await axios.get<Proveedor[]>(
-            `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores?proveedor=${searchQuery}`
+            `http://localhost:4000/proveedores?Nombre=${searchQuery}`
           );
           setOpcionesFiltradas(response.data);
         } catch {
@@ -152,7 +152,7 @@ const BorrarProveedor = () => {
     if (proveedor.id) {
       axios
         .get<Proveedor>(
-          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores/${proveedor.id}`
+          `http://localhost:4000/proveedores/${proveedor.id}`
         )
         .then((response) => {
           setProveedor(response.data);
@@ -166,27 +166,30 @@ const BorrarProveedor = () => {
   const handleDelete = () => {
     if (proveedor.id) {
       axios
-        .delete(
-          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores/${proveedor.id}`
-        )
+        .delete(`http://localhost:4000/proveedores/${proveedor.id}`)
         .then(() => {
           setMessage("Proveedor eliminado con éxito.");
           setTimeout(() => {
             navigate("/dashboard-admin/gestion-proveedores");
           }, 2000);
         })
-        .catch(() => {
-          setErrorMessage("No se pudo eliminar el proveedor.");
+        .catch((error) => {
+          if (error.response?.status === 404) {
+            setErrorMessage("Proveedor no encontrado.");
+          } else {
+            setErrorMessage("No se pudo eliminar el proveedor.");
+          }
         });
     }
   };
+  
 
   const manejarOnClickSalir = () => {
     navigate("/dashboard-admin/gestion-proveedores");
   };
 
   const seleccionarOpcion = (opcion: Proveedor) => {
-    setSearchQuery(opcion.proveedor);
+    setSearchQuery(opcion.Nombre);
     setProveedor(opcion);
     setOpcionesFiltradas([]); // Limpiar las opciones después de seleccionar
   };
@@ -216,7 +219,7 @@ const BorrarProveedor = () => {
                     key={opcion.id}
                     onClick={() => seleccionarOpcion(opcion)}
                   >
-                    {opcion.proveedor}
+                    {opcion.Nombre}
                   </DropdownItem>
                 ))}
               </Dropdown>
@@ -230,11 +233,11 @@ const BorrarProveedor = () => {
           Limpiar
         </ClearButton>
       </form>
-      {proveedor.proveedor && (
+      {proveedor.Nombre && (
         <div className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md text-center">
           <h3>
             ¿Estás seguro de que deseas eliminar el proveedor "
-            {proveedor.proveedor}"?
+            {proveedor.Nombre}"?
           </h3>
           <div
             style={{

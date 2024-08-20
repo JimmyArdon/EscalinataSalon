@@ -1,14 +1,15 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 interface DetallesEmpresa {
   nombre: string;
   razonSocial: string;
   rtn: string;
-  telefono: string;
-  correo: string;
+  Teléfono: string;
+  Correo_electronico: string;
   direccion: string;
   cai: string;
   establecimiento: string;
@@ -16,8 +17,8 @@ interface DetallesEmpresa {
   tipoDocumento: string;
   facturaInicio: string;
   facturaLimite: string;
-  fechaLimiteEmision: string;
-  fechaInicio: string;
+  fechaLimiteEmision: string; // Cambiar a string para manejar el formato ISO
+  fechaInicio: string; // Cambiar a string para manejar el formato ISO
 }
 
 const Container = styled.div`
@@ -83,38 +84,93 @@ const Salir = styled(IoMdCloseCircleOutline)`
   }
 `;
 
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 0.875rem;
+  margin-top: -10px;
+  margin-bottom: 15px;
+`;
+
 const EditarDetallesEmpresa = () => {
   const navigate = useNavigate();
+  const [detallesEmpresa, setDetalles] = useState<DetallesEmpresa | null>(null);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const [detallesEmpresa, setDetallesEmpresa] = useState<DetallesEmpresa>({
-    nombre: "Inversiones Estéticas C&C",
-    razonSocial: "Byron Aaron Cerrato",
-    rtn: "05019021339269",
-    telefono: "+(504) 8912-6011",
-    correo: "escalinatacys@gmail.com",
-    direccion: "Col. Osorio, calle principal, atrás de iglesia Renacer, Santa Rosa de Copan Honduras",
-    cai: "672002-A60EB4-6946A1-E1437B-9925CE-35",
-    establecimiento: "000",
-    puntoEmision: "001",
-    tipoDocumento: "01",
-    facturaInicio: "00000301",
-    facturaLimite: "00000400",
-    fechaLimiteEmision: "09/10/2024",
-    fechaInicio: "09/08/2024"
-  });
+  useEffect(() => {
+    const fetchDetalles = async () => {
+      try {
+        const response = await axios.get<DetallesEmpresa>('http://localhost:4000/empresa');
+        setDetalles(response.data);
+      } catch (error) {
+        console.error('Error fetching empresa details:', error);
+      }
+    };
+
+    fetchDetalles();
+  }, []);
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    const requiredFields = [
+      "nombre", "razonSocial", "rtn", "Teléfono",
+      "Correo_electronico", "direccion", "cai",
+      "establecimiento", "puntoEmision", "tipoDocumento",
+      "facturaInicio", "facturaLimite", "fechaLimiteEmision",
+      "fechaInicio"
+    ];
+
+    // Check required fields
+    requiredFields.forEach(field => {
+      if (!detallesEmpresa || !detallesEmpresa[field as keyof DetallesEmpresa]) {
+        newErrors[field] = "Este campo es obligatorio";
+      }
+    });
+
+    // Date validations
+    if (detallesEmpresa) {
+      const fechaLimiteEmision = new Date(detallesEmpresa.fechaLimiteEmision);
+      const fechaInicio = new Date(detallesEmpresa.fechaInicio);
+    
+      if (fechaLimiteEmision <= fechaInicio) {
+        newErrors.fechaLimiteEmision = "La fecha límite de emisión debe ser mayor a la fecha de inicio.";
+      }
+    
+      if (fechaInicio >= fechaLimiteEmision) {
+        newErrors.fechaInicio = "La fecha de inicio debe ser menor a la fecha límite de emisión.";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setDetallesEmpresa((prevDetails) => ({
+    setDetalles((prevDetails) => prevDetails ? ({
       ...prevDetails,
       [name]: value
-    }));
+    }) : null);
   };
 
   const handleSave = () => {
-    // Aquí puedes implementar la lógica para guardar los cambios
-    console.log("Detalles guardados", detallesEmpresa);
+    if (detallesEmpresa && validateForm()) {
+      axios
+        .put("http://localhost:4000/empresa", detallesEmpresa)
+        .then((response) => {
+          console.log("Información guardada exitosamente", response.data);
+          alert("Información actualizada correctamente");
+          navigate("/dashboard-admin/informacion-empresa");
+        })
+        .catch((error) => {
+          console.error("Error al guardar los detalles de la empresa:", error.response?.data || error.message);
+          alert("Ocurrió un error al guardar la información. Inténtalo de nuevo.");
+        });
+    }
   };
+
+  if (!detallesEmpresa) {
+    return <p>Cargando detalles de la empresa...</p>;
+  }
 
   return (
     <Container>
@@ -128,6 +184,7 @@ const EditarDetallesEmpresa = () => {
           value={detallesEmpresa.nombre}
           onChange={handleChange}
         />
+        {errors.nombre && <ErrorMessage>{errors.nombre}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <Label>Razón Social</Label>
@@ -137,6 +194,7 @@ const EditarDetallesEmpresa = () => {
           value={detallesEmpresa.razonSocial}
           onChange={handleChange}
         />
+        {errors.razonSocial && <ErrorMessage>{errors.razonSocial}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <Label>RTN</Label>
@@ -146,24 +204,27 @@ const EditarDetallesEmpresa = () => {
           value={detallesEmpresa.rtn}
           onChange={handleChange}
         />
+        {errors.rtn && <ErrorMessage>{errors.rtn}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <Label>Teléfono</Label>
         <Input
           type="text"
-          name="telefono"
-          value={detallesEmpresa.telefono}
+          name="teléfono"
+          value={detallesEmpresa.Teléfono}
           onChange={handleChange}
         />
+        {errors.Teléfono && <ErrorMessage>{errors.Teléfono}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
-        <Label>Correo</Label>
+        <Label>Correo Electronico</Label>
         <Input
           type="email"
-          name="correo"
-          value={detallesEmpresa.correo}
+          name="correo_electronico"
+          value={detallesEmpresa.Correo_electronico}
           onChange={handleChange}
         />
+        {errors.Correo_electronico && <ErrorMessage>{errors.Correo_electronico}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <Label>Dirección Principal</Label>
@@ -173,6 +234,7 @@ const EditarDetallesEmpresa = () => {
           value={detallesEmpresa.direccion}
           onChange={handleChange}
         />
+        {errors.direccion && <ErrorMessage>{errors.direccion}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <Label>CAI</Label>
@@ -182,6 +244,7 @@ const EditarDetallesEmpresa = () => {
           value={detallesEmpresa.cai}
           onChange={handleChange}
         />
+        {errors.cai && <ErrorMessage>{errors.cai}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <Label>Establecimiento</Label>
@@ -191,6 +254,7 @@ const EditarDetallesEmpresa = () => {
           value={detallesEmpresa.establecimiento}
           onChange={handleChange}
         />
+        {errors.establecimiento && <ErrorMessage>{errors.establecimiento}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <Label>Punto de Emisión</Label>
@@ -200,6 +264,7 @@ const EditarDetallesEmpresa = () => {
           value={detallesEmpresa.puntoEmision}
           onChange={handleChange}
         />
+        {errors.puntoEmision && <ErrorMessage>{errors.puntoEmision}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <Label>Tipo de Documento</Label>
@@ -209,6 +274,7 @@ const EditarDetallesEmpresa = () => {
           value={detallesEmpresa.tipoDocumento}
           onChange={handleChange}
         />
+        {errors.tipoDocumento && <ErrorMessage>{errors.tipoDocumento}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <Label>Factura Inicio</Label>
@@ -218,6 +284,7 @@ const EditarDetallesEmpresa = () => {
           value={detallesEmpresa.facturaInicio}
           onChange={handleChange}
         />
+        {errors.facturaInicio && <ErrorMessage>{errors.facturaInicio}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <Label>Factura Límite</Label>
@@ -227,26 +294,29 @@ const EditarDetallesEmpresa = () => {
           value={detallesEmpresa.facturaLimite}
           onChange={handleChange}
         />
+        {errors.facturaLimite && <ErrorMessage>{errors.facturaLimite}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <Label>Fecha Límite de Emisión</Label>
         <Input
           type="date"
           name="fechaLimiteEmision"
-          value={detallesEmpresa.fechaLimiteEmision}
+          value={detallesEmpresa.fechaLimiteEmision.split('T')[0]} // Solo la parte de la fecha
           onChange={handleChange}
         />
+        {errors.fechaLimiteEmision && <ErrorMessage>{errors.fechaLimiteEmision}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
-        <Label>Fecha Inicio</Label>
+        <Label>Fecha de Inicio</Label>
         <Input
           type="date"
           name="fechaInicio"
-          value={detallesEmpresa.fechaInicio}
+          value={detallesEmpresa.fechaInicio.split('T')[0]} // Solo la parte de la fecha
           onChange={handleChange}
         />
+        {errors.fechaInicio && <ErrorMessage>{errors.fechaInicio}</ErrorMessage>}
       </FormGroup>
-      <Button onClick={handleSave}>Guardar Cambios</Button>
+      <Button onClick={handleSave}>Guardar</Button>
     </Container>
   );
 };

@@ -166,18 +166,18 @@ export const ModalButton = styled.button<{ primary?: boolean }>`
 `;
 
 export const ProceedButton = styled.button`
-  background-color: #4CAF50; /* Color de fondo */
-  color: white; /* Color del texto */
-  padding: 10px 20px; /* Espaciado interno */
-  border: none; /* Sin borde */
-  border-radius: 5px; /* Bordes redondeados */
-  cursor: pointer; /* Cursor en forma de mano */
-  font-size: 16px; /* Tamaño de la fuente */
-  margin-top: 30px; /* Espacio superior */
-  margin-bottom: 30px; /* Espacio inferior */
-  &:hover {
-    background-color: #45a049; /* Color de fondo al pasar el ratón */
-  }
+background-color: #4CAF50; /* Color de fondo */
+color: white; /* Color del texto */
+padding: 10px 20px; /* Espaciado interno */
+border: none; /* Sin borde */
+border-radius: 5px; /* Bordes redondeados */
+cursor: pointer; /* Cursor en forma de mano */
+font-size: 16px; /* Tamaño de la fuente */
+margin-top: 30px; /* Espacio superior */
+margin-bottom: 30px; /* Espacio inferior */
+&:hover {
+  background-color: #45a049; /* Color de fondo al pasar el ratón */
+}
 `;
 
 

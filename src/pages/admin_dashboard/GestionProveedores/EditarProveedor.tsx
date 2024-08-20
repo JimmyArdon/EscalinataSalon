@@ -4,13 +4,12 @@ import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
 
-// Define the interface for a supplier
 interface Proveedor {
   id: string;
-  nombre: string;
-  contacto: string;
-  telefono: string;
-  direccion: string;
+  Nombre: string;
+  Direccion: string;
+  Numero_Telefono: string;
+  Email: string;
 }
 
 const Container = styled.div`
@@ -86,6 +85,11 @@ const ErrorMessage = styled.p`
   font-weight: bold;
 `;
 
+const SuccessMessage = styled.p`
+  color: #4CAF50;
+  font-weight: bold;
+`;
+
 const Dropdown = styled.ul`
   position: absolute;
   top: 100%;
@@ -114,13 +118,14 @@ const EditarProveedor = () => {
   const navigate = useNavigate();
   const [proveedor, setProveedor] = useState<Proveedor>({
     id: "",
-    nombre: "",
-    contacto: "",
-    telefono: "",
-    direccion: ""
+    Nombre: "",
+    Direccion: "",
+    Numero_Telefono: "",
+    Email: ""
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [opcionesFiltradas, setOpcionesFiltradas] = useState<Proveedor[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -128,9 +133,7 @@ const EditarProveedor = () => {
     if (searchQuery) {
       setLoading(true);
       axios
-        .get(
-          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores?nombre=${searchQuery}`
-        )
+        .get(`http://localhost:4000/proveedores?nombre=${searchQuery}`) // Actualiza la URL
         .then((response) => {
           setOpcionesFiltradas(response.data);
         })
@@ -155,15 +158,15 @@ const EditarProveedor = () => {
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     axios
-      .get(
-        `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores?nombre=${searchQuery}`
-      )
+      .get(`http://localhost:4000/proveedores?nombre=${searchQuery}`) // Actualiza la URL
       .then((response) => {
         if (response.data.length > 0) {
           setProveedor(response.data[0]);
           setErrorMessage("");
+          setSuccessMessage("");
         } else {
           setErrorMessage("No se encontró ningún proveedor con ese nombre.");
+          setSuccessMessage("");
         }
       });
   };
@@ -171,25 +174,32 @@ const EditarProveedor = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     axios
-      .put(
-        `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores/${proveedor.id}`,
-        proveedor
-      )
+      .put(`http://localhost:4000/proveedores/${proveedor.id}`, proveedor) // Actualiza la URL
       .then(() => {
-        navigate("/dashboard-admin/proveedores");
+        setSuccessMessage("Proveedor actualizado exitosamente.");
+        setErrorMessage("");
+        setTimeout(() => {
+          navigate("/dashboard-admin/gestion-proveedores");
+        }, 2000); // Espera 2 segundos antes de redirigir
+      })
+      .catch(() => {
+        setErrorMessage("Error al actualizar el proveedor.");
+        setSuccessMessage("");
       });
   };
 
   const handleClear = () => {
     setProveedor({
       id: "",
-      nombre: "",
-      contacto: "",
-      telefono: "",
-      direccion: ""
+      Nombre: "",
+      Direccion: "",
+      Numero_Telefono: "",
+      Email: ""
     });
     setSearchQuery("");
     setOpcionesFiltradas([]);
+    setErrorMessage("");
+    setSuccessMessage("");
   };
 
   const manejarOnClickSalir = () => {
@@ -198,7 +208,7 @@ const EditarProveedor = () => {
 
   const seleccionarOpcion = (opcion: Proveedor) => {
     setProveedor(opcion);
-    setSearchQuery(opcion.nombre);
+    setSearchQuery(opcion.Nombre);
     setOpcionesFiltradas([]);
   };
 
@@ -218,7 +228,6 @@ const EditarProveedor = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Nombre del proveedor"
-              required
             />
             {searchQuery && opcionesFiltradas.length > 0 && (
               <Dropdown>
@@ -227,7 +236,7 @@ const EditarProveedor = () => {
                     key={opcion.id}
                     onClick={() => seleccionarOpcion(opcion)}
                   >
-                    {opcion.nombre}
+                    {opcion.Nombre}
                   </DropdownItem>
                 ))}
               </Dropdown>
@@ -235,13 +244,14 @@ const EditarProveedor = () => {
             {loading && <p>Cargando...</p>}
           </div>
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+          {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
         </FormGroup>
         <Button type="submit">Buscar</Button>
         <ClearButton type="button" onClick={handleClear}>
           Limpiar
         </ClearButton>
       </form>
-      {proveedor.nombre && (
+      {proveedor.Nombre && (
         <form
           onSubmit={handleSubmit}
           className="bg-slate-500 p-10 rounded-[15px] w-2/4"
@@ -250,40 +260,36 @@ const EditarProveedor = () => {
             <Label>Nombre</Label>
             <Input
               type="text"
-              name="nombre"
-              value={proveedor.nombre}
+              name="Nombre"
+              value={proveedor.Nombre}
               onChange={handleChange}
-              required
             />
           </FormGroup>
           <FormGroup>
-            <Label>Contacto</Label>
+            <Label>Direccion</Label>
             <Input
               type="text"
-              name="contacto"
-              value={proveedor.contacto}
+              name="Direccion"
+              value={proveedor.Direccion}
               onChange={handleChange}
-              required
             />
           </FormGroup>
           <FormGroup>
             <Label>Teléfono</Label>
             <Input
               type="text"
-              name="telefono"
-              value={proveedor.telefono}
+              name="Numero_Telefono"
+              value={proveedor.Numero_Telefono}
               onChange={handleChange}
-              required
             />
           </FormGroup>
           <FormGroup>
-            <Label>Dirección</Label>
+            <Label>Email</Label>
             <Input
               type="text"
-              name="direccion"
-              value={proveedor.direccion}
+              name="Email"
+              value={proveedor.Email}
               onChange={handleChange}
-              required
             />
           </FormGroup>
           <Button type="submit">Guardar Cambios</Button>
