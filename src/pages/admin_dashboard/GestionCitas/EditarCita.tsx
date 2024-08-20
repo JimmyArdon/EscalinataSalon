@@ -4,6 +4,22 @@ import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
 
+// Definir interfaces para los datos
+interface Cliente {
+  id: number;
+  Nombre: string;
+}
+
+interface Servicio {
+  id: number;
+  Nombre: string;
+}
+
+interface Estilista {
+  id: number;
+  Nombre: string;
+}
+
 const Container = styled.div`
   margin: 40px;
   display: flex;
@@ -81,19 +97,44 @@ const EditarCita = () => {
   const [servicio, setServicio] = useState("");
   const [estilista, setEstilista] = useState("");
   const [estado, setEstado] = useState("");
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [servicios, setServicios] = useState<Servicio[]>([]);
+  const [estilistas, setEstilistas] = useState<Estilista[]>([]);
 
   useEffect(() => {
-    axios.get(`https://example.com/api/citas/${id}`)
-      .then((response) => {
-        const cita = response.data;
-        setCliente(cita.cliente);
-        setFecha(cita.fecha);
-        setHora(cita.hora);
-        setServicio(cita.servicio);
-        setEstilista(cita.estilista);
-      });
+    if (id) {
+      axios.get(`https://localhost:4000/citas/${id}`)
+        .then((response) => {
+          const cita = response.data;
+          setCliente(cita.cliente);
+          setFecha(cita.fecha);
+          setHora(cita.hora);
+          setServicio(cita.servicio);
+          setEstilista(cita.estilista);
+          setEstado(cita.estado);
+        });
+    }
   }, [id]);
 
+  // Buscar clientes
+  const buscarClientes = (search: string) => {
+    axios.get(`/clientes?search=${search}`)
+      .then((response) => setClientes(response.data));
+  };
+
+  // Buscar servicios
+  const buscarServicios = (search: string) => {
+    axios.get(`/servicios?search=${search}`)
+      .then((response) => setServicios(response.data));
+  };
+
+  // Buscar estilistas
+  const buscarEstilistas = (search: string) => {
+    axios.get(`/estilistas?search=${search}`)
+      .then((response) => setEstilistas(response.data));
+  };
+
+  // Manejo del formulario
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const citaActualizada = {
@@ -101,9 +142,10 @@ const EditarCita = () => {
       fecha,
       hora,
       servicio,
-      estilista
+      estilista,
+      estado
     };
-    axios.put(`https://example.com/api/citas/${id}`, citaActualizada)
+    axios.put(`https://localhost:4000/citas/${id}`, citaActualizada)
       .then(() => {
         navigate("/dashboard-admin/gestion-citas");
       });
@@ -117,16 +159,27 @@ const EditarCita = () => {
     <Container>
       <Salir onClick={manejarOnClickSalir} />
       <h2>Editar Cita</h2>
-      <form onSubmit={handleSubmit} className="bg-slate-500 p-10 rounded-[15px] w-2/4">
+      <form onSubmit={handleSubmit}>
         <FormGroup>
           <Label>Cliente</Label>
           <Input
             type="text"
             value={cliente}
-            onChange={(e) => setCliente(e.target.value)}
+            onChange={(e) => {
+              setCliente(e.target.value);
+              buscarClientes(e.target.value);
+            }}
             placeholder="Nombre del cliente"
             required
           />
+          {/* Lista de clientes encontrados */}
+          <ul>
+            {clientes.map((cliente) => (
+              <li key={cliente.Nombre} onClick={() => setCliente(cliente.Nombre)}>
+                {cliente.Nombre}
+              </li>
+            ))}
+          </ul>
         </FormGroup>
         <FormGroup>
           <Label>Fecha</Label>
@@ -151,20 +204,42 @@ const EditarCita = () => {
           <Input
             type="text"
             value={servicio}
-            onChange={(e) => setServicio(e.target.value)}
+            onChange={(e) => {
+              setServicio(e.target.value);
+              buscarServicios(e.target.value);
+            }}
             placeholder="Servicio"
             required
           />
+          {/* Lista de servicios encontrados */}
+          <ul>
+            {servicios.map((servicio) => (
+              <li key={servicio.Nombre} onClick={() => setServicio(servicio.Nombre)}>
+                {servicio.Nombre}
+              </li>
+            ))}
+          </ul>
         </FormGroup>
         <FormGroup>
           <Label>Estilista</Label>
           <Input
             type="text"
             value={estilista}
-            onChange={(e) => setEstilista(e.target.value)}
+            onChange={(e) => {
+              setEstilista(e.target.value);
+              buscarEstilistas(e.target.value);
+            }}
             placeholder="Nombre del estilista"
             required
           />
+          {/* Lista de estilistas encontrados */}
+          <ul>
+            {estilistas.map((estilista) => (
+              <li key={estilista.Nombre} onClick={() => setEstilista(estilista.Nombre)}>
+                {estilista.Nombre}
+              </li>
+            ))}
+          </ul>
         </FormGroup>
         <FormGroup>
           <Label>Estado Cita</Label>

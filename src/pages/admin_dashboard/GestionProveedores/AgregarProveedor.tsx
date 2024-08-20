@@ -1,5 +1,5 @@
-import { FormEvent, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { FormEvent, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 
@@ -34,37 +34,21 @@ const Salir = styled(IoMdCloseCircleOutline)`
 `;
 
 interface Proveedor {
-  proveedor: string;
-  dirección: string;
-  telefono: string;
-  email: string;
+  Nombre: string;
+  Direccion: string;
+  Numero_Telefono: string;
+  Email: string;
 }
 
 const AgregarProveedor: React.FC = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<Proveedor>({
-    proveedor: "",
-    dirección: "",
-    telefono: "",
-    email: "",
+    Nombre: "",
+    Direccion: "",
+    Numero_Telefono: "",
+    Email: "",
   });
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (id) {
-      fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores/${id}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setFormData({
-            proveedor: data.proveedor,
-            dirección: data.dirección,
-            telefono: data.telefono,
-            email: data.email,
-          });
-        });
-    }
-  }, [id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -77,93 +61,80 @@ const AgregarProveedor: React.FC = () => {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    const url = id
-      ? `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores/${id}`
-      : "https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores";
-
-    const method = id ? "PUT" : "POST";
-
-    fetch(url, {
-      method,
+    fetch("http://localhost:4000/proveedores", {
+      method: "POST",
       body: JSON.stringify(formData),
       headers: {
         "Content-Type": "application/json",
       },
-    }).then(() => navigate("/dashboard-admin/gestion-proveedores"));
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Error al enviar los datos');
+        return res.json();
+      })
+      .then(() => navigate("/dashboard-admin/gestion-proveedores"))
+      .catch((err) => setError(err.message));
   };
 
   const manejarOnClickSalir = () => {
     navigate("/dashboard-admin/gestion-proveedores");
   };
 
-  const manejarEliminar = async () => {
-    if (id) {
-      await fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/proveedores/${id}`, {
-        method: "DELETE",
-      });
-      navigate('/dashboard-admin/gestion-proveedores');
-    }
-  };
-
   return (
     <Container>
       <Salir onClick={manejarOnClickSalir} />
       <h1 className="text-body-secondary mb-10 font-bold">
-        {id ? 'Editar Proveedor' : 'Agregar Proveedor'}
+        Agregar Proveedor
       </h1>
       <form
         onSubmit={handleSubmit}
         className="bg-slate-700 p-10 rounded-[15px] w-2/4"
       >
-        <label htmlFor="proveedor" className="font-bold text-sm text-white">
+        <label htmlFor="Nombre" className="font-bold text-sm text-white">
           Proveedor
         </label>
         <input
-          value={formData.proveedor}
+          value={formData.Nombre}
           onChange={handleInputChange}
-          
           type="text"
-          id="proveedor"
-          name="proveedor"
+          id="Nombre"
+          name="Nombre"
           className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
           placeholder="Proveedor"
         />
-        <label htmlFor="dirección" className="font-bold text-sm text-white">
+        <label htmlFor="Direccion" className="font-bold text-sm text-white">
           Dirección
         </label>
         <input
-          value={formData.dirección}
+          value={formData.Direccion}
           onChange={handleInputChange}
-          
           type="text"
-          id="dirección"
-          name="dirección"
+          id="Direccion"
+          name="Direccion"
           className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
           placeholder="Dirección"
         />
-        <label htmlFor="telefono" className="font-bold text-sm text-white">
+        <label htmlFor="Numero_Telefono" className="font-bold text-sm text-white">
           Teléfono
         </label>
         <input
-          value={formData.telefono}
+          value={formData.Numero_Telefono}
           onChange={handleInputChange}
-          
           type="text"
-          id="telefono"
-          name="telefono"
+          id="Numero_Telefono"
+          name="Numero_Telefono"
           className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
           placeholder="Teléfono"
         />
-        <label htmlFor="email" className="font-bold text-sm text-white">
+        <label htmlFor="Email" className="font-bold text-sm text-white">
           Email
         </label>
         <input
-          value={formData.email}
+          value={formData.Email}
           onChange={handleInputChange}
-          
           type="email"
-          id="email"
-          name="email"
+          id="Email"
+          name="Email"
           className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
           placeholder="Email"
         />
@@ -173,17 +144,8 @@ const AgregarProveedor: React.FC = () => {
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
-            {id ? 'Actualizar Proveedor' : 'Guardar Proveedor'}
+            Guardar Proveedor
           </button>
-          {id && (
-            <button
-              type="button"
-              onClick={manejarEliminar}
-              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Eliminar Proveedor
-            </button>
-          )}
           <button
             type="button"
             onClick={manejarOnClickSalir}

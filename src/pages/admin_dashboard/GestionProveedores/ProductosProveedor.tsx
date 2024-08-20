@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Pagination from '../../../components/Pagination'; 
-
+import axios from 'axios';
 
 interface Producto {
-    id: string
-    nombre: string;
-    descripcion: string;
-    precio: number;
-    linea: string;
-    idProveedor: string;
+    id: string;
+    Nombre: string;
+    descripcion: string  | null;
+    Precio: number;
+    Marca_id: string;
+    Proveedor_id: string;
 }
 
 const ProductosProveedor: React.FC = () => {
@@ -19,33 +19,27 @@ const ProductosProveedor: React.FC = () => {
     const [filteredData, setFilteredData] = useState<Producto[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchProductos = async () => {
-            const data: Producto[] = [
-                { id:"1", nombre: "Shampoo Hidratante", linea: "Hidratación", descripcion: "Shampoo diseñado para hidratar y nutrir el cabello seco.", precio: 15.99, idProveedor: "1" },
-                { id:"2", nombre: "Acondicionador Suave", linea: "Línea 2", descripcion: "Acondicionador que deja el cabello suave y manejable.", precio: 14.99, idProveedor: "2" },
-                { id:"3", nombre: "Mascarilla Reparadora", linea: "Suavidad", descripcion: "Mascarilla para reparar el cabello dañado y fortalecerlo.", precio: 18.50, idProveedor: "2" },
-                { id:"4", nombre: "Producto 2", linea: "Línea 2", descripcion: "Descripción del producto 2", precio: 200, idProveedor: "1" },
-                { id:"5", nombre: "Producto 1", linea: "Línea 1", descripcion: "Descripción del producto 1", precio: 100, idProveedor: "1" },
-                { id:"6", nombre: "Producto 2", linea: "Línea 2", descripcion: "Descripción del producto 2", precio: 200, idProveedor: "1" },
-                { id:"7", nombre: "Producto 1", linea: "Línea 1", descripcion: "Descripción del producto 1", precio: 100, idProveedor: "2" },
-                { id:"8", nombre: "Producto 2", linea: "Línea 2", descripcion: "Descripción del producto 2", precio: 200, idProveedor: "2" },
-                { id:"9", nombre: "Producto 1", linea: "Línea 1", descripcion: "Descripción del producto 1", precio: 100, idProveedor: "2" },
-                { id:"10", nombre: "Shampoo Anticaspa", linea: "Tratamiento", descripcion: "Shampoo efectivo contra la caspa y el picor del cuero cabelludo.", precio: 17.25, idProveedor: "1" },
-                { id:"11", nombre: "Crema de Peinado", linea: "Definición", descripcion: "Descripción del producto 1", precio: 13.50, idProveedor: "1" },
-                { id:"12", nombre: "Loción Protectora", linea: "Protección", descripcion: "Loción que protege el cabello de daños por calor y styling.", precio: 14.50, idProveedor: "1" },
-                { id:"13", nombre: "Producto 1", linea: "Línea 1", descripcion: "Descripción del producto 1", precio: 100, idProveedor: "2" },
-                { id:"14", nombre: "Producto 2", linea: "Línea 2", descripcion: "Descripción del producto 2", precio: 200, idProveedor: "2" },
-                { id:"15", nombre: "Producto 1", linea: "Línea 1", descripcion: "Descripción del producto 1", precio: 100, idProveedor: "2" },
-                { id:"16", nombre: "Producto 2", linea: "Línea 2", descripcion: "Descripción del producto 2", precio: 200, idProveedor: "2" },
-                { id:"17", nombre: "Producto 1", linea: "Línea 1", descripcion: "Descripción del producto 1", precio: 100, idProveedor: "2" },
-                { id:"18", nombre: "Producto 2", linea: "Línea 2", descripcion: "Descripción del producto 2", precio: 200, idProveedor: "1" },
-               
-                
-            ];
-            setProductos(data);
-            setFilteredData(data);
+            try {
+                const response = await axios.get(`/productos-proveedor/:proveedor_id`);
+                console.log('Fetched Products:', response.data); // Verifica los datos
+                if (Array.isArray(response.data) && response.data.length > 0) {
+                    setProductos(response.data);
+                    setFilteredData(response.data);
+                } else {
+                    setProductos([]);
+                    setFilteredData([]);
+                }
+                setLoading(false);
+            } catch (err) {
+                console.error('Error al obtener productos:', err);
+                setError('Error al obtener productos');
+                setLoading(false);
+            }
         };
 
         fetchProductos();
@@ -56,7 +50,6 @@ const ProductosProveedor: React.FC = () => {
         setCurrentPage(1); 
     }, [productos]);
 
-
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
@@ -64,8 +57,7 @@ const ProductosProveedor: React.FC = () => {
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
     const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-    const idProvedor = id;
-    const productosFiltrados = paginatedData.filter(producto => producto.idProveedor === idProvedor)
+    console.log('Paginated Data:', paginatedData); // Verifica los datos paginados
 
     return (
         <div className="container mx-auto p-4">
@@ -78,34 +70,47 @@ const ProductosProveedor: React.FC = () => {
                 Salir
             </button>
 
-            <div className="rounded-xl overflow-x-auto">
-                <table className="border-collapse min-w-full table-auto bg-white border border-gray-200">
-                    <thead className="bg-[#CCC5B7] text-black">
-                        <tr>
-                            <th className="p-2 font-bold border border-gray-500">Nombre</th>
-                            <th className="p-2 font-bold border border-gray-500">Línea</th>
-                            <th className="p-2 font-bold border border-gray-500">Descripción</th>
-                            <th className="p-2 font-bold border border-gray-500">Precio</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {productosFiltrados.map((producto, index) => (
-                            <tr key={index} className="bg-white hover:bg-gray-200 transition-colors duration-200">
-                                <td className="p-2 border border-gray-500">{producto.nombre}</td>
-                                <td className="p-2 border border-gray-500">{producto.linea}</td>
-                                <td className="p-2 border border-gray-500">{producto.descripcion}</td>
-                                <td className="p-2 border border-gray-500">{producto.precio}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            {loading && <p>Cargando productos...</p>}
+            {error && <p className="text-red-500">{error}</p>}
+            
+            {!loading && !error && (
+                <>
+                    <div className="rounded-xl overflow-x-auto">
+                        <table className="border-collapse min-w-full table-auto bg-white border border-gray-200">
+                            <thead className="bg-[#CCC5B7] text-black">
+                                <tr>
+                                    <th className="p-2 font-bold border border-gray-500">Nombre</th>
+                                    <th className="p-2 font-bold border border-gray-500">Marca</th>
+                                    <th className="p-2 font-bold border border-gray-500">Descripción</th>
+                                    <th className="p-2 font-bold border border-gray-500">Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paginatedData.length > 0 ? (
+                                    paginatedData.map((producto) => (
+                                        <tr key={producto.id} className="bg-white hover:bg-gray-200 transition-colors duration-200">
+                                            <td className="p-2 border border-gray-500">{producto.Nombre}</td>
+                                            <td className="p-2 border border-gray-500">{producto.Marca_id}</td>
+                                            <td className="p-2 border border-gray-500">{producto.descripcion}</td>
+                                            <td className="p-2 border border-gray-500">{producto.Precio}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={4} className="p-2 text-center">No hay productos disponibles</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
 
-            <Pagination 
-                currentPage={currentPage} 
-                totalPages={totalPages} 
-                onPageChange={handlePageChange} 
-            />
+                    <Pagination 
+                        currentPage={currentPage} 
+                        totalPages={totalPages} 
+                        onPageChange={handlePageChange} 
+                    />
+                </>
+            )}
         </div>
     );
 };

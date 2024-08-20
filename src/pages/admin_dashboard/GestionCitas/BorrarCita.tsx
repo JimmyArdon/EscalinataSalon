@@ -1,6 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import axios from 'axios';
+
+// Define la interfaz para los datos de la cita
+export interface Cita {
+  id: number;
+  fecha: string;
+  hora: string;
+  servicio: string;
+  usuario: string;
+  cliente: string;
+  estado_cita: string;
+  Estilista: string;
+}
 
 // Define estilos para la ventana emergente y el fondo
 const Overlay = styled.div`
@@ -65,15 +78,46 @@ const Button = styled.button`
     color: #fff;
   }
 `;
+
 const BorrarCita: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [showConfirmModal, setShowConfirmModal] = useState(true);
   const [closing, setClosing] = useState(false);
+  const [clienteNombre, setClienteNombre] = useState<string>(''); // Estado para el nombre del cliente
 
-  const confirmDeleteUser = () => {
-    console.log(`Cita ${id} eliminada.`);
-    closeModal();
+  useEffect(() => {
+    const fetchCita = async () => {
+      if (id) { // Verifica que id no sea undefined
+        try {
+          // Obtén todas las citas y filtra por el ID
+          const response = await axios.get<Cita[]>('http://localhost:4000/citas');
+          const citas = response.data;
+          const cita = citas.find((cita) => cita.id === parseInt(id));
+          if (cita) {
+            setClienteNombre(cita.cliente); // Asigna el nombre del cliente al estado
+          }
+        } catch (error) {
+          console.error('Error al obtener los detalles de la cita:', error);
+          alert('Hubo un error al obtener los detalles de la cita.');
+        }
+      }
+    };
+
+    fetchCita();
+  }, [id]);
+
+  const confirmDeleteUser = async () => {
+    if (id) { // Verifica que id no sea undefined
+      try {
+        await axios.delete(`http://localhost:4000/citas/${id}`);
+        console.log(`Cita ${id} eliminada.`);
+        closeModal();
+      } catch (error) {
+        console.error('Error al eliminar la cita:', error);
+        alert('Hubo un error al eliminar la cita. Intenta nuevamente.');
+      }
+    }
   };
 
   const closeModal = () => {
@@ -93,7 +137,7 @@ const BorrarCita: React.FC = () => {
       {showConfirmModal && (
         <Overlay className={closing ? 'fadeOut' : 'fadeIn'}>
           <Modal className={closing ? 'fadeOut' : 'fadeIn'}>
-            <p>¿Seguro que quieres eliminar la cita de {id}?</p>
+            <p>¿Seguro que quieres eliminar la cita del cliente {clienteNombre}?</p>
             <Button onClick={(e) => {preventDefaultAction(e); confirmDeleteUser();}} className="btn-submit">Confirmar</Button>
             <Button onClick={(e) => {preventDefaultAction(e); closeModal();}} className="btn-cancel">Cancelar</Button>
           </Modal>
