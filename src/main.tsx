@@ -45,13 +45,24 @@ import GestionClientes from "./pages/admin_dashboard/ControlVentas/BDClientes/Cl
 import AgregarCliente from "./pages/admin_dashboard/ControlVentas/BDClientes/AgregarCliente";
 import EditarCliente from "./pages/admin_dashboard/ControlVentas/BDClientes/EditarCliente";
 import VentasCredito from "./pages/admin_dashboard/ControlVentas/VentasCredito";
-
-
-
-
+import GestionProveedoresR from "./pages/recepcionistas_dashboard/GestionProveedores/GestionProveedoresR";
+import ProductosProveedorR from "./pages/recepcionistas_dashboard/GestionProveedores/ProductosProveedorR";
+import GestionCitasR from "./pages/recepcionistas_dashboard/GestionCitas/GestionCitasR";
+import AgregarCitaR from "./pages/recepcionistas_dashboard/GestionCitas/AgregarCitaR";
+import EditarCitaR from "./pages/recepcionistas_dashboard/GestionCitas/EditarCitaR";
+import BorrarCitaR from "./pages/recepcionistas_dashboard/GestionCitas/BorrarCitaR";
+import DashboardR from "./pages/recepcionistas_dashboard/ControlVentas/DashboardR";
+import VentaR from "./pages/recepcionistas_dashboard/ControlVentas/RealizarVentaR";
+import CotizacionR from "./pages/recepcionistas_dashboard/ControlVentas/CotizacionR";
+import HistorialVentaR from "./pages/recepcionistas_dashboard/ControlVentas/HistorialVentaR";
+import GestionClientesR from "./pages/recepcionistas_dashboard/ControlVentas/BDClientesR/ClientesR";
+import AgregarClienteR from "./pages/recepcionistas_dashboard/ControlVentas/BDClientesR/AgregarClienteR";
+import EditarClienteR from "./pages/recepcionistas_dashboard/ControlVentas/BDClientesR/EditarClienteR";
+import VentasCreditoR from "./pages/recepcionistas_dashboard/ControlVentas/VentasCreditoR";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
+
 );
 
 root.render(
@@ -70,14 +81,29 @@ root.render(
 
 
         {/* Rutas Recepcionista */}
+
+        <Route path="dashboard-recepcionista/control-ventas" element={<DashboardR />} />  
+        <Route path="dashboard-recepcionista/control-ventas/venta" element={<VentaR />} />  
+        <Route path="dashboard-recepcionista/control-ventas/cotizacion" element={<CotizacionR />} />  
+        <Route path="dashboard-recepcionista/control-ventas/historial-venta" element={<HistorialVentaR />} />   
+        <Route path="dashboard-recepcionista/control-ventas/gestion-clientes" element={<GestionClientesR />} /> 
+        <Route path="dashboard-recepcionista/control-ventas/gestion-clientes/agregar-cliente" element={<AgregarClienteR />} /> 
+        <Route path="dashboard-recepcionista/control-ventas/gestion-clientes/editar-cliente" element={<EditarClienteR />} /> 
+        <Route path="dashboard-recepcionista/control-ventas/ventas-creditos" element={<VentasCreditoR/>} /> 
+
+        <Route path="dashboard-recepcionista/gestion-citas/" element={<GestionCitasR />} />
+        <Route path="dashboard-recepcionista/gestion-citas/agregar-cita/" element={<AgregarCitaR />} />
+        <Route path="dashboard-recepcionista/gestion-citas/editar-cita/:id" element={<EditarCitaR />} />
+        <Route path="dashboard-recepcionista/gestion-citas/borrar-cita/:id" element={<BorrarCitaR />} />
+
+
           <Route path="dashboard-recepcionista/main" element={<DashboardRecepcionista />}/>
           <Route path="dashboard-recepcionista/perfil" element={<Perfil />} />
           <Route path="dashboard-recepcionista/cambiar-contrasena" element={<CambiarContrasena />} />
-          {/*<Route path="dashboard-recepcionista/gestion-de-servicios" element={<GestionDeServicios />} />
-          <Route path="dashboard-recepcionista/gestion-de-servicios/servicio" element={<AgregarServicio />} />
-          <Route path="dashboard-recepcionista/gestion-de-servicios/servicios/edit/:id" element={<EditarServicio />} /> 
-          <Route path="dashboard-recepcionista/gestion-de-servicios/promociones" element={<AgregarPromocion />} />
-          <Route path="dashboard-recepcionista/gestion-de-servicios/promociones/edit/:id" element={<EditarPromocion />} />*/}  
+          <Route path="dashboard-recepcionista/gestion-proveedores" element={<GestionProveedoresR />} />
+          <Route path="dashboard-recepcionista/gestion-proveedores/productos-proveedor/:id" element={<ProductosProveedorR />} />
+         
+
 
         {/* Rutas Administracion*/}
         <Route path="dashboard-admin/main" element={<DashboardAdmin />} />
@@ -121,12 +147,11 @@ root.render(
 
         <Route path="dashboard-admin/control-ventas" element={<Dashboard />} />  
         <Route path="dashboard-admin/control-ventas/venta" element={<Venta />} />  
-       
         <Route path="dashboard-admin/control-ventas/cotizacion" element={<Cotizacion />} />  
         <Route path="dashboard-admin/control-ventas/historial-venta" element={<HistorialVenta />} />   
         <Route path="dashboard-admin/control-ventas/gestion-clientes" element={<GestionClientes />} /> 
         <Route path="dashboard-admin/control-ventas/gestion-clientes/agregar-cliente" element={<AgregarCliente />} /> 
-        <Route path="dashboard-admin/control-ventas/gestion-clientes/editar-cliente/:id" element={<EditarCliente />} /> 
+        <Route path="dashboard-admin/control-ventas/gestion-clientes/editar-cliente" element={<EditarCliente />} /> 
         <Route path="dashboard-admin/control-ventas/ventas-creditos" element={<VentasCredito/>} /> 
 
 

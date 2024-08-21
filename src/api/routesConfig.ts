@@ -1,11 +1,11 @@
 // rutas de dashboard Recepcionista
 export const recepcionistaRoutes = {
   
-  "Gestion de Inventarios": "",
-  "Control de Ventas": "#",
-  "Gestión de Citas": "#",
-  "Gestión de Servicios": "#",
-  "Gestión de Proveedores": "#",
+  "Gestion de Inventarios": "/dashboard-recepcionista/gestion-usuarios",
+  "Control de Ventas": "/dashboard-recepcionista/control-ventas",
+  "Gestión de Citas": "/dashboard-recepcionista/gestion-citas",
+  "Gestión de Servicios": "/dashboard-recepcionista/gestion-de-servicios",
+  "Gestión de Proveedores": "/dashboard-recepcionista/gestion-proveedores",
 } as const;
 
 export type RecepcionistaRouteKeys = keyof typeof recepcionistaRoutes;
