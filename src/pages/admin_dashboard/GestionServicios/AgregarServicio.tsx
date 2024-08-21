@@ -41,7 +41,7 @@ const AgregarServicio: React.FC = () => {
   
   useEffect(() => {
     if (id) {
-      fetch(`http://localhost:6500/servicios/${id}`)
+      fetch(`http://localhost:4000/servicios/${id}`)
         .then((res) => res.json())
         .then((data) => {
           setNombre(data.Nombre);
@@ -58,7 +58,7 @@ const AgregarServicio: React.FC = () => {
     
     if (id) {
       await fetch(
-        `http://localhost:6500/servicios/${id}`,
+        `http://localhost:4000/servicios/${id}`,
         {
           method: "PUT",
           body: JSON.stringify({ Nombre: nombre, Duracion: duracion, Precio: precio }),
@@ -69,7 +69,7 @@ const AgregarServicio: React.FC = () => {
       );
     } else {
       await fetch(
-        "http://localhost:6500/servicios",
+        "http://localhost:4000/servicios",
         {
           method: "POST",
           body: JSON.stringify({ Nombre: nombre, Duracion: duracion, Precio: precio }),
@@ -140,7 +140,7 @@ const AgregarServicio: React.FC = () => {
           {id && (
             <button
               onClick={async () => {
-                await fetch(`http://localhost:6500/servicios/${id}`, {
+                await fetch(`http://localhost:4000/servicios/${id}`, {
                   method: "DELETE",
                 });
                 navigate('/dashboard-recepcionista/main/gestion-de-servicios');

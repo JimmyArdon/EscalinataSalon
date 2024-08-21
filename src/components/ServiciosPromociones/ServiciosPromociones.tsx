@@ -30,7 +30,7 @@ const ServiciosPromociones = () => {
     const [servicios, setServicios] = useState<Servicio[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:6500/servicios")
+    fetch("http://localhost:4000/servicios")
       .then((res) => res.json())
       .then((data) => setServicios(data));
   }, []);

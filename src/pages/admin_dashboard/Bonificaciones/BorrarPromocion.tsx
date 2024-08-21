@@ -141,7 +141,7 @@ const BorrarPromocion = () => {
         setLoading(true);
         try {
           const response = await axios.get<Promocion[]>(
-            `http://localhost:6500/servicios?Nombre=${searchQuery}`
+            `http://localhost:4000/servicios?Nombre=${searchQuery}`
           );
           setOpcionesFiltradas(response.data);
           
@@ -163,7 +163,7 @@ const BorrarPromocion = () => {
     if (promocion.Id) {
       axios
         .get<Promocion>(
-          `http://localhost:6500/promociones-servicios/${promocion.Id}`
+          `http://localhost:4000/promociones-servicios/${promocion.Id}`
         )
         .then((response) => {
           setPromocion(response.data);
@@ -178,7 +178,7 @@ const BorrarPromocion = () => {
     if (promocion.Id) {
       axios
         .delete(
-          `http://localhost:6500/promociones-servicios/${promocion.Id}`
+          `http://localhost:4000/promociones-servicios/${promocion.Id}`
         )
         .then(() => {
           setMessage("Promoción eliminada con éxito.");
@@ -198,7 +198,7 @@ const BorrarPromocion = () => {
 
   async function traerProSer(id: string) {
     try {
-      const respuesta = await fetch(`http://localhost:6500/promociones-servicios/${id}`);
+      const respuesta = await fetch(`http://localhost:4000/promociones-servicios/${id}`);
   
       if (!respuesta.ok) {
         if (respuesta.status === 404) {
@@ -218,7 +218,7 @@ const BorrarPromocion = () => {
   
 
   async function traerSer(id : string){
-    const datos = await fetch(`http://localhost:6500/servicios/${id}`);
+    const datos = await fetch(`http://localhost:4000/servicios/${id}`);
     const res = await datos.json();
     return res;
   }

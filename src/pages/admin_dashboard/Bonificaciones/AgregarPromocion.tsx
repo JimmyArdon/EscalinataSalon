@@ -58,7 +58,7 @@ const AgregarPromocion: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:6500/servicios')
+    fetch('http://localhost:4000/servicios')
       .then((res) => res.json())
       .then(data => {
         setListaServicios(data);
@@ -68,7 +68,7 @@ const AgregarPromocion: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      fetch(`http://localhost:6500/promociones-servicios/${id}`)
+      fetch(`http://localhost:4000/promociones-servicios/${id}`)
         .then((res) => res.json())
         .then((data) => {
           setDescuento(data.Descuento);
@@ -146,8 +146,8 @@ const AgregarPromocion: React.FC = () => {
     if (!validarDescripcion() || !validarDescuento() || !validarFechas()) return; // Validar antes de proceder
 
     const url = id
-      ? `http://localhost:6500/promociones-servicios/${id}`
-      : "http://localhost:6500/promociones-servicios";
+      ? `http://localhost:4000/promociones-servicios/${id}`
+      : "http://localhost:4000/promociones-servicios";
 
     const method = id ? "PUT" : "POST";
 
@@ -173,7 +173,7 @@ const AgregarPromocion: React.FC = () => {
 
   const manejarEliminar = async () => {
     if (id) {
-      await fetch(`http://localhost:6500/promociones-servicios/${id}`, {
+      await fetch(`http://localhost:4000/promociones-servicios/${id}`, {
         method: "DELETE",
       });
       navigate('/dashboard-admin/bonificaciones');

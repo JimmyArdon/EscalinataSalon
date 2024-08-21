@@ -24,7 +24,7 @@ const ShowPromociones: React.FC = () => {
   const [promocionesPerPage] = useState(10);
 
   useEffect(() => {
-    fetch("http://localhost:6500/promociones-servicios")
+    fetch("http://localhost:4000/promociones-servicios")
       .then((res) => res.json())
       .then((data) => setPromociones(data));
   }, []);

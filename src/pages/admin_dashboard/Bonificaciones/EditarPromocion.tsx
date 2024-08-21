@@ -129,7 +129,7 @@ const EditarPromocion = () => {
     if (searchQuery) {
       setLoading(true);
       axios
-        .get(`http://localhost:6500/servicios?Nombre=${searchQuery}`)
+        .get(`http://localhost:4000/servicios?Nombre=${searchQuery}`)
         .then((response) => {
           setOpcionesFiltradas(response.data);
         })
@@ -154,7 +154,7 @@ const EditarPromocion = () => {
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     axios
-      .get(`http://localhost:6500/servicios?Nombre=${searchQuery}`)
+      .get(`http://localhost:4000/servicios?Nombre=${searchQuery}`)
       .then((response) => {
         if (response.data.length > 0) {
           setPromocion(response.data[0]);
@@ -166,7 +166,7 @@ const EditarPromocion = () => {
   };
 
    async function traerServicio_id (){
-    const data = await fetch(`http://localhost:6500/servicios?Nombre=${promocion.Nombre}`);
+    const data = await fetch(`http://localhost:4000/servicios?Nombre=${promocion.Nombre}`);
     const res = await data.json();
     return res[0].Id;
     
@@ -181,7 +181,7 @@ const EditarPromocion = () => {
     
     
     axios
-      .put(`http://localhost:6500/promociones-servicios/${promocion.Id}`, {
+      .put(`http://localhost:4000/promociones-servicios/${promocion.Id}`, {
         Descuento: promocion.descuento,
         Fecha_inicio: promocion.fechaInicio,
         Fecha_fin: promocion.fechaFinal,
