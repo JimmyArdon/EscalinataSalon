@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import FiltroCitas from "../../../components/FiltroInventario"; 
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import FiltroCitas from "../../../components/FiltroInventario";
 import Pagination from "../../../components/Pagination";
 import "../../../components/VentasAlCredito.css";
 
 interface VentaCredito {
   id: number;
   cliente: string;
-  monto: number;
+  montoPendiente: number;
   fecha: string;
   estado: string;
 }
@@ -18,17 +19,24 @@ interface HistorialPago {
   fechaPago: string;
 }
 
+interface VentaCreditoAPIResponse {
+  Id: number;
+  nombre: string;
+  Monto_pendiente: number;
+  Fecha: string;
+  Descripcion: string;
+}
+
+interface HistorialPagoAPIResponse {
+  Id: number;
+  Nombre: string;
+  Monto_pagado: number;
+  Fecha_pago: string;
+}
+
 const VentasCredito: React.FC = () => {
-  const [ventas, setVentas] = useState<VentaCredito[]>([
-    { id: 1, cliente: 'Cliente A', monto: 1500, fecha: '2024-08-01', estado: 'Pendiente' },
-    { id: 2, cliente: 'Cliente B', monto: 2000, fecha: '2024-08-05', estado: 'Pendiente' },
-    { id: 3, cliente: 'Cliente C', monto: 1200, fecha: '2024-08-10', estado: 'Pendiente' },
-  ]);
-
-  const [historialPagos, setHistorialPagos] = useState<HistorialPago[]>([
-    { id: 1, cliente: 'Cliente C', montoPagado: 1200, fechaPago: '2024-08-10' }
-  ]);
-
+  const [ventas, setVentas] = useState<VentaCredito[]>([]);
+  const [historialPagos, setHistorialPagos] = useState<HistorialPago[]>([]);
   const [selectedVenta, setSelectedVenta] = useState<VentaCredito | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [pago, setPago] = useState<number>(0);
@@ -37,34 +45,68 @@ const VentasCredito: React.FC = () => {
   const itemsPerPage = 5;
   const [currentPageHistorial, setCurrentPageHistorial] = useState<number>(1);
 
-  const filteredVentas = ventas.filter((venta) =>
-    venta.cliente.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    const fetchVentas = async () => {
+      try {
+        const response = await axios.get<VentaCreditoAPIResponse[]>('http://localhost:4000/ventas-credito', {
+          params: { searchTerm }
+        });
+        const ventasData = response.data.map((venta) => ({
+          id: venta.Id,
+          cliente: venta.nombre,
+          montoPendiente: venta.Monto_pendiente,
+          fecha: venta.Fecha.split('T')[0],
+          estado: venta.Descripcion,
+        }));
+        setVentas(ventasData);
+      } catch (error) {
+        console.error('Error fetching ventas data:', error);
+      }
+    };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredVentas.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredVentas.length / itemsPerPage);
+    fetchVentas();
+  }, [searchTerm]);
 
-  const indexOfLastItemHistorial = currentPageHistorial * itemsPerPage;
-  const indexOfFirstItemHistorial = indexOfLastItemHistorial - itemsPerPage;
-  const currentHistorialItems = historialPagos.slice(indexOfFirstItemHistorial, indexOfLastItemHistorial);
-  const totalPagesHistorial = Math.ceil(historialPagos.length / itemsPerPage);
+  useEffect(() => {
+    const fetchHistorialPagos = async () => {
+      try {
+        const response = await axios.get<HistorialPagoAPIResponse[]>('http://localhost:4000/historial-pagos');
+        const historialData = response.data.map((pago) => ({
+          id: pago.Id,
+          cliente: pago.Nombre,
+          montoPagado: pago.Monto_pagado,
+          fechaPago: pago.Fecha_pago.split('T')[0],
+        }));
+        setHistorialPagos(historialData);
+      } catch (error) {
+        console.error('Error fetching historial pagos data:', error);
+      }
+    };
+
+    fetchHistorialPagos();
+  }, []);
 
   const handleRegistrarPago = async () => {
     if (selectedVenta) {
-      if (pago <= 0 || pago > selectedVenta.monto) {
+      if (pago <= 0 || pago > selectedVenta.montoPendiente) {
         alert("El pago no puede ser mayor al crédito pendiente ni 0");
         return;
       }
-      
+
       try {
+        await axios.post('http://localhost:4000/registrar-pago', {
+          ClienteId: selectedVenta.id,
+          montoPagado: pago,
+          fechaPago: new Date().toISOString().split('T')[0]
+        });
+
+        // Update state after successful request
         const updatedVentas = ventas.map(venta =>
           venta.id === selectedVenta.id
             ? {
                 ...venta,
-                monto: venta.monto - pago,
-                estado: venta.monto - pago === 0 ? 'Pagado' : 'Pendiente'
+                montoPendiente: venta.montoPendiente - pago,
+                estado: venta.montoPendiente - pago === 0 ? 'Pagado' : 'Pendiente'
               }
             : venta
         );
@@ -82,11 +124,26 @@ const VentasCredito: React.FC = () => {
         setShowModal(false);
         setSelectedVenta(null);
         setPago(0);
+        alert("Pago registrado exitosamente");
       } catch (error) {
         console.error('Error registrando pago:', error);
       }
     }
   };
+
+  const filteredVentas = ventas.filter((venta) =>
+    venta.cliente?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredVentas.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredVentas.length / itemsPerPage);
+
+  const indexOfLastItemHistorial = currentPageHistorial * itemsPerPage;
+  const indexOfFirstItemHistorial = indexOfLastItemHistorial - itemsPerPage;
+  const currentHistorialItems = historialPagos.slice(indexOfFirstItemHistorial, indexOfLastItemHistorial);
+  const totalPagesHistorial = Math.ceil(historialPagos.length / itemsPerPage);
 
   return (
     <div className="container">
@@ -95,9 +152,8 @@ const VentasCredito: React.FC = () => {
       <table className="table-primary">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Cliente</th>
-            <th>Monto</th>
+            <th>Monto Pendiente</th>
             <th>Fecha</th>
             <th>Estado</th>
             <th>Acciones</th>
@@ -106,9 +162,8 @@ const VentasCredito: React.FC = () => {
         <tbody>
           {currentItems.map((venta) => (
             <tr key={venta.id}>
-              <td>{venta.id}</td>
               <td>{venta.cliente}</td>
-              <td>{venta.monto}</td>
+              <td>{venta.montoPendiente}</td>
               <td>{venta.fecha}</td>
               <td>{venta.estado}</td>
               <td>
@@ -140,13 +195,12 @@ const VentasCredito: React.FC = () => {
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={setCurrentPage}
+        onPageChange={(page) => setCurrentPage(page)}
       />
       <h2 className="title">Historial de Pagos</h2>
-      <table className="table-secondary">
+      <table className="table-primary">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Cliente</th>
             <th>Monto Pagado</th>
             <th>Fecha de Pago</th>
@@ -155,7 +209,6 @@ const VentasCredito: React.FC = () => {
         <tbody>
           {currentHistorialItems.map((pago) => (
             <tr key={pago.id}>
-              <td>{pago.id}</td>
               <td>{pago.cliente}</td>
               <td>{pago.montoPagado}</td>
               <td>{pago.fechaPago}</td>
@@ -166,7 +219,7 @@ const VentasCredito: React.FC = () => {
       <Pagination
         currentPage={currentPageHistorial}
         totalPages={totalPagesHistorial}
-        onPageChange={setCurrentPageHistorial}
+        onPageChange={(page) => setCurrentPageHistorial(page)}
       />
     </div>
   );

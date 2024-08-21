@@ -76,14 +76,22 @@ const ErrorMessage = styled.p`
   font-weight: bold;
 `;
 
+const SuccessMessage = styled.p`
+  color: #4caf50;
+  font-weight: bold;
+`;
+
 const AgregarCliente: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    nombre: "",
-    rtn: "",
-    direccion: ""
+    Nombre: "",
+    Rtn: "",
+    Direccion: "",
+    Numero_Telefono: "",
+    Email: ""
   });
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -94,8 +102,8 @@ const AgregarCliente: React.FC = () => {
   };
 
   const validarFormulario = (): boolean => {
-    const { nombre, rtn, direccion } = formData;
-    if (!nombre ||  !rtn || !direccion) {
+    const { Nombre, Rtn, Direccion, Numero_Telefono, Email } = formData;
+    if (!Nombre || !Rtn || !Direccion || !Numero_Telefono || !Email) {
       setError("Todos los campos son obligatorios.");
       return false;
     }
@@ -107,13 +115,22 @@ const AgregarCliente: React.FC = () => {
     e.preventDefault();
     if (!validarFormulario()) return;
 
-    fetch("https://example.com/api/clientes", {
+    fetch("http://localhost:4000/clientes", {
       method: "POST",
       body: JSON.stringify(formData),
       headers: {
         "Content-Type": "application/json",
       },
-    }).then(() => navigate("/clientes"));
+    })
+    .then(response => response.json())
+    .then(() => {
+      setSuccessMessage("Cliente agregado con éxito.");
+      setTimeout(() => navigate("/dashboard-admin/control-ventas/gestion-clientes"), 2000);
+    })
+    .catch(err => {
+      console.error("Error al agregar cliente:", err);
+      setError("Error al agregar cliente");
+    });
   };
 
   const manejarOnClickSalir = () => {
@@ -129,8 +146,8 @@ const AgregarCliente: React.FC = () => {
           <Label>Nombre</Label>
           <Input
             type="text"
-            name="nombre"
-            value={formData.nombre}
+            name="Nombre"
+            value={formData.Nombre}
             onChange={handleInputChange}
             required
           />
@@ -140,23 +157,48 @@ const AgregarCliente: React.FC = () => {
           <Label>RTN</Label>
           <Input
             type="text"
-            name="rtn"
-            value={formData.rtn}
+            name="Rtn"
+            value={formData.Rtn}
             onChange={handleInputChange}
             required
           />
         </FormGroup>
+
         <FormGroup>
           <Label>Dirección</Label>
           <Input
             type="text"
-            name="direccion"
-            value={formData.direccion}
+            name="Direccion"
+            value={formData.Direccion}
             onChange={handleInputChange}
             required
           />
         </FormGroup>
+
+        <FormGroup>
+          <Label>Teléfono</Label>
+          <Input
+            type="text"
+            name="Numero_Telefono"
+            value={formData.Numero_Telefono}
+            onChange={handleInputChange}
+            required
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <Label>Email</Label>
+          <Input
+            type="email"
+            name="Email"
+            value={formData.Email}
+            onChange={handleInputChange}
+            required
+          />
+        </FormGroup>
+
         {error && <ErrorMessage>{error}</ErrorMessage>}
+        {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
         <Button type="submit">Guardar Cliente</Button>
         <ClearButton type="button" onClick={manejarOnClickSalir}>
           Cancelar
