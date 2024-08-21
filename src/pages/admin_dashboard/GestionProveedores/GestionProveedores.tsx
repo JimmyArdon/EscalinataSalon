@@ -12,7 +12,7 @@ interface Proveedor {
     Nombre: string;
     Direccion: string;
     Numero_Telefono: string;
-    email: string;
+    Email: string;
 }
 
 const ButtonGroup = styled.div`
@@ -35,7 +35,7 @@ const GestionProveedores: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/proveedores');
+                const response = await axios.get('http://localhost:4000/proveedoress');
                 setInitialData(response.data);
                 setFilteredData(response.data);
             } catch (error) {
@@ -97,7 +97,7 @@ const GestionProveedores: React.FC = () => {
                                     <td className="p-3 text-sm">{item.Nombre}</td>
                                     <td className="p-3 text-sm">{item.Direccion}</td>
                                     <td className="p-3 text-sm">{item.Numero_Telefono}</td>
-                                    <td className="p-3 text-sm">{item.email}</td>
+                                    <td className="p-3 text-sm">{item.Email}</td>
                                     <td className="p-3 text-sm">
                                         <NavLink to={`/dashboard-admin/gestion-proveedores/productos-proveedor/${item.id}`}>
                                             <FontAwesomeIcon icon={faBoxOpen} className="text-blue-500 hover:text-blue-700 cursor-pointer" />

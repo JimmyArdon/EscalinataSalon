@@ -5,7 +5,7 @@ import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
 
 interface Proveedor {
-  id: string;
+  Id: string;
   Nombre: string;
   Direccion: string;
   Numero_Telefono: string;
@@ -117,7 +117,7 @@ const DropdownItem = styled.li`
 const EditarProveedor = () => {
   const navigate = useNavigate();
   const [proveedor, setProveedor] = useState<Proveedor>({
-    id: "",
+    Id: "",
     Nombre: "",
     Direccion: "",
     Numero_Telefono: "",
@@ -133,7 +133,7 @@ const EditarProveedor = () => {
     if (searchQuery) {
       setLoading(true);
       axios
-        .get(`http://localhost:4000/proveedores?nombre=${searchQuery}`) // Actualiza la URL
+        .get(`http://localhost:4000/proveedoress?nombre=${searchQuery}`) // Actualiza la URL
         .then((response) => {
           setOpcionesFiltradas(response.data);
         })
@@ -174,7 +174,7 @@ const EditarProveedor = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     axios
-      .put(`http://localhost:4000/proveedores/${proveedor.id}`, proveedor) // Actualiza la URL
+      .put(`http://localhost:4000/proveedoress/${proveedor.Id}`, proveedor) // Actualiza la URL
       .then(() => {
         setSuccessMessage("Proveedor actualizado exitosamente.");
         setErrorMessage("");
@@ -190,7 +190,7 @@ const EditarProveedor = () => {
 
   const handleClear = () => {
     setProveedor({
-      id: "",
+      Id: "",
       Nombre: "",
       Direccion: "",
       Numero_Telefono: "",
@@ -233,7 +233,7 @@ const EditarProveedor = () => {
               <Dropdown>
                 {opcionesFiltradas.map((opcion) => (
                   <DropdownItem
-                    key={opcion.id}
+                    key={opcion.Id}
                     onClick={() => seleccionarOpcion(opcion)}
                   >
                     {opcion.Nombre}

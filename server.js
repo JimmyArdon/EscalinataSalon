@@ -323,7 +323,6 @@ app.get('/clientess', (req, res) => {
     });
 });
 
-
 // Endpoint para agregar un cliente
 app.post('/clientes', (req, res) => {
     const { Nombre, Rtn, Direccion, Numero_Telefono, Email } = req.body;
@@ -615,6 +614,19 @@ app.get('/proveedores', (req, res) => {
     });
 });
 
+app.get('/proveedoress', (req, res) => {
+    const query = 'SELECT * FROM proveedor';
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching proveedores:', err);
+            return res.status(500).json({ error: 'Error al obtener la lista de proveedores' });
+        }
+
+        res.json(results);
+    });
+});
+
 app.get('/productos-proveedor/:Proveedor_id', (req, res) => {
     const { Proveedor_id } = req.params;
 
@@ -628,7 +640,7 @@ app.get('/productos-proveedor/:Proveedor_id', (req, res) => {
     });
 });
 
-app.post('/proveedores', (req, res) => {
+app.post('/proveedoress', (req, res) => {
     const { Nombre, Direccion, Numero_Telefono, Email } = req.body;
 
     const query = 'INSERT INTO proveedor (Nombre, Direccion, Numero_Telefono , Email) VALUES (?, ?, ?, ?)';
@@ -641,7 +653,7 @@ app.post('/proveedores', (req, res) => {
     });
 });
 
-app.put('/proveedores/:id', (req, res) => {
+app.put('/proveedoress/:id', (req, res) => {
     const { id } = req.params;
     const { Nombre, Direccion, Numero_Telefono, Email } = req.body;
 
@@ -655,7 +667,7 @@ app.put('/proveedores/:id', (req, res) => {
     });
 });
 
-app.delete('/proveedores/:id', (req, res) => {
+app.delete('/proveedoress/:id', (req, res) => {
     const { id } = req.params;
 
     const query = 'DELETE FROM proveedor WHERE id = ?';
