@@ -3,13 +3,12 @@ import PromocionesCard from "./PromocionesCard";
 import styled from "styled-components";
 import Pagination from "../Pagination";
 
-interface Promocion {
-  id: string;
-  descripcion: string;
-  precio: number;
-  descuento: number;
-  fechaInicio: string;
-  fechaFinal: string;
+interface PromocionServicio {
+  Id: string;
+  Descuento: number;
+  Fecha_inicio: string;
+  Fecha_fin: string;
+  Servicio_id: string;
 }
 
 const Container = styled.div`
@@ -20,12 +19,12 @@ const Container = styled.div`
 `;
 
 const ShowPromociones: React.FC = () => {
-  const [promociones, setPromociones] = useState<Promocion[]>([]);
+  const [promociones, setPromociones] = useState<PromocionServicio[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [promocionesPerPage] = useState(10);
 
   useEffect(() => {
-    fetch("https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones")
+    fetch("http://localhost:6500/promociones-servicios")
       .then((res) => res.json())
       .then((data) => setPromociones(data));
   }, []);
@@ -57,7 +56,7 @@ const ShowPromociones: React.FC = () => {
           </thead>
           <tbody>
             {currentPromociones.map((promocion) => (
-              <PromocionesCard promocion={promocion} key={promocion.id} />
+              <PromocionesCard promocion={promocion} key={promocion.Id} />
             ))}
           </tbody>
         </table>

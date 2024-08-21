@@ -1,32 +1,51 @@
+import { useEffect, useState } from "react";
 
 
-interface Promocion {
-    id: string;
-    descripcion: string;
-    precio: number;
-    descuento: number;
-    fechaInicio: string;
-    fechaFinal: string;
+interface PromocionServicio {
+    Id: string;
+    Descuento: number;
+    Fecha_inicio: string;
+    Fecha_fin: string;
+    Servicio_id: string;
   }
 
+ interface Servicio {
+    Id: string;
+    Nombre: string;
+    Precio: number;
+ } 
+
   interface PromocionCardProps {
-    promocion: Promocion; 
+    promocion: PromocionServicio; 
   }
 
 const   PromocionesCard: React.FC<PromocionCardProps> = ({promocion}) => {
   
+  const [servicio, setServicio] = useState<Servicio | null>(null)
+
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
     return date.toLocaleDateString(); // Muestra la fecha como DD/MM/YYYY según la configuración regional
   };
 
+  useEffect(()=>{
+    fetch(`http://localhost:6500/servicios/${promocion.Servicio_id}`)
+    .then(res => res.json())
+    .then(data => setServicio(data))
+    .catch(error => console.error('Error fetching data:', error));
+  }, [promocion.Servicio_id])
+
+  if (!servicio) {
+    return <tr><td colSpan={5} className="text-center">Loading...</td></tr>;
+}
+
     return (
             <tr className="cursor-pointer transform transition-transform duration-300 hover:scale-105 border-black">
-              <td className="text-center">{promocion.descripcion}</td>
-              <td className="text-center">{promocion.descuento}%</td>
-              <td className="text-center">Lps.{promocion.precio}</td>
-              <td className="text-center">{formatDate(promocion.fechaInicio)}</td>
-              <td className="text-center">{formatDate(promocion.fechaFinal)}</td>
+              <td className="text-center">{servicio.Nombre}</td>
+              <td className="text-center">{promocion.Descuento}%</td>
+              <td className="text-center">Lps.{(servicio.Precio - (servicio.Precio * (promocion.Descuento / 100))).toFixed(2)}</td>
+              <td className="text-center">{formatDate(promocion.Fecha_inicio)}</td>
+              <td className="text-center">{formatDate(promocion.Fecha_fin)}</td>
             </tr>
     )
 }
