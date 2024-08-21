@@ -4,10 +4,10 @@ import { IoMdCloseCircleOutline } from "react-icons/io";
 import styled from "styled-components";
 
 interface Servicio {
-  id: string;
-  nombre: string;
-  duracion:string;
-  precio: string;
+  Id: string;
+  Nombre: string;
+  Duracion:string;
+  Precio: string;
 }
 
 const Container = styled.div`
@@ -58,7 +58,7 @@ const AgregarPromocion: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios')
+    fetch('http://localhost:6500/servicios')
       .then((res) => res.json())
       .then(data => {
         setListaServicios(data);
@@ -68,18 +68,16 @@ const AgregarPromocion: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${id}`)
+      fetch(`http://localhost:6500/promociones-servicios/${id}`)
         .then((res) => res.json())
         .then((data) => {
-          setDescripcion(data.descripcion);
-          setPrecio(data.precio);
-          setPrecioOriginal(data.precio); // Guardar el precio original
-          setDescuento(data.descuento);
-          setOpcionSeleccionada(data.descripcion); // Preseleccionar la opción
-          setBusqueda(data.descripcion); // Mostrar la opción en el input
+          setDescuento(data.Descuento);
+          setBusqueda(data.Nombre); // Mostrar la opción en el input
         });
     }
   }, [id]);
+
+
 
   useEffect(() => {
     if (busqueda === "") {
@@ -87,8 +85,8 @@ const AgregarPromocion: React.FC = () => {
     } else {
       setOpcionesFiltradas(
         listaServicios.filter((servicio) =>
-          servicio.nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
-          servicio.nombre !== opcionSeleccionada // Excluir la opción seleccionada
+          servicio.Nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
+          servicio.Nombre !== opcionSeleccionada // Excluir la opción seleccionada
         )
       );
     }
@@ -103,7 +101,7 @@ const AgregarPromocion: React.FC = () => {
   
   const validarDescripcion = useCallback(() => {
     const servicioExiste = listaServicios.some(
-      (servicio) => servicio.nombre.toLowerCase() === descripcion.toLowerCase()
+      (servicio) => servicio.Nombre.toLowerCase() === descripcion.toLowerCase()
     );
     if (!servicioExiste) {
       setError("El servicio seleccionado no es válido.");
@@ -148,19 +146,18 @@ const AgregarPromocion: React.FC = () => {
     if (!validarDescripcion() || !validarDescuento() || !validarFechas()) return; // Validar antes de proceder
 
     const url = id
-      ? `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${id}`
-      : "https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones";
+      ? `http://localhost:6500/promociones-servicios/${id}`
+      : "http://localhost:6500/promociones-servicios";
 
     const method = id ? "PUT" : "POST";
 
     await fetch(url, {
       method,
       body: JSON.stringify({ 
-                             descripcion: opcionSeleccionada, 
-                             precio, 
-                             descuento, 
-                             fechaInicio, 
-                             fechaFinal,
+                             Servicios_id :opcionSeleccionada,
+                             Descuento: descuento, 
+                             Fecha_inicio : fechaInicio, 
+                             Fecha_fin : fechaFinal,
                             }),
       headers: {
         "Content-Type": "application/json",
@@ -176,7 +173,7 @@ const AgregarPromocion: React.FC = () => {
 
   const manejarEliminar = async () => {
     if (id) {
-      await fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${id}`, {
+      await fetch(`http://localhost:6500/promociones-servicios/${id}`, {
         method: "DELETE",
       });
       navigate('/dashboard-admin/bonificaciones');
@@ -189,14 +186,14 @@ const AgregarPromocion: React.FC = () => {
   
   const seleccionarOpcion = useCallback((opcion: string) => {
     const servicioSeleccionado = listaServicios.find(
-      (servicio) => servicio.nombre === opcion
+      (servicio) => servicio.Nombre === opcion
     );
   
     if (servicioSeleccionado) {
-      setOpcionSeleccionada(opcion);
+      setOpcionSeleccionada(servicioSeleccionado.Id);
       setDescripcion(opcion);
-      setPrecioOriginal(servicioSeleccionado.precio);
-      setPrecio(calcularPrecioConDescuento(servicioSeleccionado.precio, descuento));
+      setPrecioOriginal(servicioSeleccionado.Precio);
+      setPrecio(calcularPrecioConDescuento(servicioSeleccionado.Precio, descuento));
       setBusqueda(opcion);
       setOpcionesFiltradas([]);
     }
@@ -205,8 +202,9 @@ const AgregarPromocion: React.FC = () => {
   const manejarDescuento = (e: React.ChangeEvent<HTMLInputElement>) => {
     const nuevoDescuento = e.target.value;
     setDescuento(nuevoDescuento);
-    setPrecio(calcularPrecioConDescuento(precioOriginal, nuevoDescuento)); // Actualizar el precio con el nuevo descuento
+    setPrecio(calcularPrecioConDescuento(precioOriginal, nuevoDescuento)); // Actualizar el Precio con el nuevo descuento
   };
+
 
   return (
     <Container>
@@ -233,11 +231,11 @@ const AgregarPromocion: React.FC = () => {
           <ul className="bg-white border border-gray-300 rounded-lg mt-2">
             {opcionesFiltradas.map((servicio) => (
               <li
-                key={servicio.id}
-                onClick={() => seleccionarOpcion(servicio.nombre)}
+                key={servicio.Id}
+                onClick={() => seleccionarOpcion(servicio.Nombre)}
                 className="p-2 cursor-pointer hover:bg-gray-200"
               >
-                {servicio.nombre}
+                {servicio.Nombre}
               </li>
             ))}
           </ul>

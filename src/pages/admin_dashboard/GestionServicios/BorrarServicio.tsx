@@ -104,10 +104,10 @@ const ResultItem = styled.li`
 
 // Define the service type
 type Service = {
-  id: string;
-  nombre: string;
-  duracion?: string;
-  precio?: string;
+  Id: string;
+  Nombre: string;
+  Duracion?: string;
+  Precio?: string;
 };
 
 const BorrarServicio = () => {
@@ -121,7 +121,7 @@ const BorrarServicio = () => {
 
   useEffect(() => {
     axios
-      .get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios`)
+      .get(`http://localhost:6500/servicios`)
       .then((response) => {
         setAllServicios(response.data);
       });
@@ -131,19 +131,19 @@ const BorrarServicio = () => {
     if (searchQuery) {
       setFilteredServicios(
         allServicios.filter((servicio) =>
-          servicio.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+          servicio.Nombre?.toLowerCase().includes(searchQuery.toLowerCase())
         )
       );
     } else {
       setFilteredServicios([]);
     }
-  }, [searchQuery, allServicios]);
+  }, [searchQuery, allServicios]);  
 
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const result = allServicios.find(
       (servicio) =>
-        servicio.nombre.toLowerCase() === searchQuery.toLowerCase()
+        servicio.Nombre?.toLowerCase() === searchQuery.toLowerCase()
     );
     if (result) {
       setServicio(result);
@@ -153,12 +153,13 @@ const BorrarServicio = () => {
       setErrorMessage("No se encontró ningún servicio con ese nombre.");
     }
   };
+  
 
   const handleDelete = () => {
-    if (servicio && servicio.id) {
+    if (servicio && servicio.Id) {
       axios
         .delete(
-          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios/${servicio.id}`
+          `http://localhost:6500/servicios/${servicio.Id}`
         )
         .then(() => {
           setMessage("Servicio eliminado con éxito.");
@@ -178,7 +179,7 @@ const BorrarServicio = () => {
 
   const handleSelectService = (selectedService: Service) => {
     setServicio(selectedService);
-    setSearchQuery(selectedService.nombre);
+    setSearchQuery(selectedService.Nombre);
     setFilteredServicios([]);
     setErrorMessage("");
   };
@@ -211,10 +212,10 @@ const BorrarServicio = () => {
             <ResultList>
               {filteredServicios.map((servicio) => (
                 <ResultItem
-                  key={servicio.id}
+                  key={servicio.Id}
                   onClick={() => handleSelectService(servicio)}
                 >
-                  {servicio.nombre}
+                  {servicio.Nombre}
                 </ResultItem>
               ))}
             </ResultList>
@@ -224,7 +225,7 @@ const BorrarServicio = () => {
       {servicio && (
         <div className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md text-center">
           <h3>
-            ¿Estás seguro de que deseas eliminar el servicio "{servicio.nombre}"?
+            ¿Estás seguro de que deseas eliminar el servicio "{servicio.Nombre}"?
           </h3>
           <div
             style={{

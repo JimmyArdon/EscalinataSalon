@@ -5,10 +5,10 @@ import FiltroProveedores from "../FiltroProveedores";
 import { useEffect, useState } from "react";
 
 interface Servicio {
-    id: string;
-    nombre: string;
-    duracion: string;
-    precio: number;
+    Id: string;
+    Nombre: string;
+    Duracion: string;
+    Precio: number;
   }
 
 
@@ -30,7 +30,7 @@ const ServiciosPromociones = () => {
     const [servicios, setServicios] = useState<Servicio[]>([]);
 
   useEffect(() => {
-    fetch("https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios")
+    fetch("http://localhost:6500/servicios")
       .then((res) => res.json())
       .then((data) => setServicios(data));
   }, []);

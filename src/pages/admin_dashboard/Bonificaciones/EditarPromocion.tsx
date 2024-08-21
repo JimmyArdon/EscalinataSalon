@@ -4,15 +4,14 @@ import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
 
-// Define the interface for a promotion
 interface Promocion {
-  id: string;
-  descripcion: string;
-  precio: string;
-  descuento: string;
-  fechaInicio: string,
-  fechaFinal: string
+  Id: string;
+  descuento: number;
+  fechaInicio: string;
+  fechaFinal: string;
+  Servicio_id: string;
 }
+
 
 const Container = styled.div`
   margin: 40px;
@@ -114,25 +113,23 @@ const DropdownItem = styled.li`
 const EditarPromocion = () => {
   const navigate = useNavigate();
   const [promocion, setPromocion] = useState<Promocion>({
-    id: "",
-    descripcion: "",
-    precio: "",
-    descuento: "",
+    Id: "",
+    descuento: 0,
     fechaInicio: "",
-    fechaFinal: ""
+    fechaFinal: "",
+    Servicio_id: ""
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [opcionesFiltradas, setOpcionesFiltradas] = useState<Promocion[]>([]);
   const [loading, setLoading] = useState(false);
+  
 
   useEffect(() => {
     if (searchQuery) {
       setLoading(true);
       axios
-        .get(
-          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones?descripcion=${searchQuery}`
-        )
+        .get(`http://localhost:6500/servicios?Nombre=${searchQuery}`)
         .then((response) => {
           setOpcionesFiltradas(response.data);
         })
@@ -157,9 +154,7 @@ const EditarPromocion = () => {
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     axios
-      .get(
-        `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones?descripcion=${searchQuery}`
-      )
+      .get(`http://localhost:6500/servicios?Nombre=${searchQuery}`)
       .then((response) => {
         if (response.data.length > 0) {
           setPromocion(response.data[0]);
@@ -170,26 +165,43 @@ const EditarPromocion = () => {
       });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+   async function traerServicio_id (){
+    const data = await fetch(`http://localhost:6500/servicios?Nombre=${promocion.Nombre}`);
+    const res = await data.json();
+    return res[0].Id;
+    
+
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const idServicio = await traerServicio_id()
+    console.log(idServicio);
+    
+    
     axios
-      .put(
-        `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${promocion.id}`,
-        promocion
-      )
+      .put(`http://localhost:6500/promociones-servicios/${promocion.Id}`, {
+        Descuento: promocion.descuento,
+        Fecha_inicio: promocion.fechaInicio,
+        Fecha_fin: promocion.fechaFinal,
+        Servicio_id: idServicio
+      })
       .then(() => {
         navigate("/dashboard-admin/bonificaciones");
+      })
+      .catch((error) => {
+        console.error("Error al actualizar la promoción:", error);
       });
   };
 
   const handleClear = () => {
     setPromocion({
-      id: "",
-      descripcion: "",
-      precio: "",
-      descuento: "",
+      Id: "",
+      descuento: 0,
       fechaInicio: "",
-      fechaFinal: ""
+      fechaFinal: "",
+      Servicio_id: ""
     });
     setSearchQuery("");
     setOpcionesFiltradas([]);
@@ -201,7 +213,7 @@ const EditarPromocion = () => {
 
   const seleccionarOpcion = (opcion: Promocion) => {
     setPromocion(opcion);
-    setSearchQuery(opcion.descripcion);
+    setSearchQuery(opcion.Nombre);
     setOpcionesFiltradas([]);
   };
 
@@ -227,10 +239,10 @@ const EditarPromocion = () => {
               <Dropdown>
                 {opcionesFiltradas.map((opcion) => (
                   <DropdownItem
-                    key={opcion.id}
+                    key={opcion.Id}
                     onClick={() => seleccionarOpcion(opcion)}
                   >
-                    {opcion.descripcion}
+                    {opcion.Nombre}
                   </DropdownItem>
                 ))}
               </Dropdown>
@@ -244,7 +256,7 @@ const EditarPromocion = () => {
           Limpiar
         </ClearButton>
       </form>
-      {promocion.descripcion && (
+      {promocion.Descripcion && (
         <form
           onSubmit={handleSubmit}
           className="bg-slate-500 p-10 rounded-[15px] w-2/4"
@@ -253,8 +265,8 @@ const EditarPromocion = () => {
             <Label>Descripción</Label>
             <Input
               type="text"
-              name="descripcion"
-              value={promocion.descripcion}
+              name="Descripcion"
+              value={promocion.Descripcion || ''}
               onChange={handleChange}
               required
             />
@@ -264,7 +276,7 @@ const EditarPromocion = () => {
             <Input
               type="number"
               name="descuento"
-              value={promocion.descuento}
+              value={promocion.descuento || 0}
               onChange={handleChange}
               required
             />
@@ -274,7 +286,7 @@ const EditarPromocion = () => {
             <Input
               type="number"
               name="precio"
-              value={promocion.precio}
+              value={promocion.Precio || 0}
               onChange={handleChange}
               required
             />
@@ -284,7 +296,7 @@ const EditarPromocion = () => {
             <Input
               type="date"
               name="fechaInicio"
-              value={promocion.fechaInicio}
+              value={promocion.fechaInicio || ''}
               onChange={handleChange}
               required
             />
@@ -294,7 +306,7 @@ const EditarPromocion = () => {
             <Input
               type="date"
               name="fechaFinal"
-              value={promocion.fechaFinal}
+              value={promocion.fechaFinal || ''}
               onChange={handleChange}
               required
             />
