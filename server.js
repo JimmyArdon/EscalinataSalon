@@ -1,7 +1,8 @@
-// server.js
+
 import express from 'express';
 import mysql from 'mysql';
 import cors from 'cors';
+
 
 const app = express();
 
@@ -9,12 +10,14 @@ const app = express();
 const db = mysql.createConnection({
     host: 'localhost', // Cambia estos valores según tu configuración
     user: 'root', // Cambia estos valores según tu configuración
-    password: '12345678', // Cambia estos valores según tu configuración
+    password: 'root0101', // Cambia estos valores según tu configuración
     database: 'EscalinataSalon' // Nombre de la base de datos
 });
 
 app.use(express.json());
+
 app.use(cors());
+
 
 // Conectar a la base de datos
 db.connect((err) => {
@@ -53,7 +56,7 @@ app.get('/productos', (req, res) => {
 });
 
 // Agregar un nuevo producto al inventario
-app.post('/addProductos', (req, res) => {
+app.post('/productos', (req, res) => {
     const { Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta } = req.body;
 
     // Validación simple de datos
@@ -76,26 +79,38 @@ app.post('/addProductos', (req, res) => {
     });
 });
 
-// Borrar un producto por nombre
-app.delete('/productos', (req, res) => {
-    const { Nombre } = req.body;
+// Buscar productos por nombre
+app.get('/nameProductos', (req, res) => {
+    const nombre = req.query.Nombre || '';
+    const query = 'SELECT Id, Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta FROM Producto WHERE Nombre LIKE ?';
+    db.query(query, [`%${nombre}%`], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Error al obtener los productos' });
+        }
+        res.json(results);
+    });
+});
 
-    if (!Nombre) {
-        return res.status(400).json({ error: 'Por favor, proporciona el nombre del producto a eliminar' });
+
+//BorrarProductos
+app.delete('/nameProductos', (req, res) => {
+    const { Id } = req.body;
+
+    if (!Id) {
+        return res.status(400).json({ error: 'ID del producto es requerido' });
     }
 
-    const query = 'DELETE FROM Producto WHERE Nombre = ?';
-
-    db.query(query, [Nombre], (err, result) => {
+    const query = 'DELETE FROM Producto WHERE Id = ?';
+    db.query(query, [Id], (err, results) => {
         if (err) {
-            return res.status(500).json({ error: 'Error al borrar el producto' });
+            console.error(err);
+            return res.status(500).json({ error: 'Error al eliminar el producto' });
         }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
         }
-
-        res.status(200).json({ message: 'Producto borrado exitosamente' });
+        res.json({ message: 'Producto eliminado correctamente' });
     });
 });
 
@@ -126,6 +141,28 @@ app.put('/productos', (req, res) => {
     });
 });
 
+// Obtener todos los proveedores
+app.get('/proveedores', (req, res) => {
+    const query = 'SELECT Id as id, Nombre as descripcion FROM Proveedor';
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Error al obtener los proveedores' });
+        }
+        res.json(results);
+    });
+});
+
+app.get('/marcas', (req, res) => {
+    const query = 'SELECT Id as id, Descripcion as descripcion FROM Marca';
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Error al obtener las marcas' });
+        }
+        res.json(results);
+    });
+});
 
 
 app.get('/citas', (req, res) => {
@@ -195,13 +232,13 @@ app.get('/clientes', (req, res) => {
 app.post('/clientes', (req, res) => {
     const { Nombre, Rtn, Direccion, Numero_Telefono, Email } = req.body;
     db.query('INSERT INTO cliente (Nombre, Rtn, Direccion, Numero_Telefono, Email) VALUES (?, ?, ?, ?, ?)',
-         [Nombre, Rtn, Direccion, Numero_Telefono, Email], (err, results) => {
-        if (err) {
-            console.error('Error al agregar cliente:', err);
-            return res.status(500).json({ error: 'Error al agregar cliente' });
-        }
-        res.status(201).json({ message: 'Cliente agregado con éxito', id: results.insertId });
-    });
+        [Nombre, Rtn, Direccion, Numero_Telefono, Email], (err, results) => {
+            if (err) {
+                console.error('Error al agregar cliente:', err);
+                return res.status(500).json({ error: 'Error al agregar cliente' });
+            }
+            res.status(201).json({ message: 'Cliente agregado con éxito', id: results.insertId });
+        });
 });
 
 // Endpoint para agregar una cita
@@ -213,7 +250,7 @@ app.post('/citas', (req, res) => {
         VALUES (?, ?, ?, ?, ?, (SELECT id FROM estado_cita WHERE descripcion = 'Pendiente'))
     `;
 
-    db.query(query, [Cliente_id, fecha, hora,  Servicio_id, Usuario_id ], (err, results) => {
+    db.query(query, [Cliente_id, fecha, hora, Servicio_id, Usuario_id], (err, results) => {
         if (err) {
             console.error('Error al agregar cita:', err);
             return res.status(500).json({ error: 'Error al agregar cita' });
@@ -259,22 +296,22 @@ app.get('/empresa', (req, res) => {
       FROM info_empresa
       LIMIT 1
     `;
-  
-    db.query(query, (err, results) => {
-      if (err) {
-        console.error('Error al obtener la información de la empresa:', err);
-        return res.status(500).json({ error: 'Error al obtener la información de la empresa' });
-      }
-  
-      if (results.length > 0) {
-        res.json(results[0]);
-      } else {
-        res.status(404).json({ message: 'Información de la empresa no encontrada' });
-      }
-    });
-  });
 
-  // Endpoint para obtener la información de la empresa
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error al obtener la información de la empresa:', err);
+            return res.status(500).json({ error: 'Error al obtener la información de la empresa' });
+        }
+
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.status(404).json({ message: 'Información de la empresa no encontrada' });
+        }
+    });
+});
+
+// Endpoint para obtener la información de la empresa
 app.get('/empresa/detalles', (req, res) => {
     const query = `
           SELECT 
@@ -295,20 +332,20 @@ app.get('/empresa/detalles', (req, res) => {
       FROM info_empresa
       LIMIT 1
     `;
-  
+
     db.query(query, (err, results) => {
-      if (err) {
-        console.error('Error al obtener la información de la empresa:', err);
-        return res.status(500).json({ error: 'Error al obtener la información de la empresa' });
-      }
-  
-      if (results.length > 0) {
-        res.json(results[0]);
-      } else {
-        res.status(404).json({ message: 'Información de la empresa no encontrada' });
-      }
+        if (err) {
+            console.error('Error al obtener la información de la empresa:', err);
+            return res.status(500).json({ error: 'Error al obtener la información de la empresa' });
+        }
+
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.status(404).json({ message: 'Información de la empresa no encontrada' });
+        }
     });
-  });
+});
 
 // Endpoint para actualizar la información de la empresa
 app.put('/empresa/detalles', (req, res) => {
@@ -423,7 +460,7 @@ app.post('/proveedores', (req, res) => {
 
 app.put('/proveedores/:id', (req, res) => {
     const { id } = req.params;
-    const { Nombre, Direccion, Numero_Telefono, Email} = req.body;
+    const { Nombre, Direccion, Numero_Telefono, Email } = req.body;
 
     const query = 'UPDATE proveedor SET Nombre = ?, Direccion = ?, Numero_Telefono = ?, Email = ? WHERE id = ?';
     db.query(query, [Nombre, Direccion, Numero_Telefono, Email, id], (err) => {

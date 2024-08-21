@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
-import { IoMdCloseCircleOutline } from "react-icons/io";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { IoMdCloseCircleOutline } from 'react-icons/io';
+import { useNavigate } from 'react-router-dom'; // Importa useNavigate
 
 const Container = styled.div`
   margin: 40px;
@@ -27,6 +26,13 @@ const Label = styled.label`
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
+`;
+
+const Select = styled.select`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 `;
 
 const Input = styled.input`
@@ -72,143 +78,136 @@ const Salir = styled(IoMdCloseCircleOutline)`
   }
 `;
 
-const AgregarProducto = () => {
-  const navigate = useNavigate();
-  const [marca, setMarca] = useState("");
-  const [codigoBarras, setCodigoBarras] = useState("");
-  const [nombreProducto, setNombreProducto] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [proveedor, setProveedor] = useState("");
-  const [precioCompra, setPrecioCompra] = useState("");
-  const [precioVenta, setPrecioVenta] = useState("");
-  const [impuesto, setImpuesto] = useState("");
-  const [stock, setStock] = useState("");
+interface Producto {
+  Nombre: string;
+  Proveedor_id: number;
+  Marca_id: number;
+  Cantidad_stock: number;
+  Precio: number;
+  ISV: number;
+  Precio_venta: number;
+}
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const nuevoProducto = {
-      marca,
-      codigoBarras: parseInt(codigoBarras),
-      nombreProducto,
-      descripcion,
-      proveedor,
-      precioCompra: parseFloat(precioCompra),
-      precioVenta: parseFloat(precioVenta),
-      impuesto: parseFloat(impuesto),
-      stock: parseInt(stock)
-    };
-    axios.post("https://example.com/api/productos", nuevoProducto)
-      .then(() => {
-        navigate("/dashboard-admin/inventario");
-      });
+interface Opcion {
+  id: number;
+  descripcion: string;
+}
+
+const AgregarProducto: React.FC = () => {
+  const navigate = useNavigate(); // Hook para navegar
+
+  const [producto, setProducto] = useState<Producto>({
+    Nombre: '',
+    Proveedor_id: 0,
+    Marca_id: 0,
+    Cantidad_stock: 0,
+    Precio: 0,
+    ISV: 0,
+    Precio_venta: 0,
+  });
+
+  const [proveedores, setProveedores] = useState<Opcion[]>([]);
+  const [marcas, setMarcas] = useState<Opcion[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:4000/proveedores')
+      .then((response) => response.json())
+      .then((data) => setProveedores(data))
+      .catch((error) => console.error('Error al cargar los proveedores:', error));
+  }, []);
+
+  useEffect(() => {
+    fetch('http://localhost:4000/marcas')
+      .then((response) => response.json())
+      .then((data) => setMarcas(data))
+      .catch((error) => console.error('Error al cargar las marcas:', error));
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setProducto({
+      ...producto,
+      [name]: name === 'Proveedor_id' || name === 'Marca_id' || name === 'Cantidad_stock' || name === 'Precio' || name === 'ISV' || name === 'Precio_venta' ? parseFloat(value) : value,
+    });
   };
 
-  const manejarOnClickSalir = () => {
-    navigate("/dashboard-admin/inventario");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const response = await fetch('http://localhost:4000/productos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(producto),
+    });
+
+    if (response.ok) {
+      alert('Producto agregado exitosamente');
+      setProducto({
+        Nombre: '',
+        Proveedor_id: 0,
+        Marca_id: 0,
+        Cantidad_stock: 0,
+        Precio: 0,
+        ISV: 0,
+        Precio_venta: 0,
+      });
+      navigate('/dashboard-admin/inventario'); // Navega a la ruta deseada después de agregar
+    } else {
+      alert('Error al agregar el producto');
+    }
   };
 
   return (
     <Container>
-      <Salir onClick={manejarOnClickSalir} />
+      <Salir onClick={() => navigate('/dashboard-admin/inventario')} /> 
       <h2>Agregar Producto</h2>
       <form onSubmit={handleSubmit} className="bg-slate-500 p-10 rounded-[15px] w-2/4">
         <FormGroup>
-          <Label>Marca</Label>
-          <Input
-            type="text"
-            value={marca}
-            onChange={(e) => setMarca(e.target.value)}
-            placeholder="Marca del producto"
-            required
-          />
+          <Label>Nombre del Producto:</Label>
+          <Input type="text" name="Nombre" value={producto.Nombre} onChange={handleChange} required />
         </FormGroup>
         <FormGroup>
-          <Label>Codigo de Barras</Label>
-          <Input
-            type="number"
-            step="0"
-            value={codigoBarras}
-            onChange={(e) => setCodigoBarras(e.target.value)}
-            placeholder="Codigo de Barras"
-            required
-          />
+          <Label>Proveedor:</Label>
+          <Select name="Proveedor_id" value={producto.Proveedor_id} onChange={handleChange} required>
+            <option value="">Selecciona un proveedor</option>
+            {proveedores.map((proveedor) => (
+              <option key={proveedor.id} value={proveedor.id}>
+                {proveedor.descripcion}
+              </option>
+            ))}
+          </Select>
         </FormGroup>
         <FormGroup>
-          <Label>Nombre del Producto</Label>
-          <Input
-            type="text"
-            value={nombreProducto}
-            onChange={(e) => setNombreProducto(e.target.value)}
-            placeholder="Nombre del producto"
-            required
-          />
+          <Label>Marca:</Label>
+          <Select name="Marca_id" value={producto.Marca_id} onChange={handleChange} required>
+            <option value="">Selecciona una marca</option>
+            {marcas.map((marca) => (
+              <option key={marca.id} value={marca.id}>
+                {marca.descripcion}
+              </option>
+            ))}
+          </Select>
         </FormGroup>
         <FormGroup>
-          <Label>Descripción</Label>
-          <Input
-            type="text"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-            placeholder="Descripción del producto"
-            required
-          />
+          <Label>Cantidad en Stock:</Label>
+          <Input type="number" name="Cantidad_stock" value={producto.Cantidad_stock} onChange={handleChange} required />
         </FormGroup>
         <FormGroup>
-          <Label>Proveedor</Label>
-          <Input
-            type="text"
-            value={proveedor}
-            onChange={(e) => setProveedor(e.target.value)}
-            placeholder="Descripción del producto"
-            required
-          />
+          <Label>Precio:</Label>
+          <Input type="number" name="Precio" value={producto.Precio} onChange={handleChange} required />
         </FormGroup>
         <FormGroup>
-          <Label>Precio de Compra</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={precioCompra}
-            onChange={(e) => setPrecioCompra(e.target.value)}
-            placeholder="Precio de compra"
-            required
-          />
+          <Label>ISV (%):</Label>
+          <Input type="number" name="ISV" value={producto.ISV} onChange={handleChange} required />
         </FormGroup>
         <FormGroup>
-          <Label>Precio de Venta</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={precioVenta}
-            onChange={(e) => setPrecioVenta(e.target.value)}
-            placeholder="Precio de venta"
-            required
-          />
+          <Label>Precio de Venta:</Label>
+          <Input type="number" name="Precio_venta" value={producto.Precio_venta} onChange={handleChange} required />
         </FormGroup>
-        <FormGroup>
-          <Label>Impuesto (%)</Label>
-          <Input
-            type="number"
-            step="0.01"
-            value={impuesto}
-            onChange={(e) => setImpuesto(e.target.value)}
-            placeholder="Impuesto en porcentaje"
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Stock</Label>
-          <Input
-            type="number"
-            step="0"
-            value={stock}
-            onChange={(e) => setStock(e.target.value)}
-            placeholder="Stock"
-            required
-          />
-        </FormGroup>        
-        <Button type="submit">Agregar</Button>
-        <ClearButton type="button" onClick={manejarOnClickSalir}>
+        <Button type="submit">Agregar Producto</Button>
+        <ClearButton type="button" onClick={() => navigate('/dashboard-admin/inventario')}>
           Cancelar
         </ClearButton>
       </form>

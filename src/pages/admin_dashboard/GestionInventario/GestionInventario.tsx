@@ -1,19 +1,23 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import FiltroCitas from "../../../components/FiltroInventario";
-import Pagination from "../../../components/Pagination";
-import styled from "styled-components";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import FiltroCitas from '../../../components/FiltroInventario';
+import Pagination from '../../../components/Pagination';
 
-interface Product {
+interface Producto {
+    Id: number;
+    Nombre: string;
+    Proveedor_id: number;
+    Marca_id: number;
+    Cantidad_stock: number;
+    Precio: number;
+    ISV: number;
+    Precio_venta: number;
+}
+
+interface Opcion {
     id: number;
-    marca: string;
-    codigoBarras: number;
-    nombreProducto: string;
     descripcion: string;
-    precioCompra: number;
-    precioVenta: number;
-    impuesto: number;
-    stock: number;
 }
 
 const Container = styled.div`
@@ -51,71 +55,76 @@ const Title = styled.h3`
 `;
 
 const ButtonGroup = styled.div`
-    display: flex;
-    gap: 10px;
+  display: flex;
+  gap: 10px;
 `;
 
 const GestionInventario: React.FC = () => {
-    useEffect(() => {
-        document.title = "Gestión de Inventario - Salón de Belleza Escalinata";
-    }, []);
-
-    const initialProducts: Product[] = [
-        {
-            id: 0,
-            marca: "L'Oréal",
-            codigoBarras: 101223344,
-            nombreProducto: "Shampoo Revitalizante",
-            descripcion: "Shampoo para cabello dañado con vitamina E",
-            precioCompra: 15.00,
-            precioVenta: 25.00,
-            impuesto: 0.15,
-            stock: 12
-        },
-        {
-            id: 1,
-            marca: "Dove",
-            codigoBarras: 123345344,
-            nombreProducto: "Jabón Nutritivo",
-            descripcion: "Jabón en barra con crema humectante",
-            precioCompra: 1.50,
-            precioVenta: 3.00,
-            impuesto: 0.15,
-            stock: 24
-        },
-        {
-            id: 2,
-            marca: "Pantene",
-            codigoBarras: 223845374,
-            nombreProducto: "Acondicionador Suave",
-            descripcion: "Acondicionador para cabello liso y manejable",
-            precioCompra: 12.00,
-            precioVenta: 20.00,
-            impuesto: 0.15,
-            stock: 8
-        },
-    ];
-
-    const [filteredProducts, setFilteredProducts] = useState(initialProducts);
+    const [productos, setProductos] = useState<Producto[]>([]);
+    const [proveedores, setProveedores] = useState<Opcion[]>([]);
+    const [marcas, setMarcas] = useState<Opcion[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<Producto[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [error, setError] = useState<string | null>(null);
 
     const itemsPerPage = 10;
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+    useEffect(() => {
+        // Obtener productos
+        fetch('http://localhost:4000/productos')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al obtener los productos');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setProductos(data);
+                setFilteredProducts(data);
+            })
+            .catch(error => {
+                setError(error.message);
+            });
+
+        // Obtener proveedores
+        fetch('http://localhost:4000/proveedores')
+            .then(response => response.json())
+            .then(data => setProveedores(data))
+            .catch(error => console.error('Error al cargar los proveedores:', error));
+
+        // Obtener marcas
+        fetch('http://localhost:4000/marcas')
+            .then(response => response.json())
+            .then(data => setMarcas(data))
+            .catch(error => console.error('Error al cargar las marcas:', error));
+    }, []);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
 
-    const paginatedProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
     const aplicarFiltros = (nombre: string) => {
-        const filtered = initialProducts.filter(product => {
-            return product.nombreProducto.toLowerCase().includes(nombre.toLowerCase());
-        });
-    
+        const filtered = productos.filter(producto =>
+            producto.Nombre.toLowerCase().includes(nombre.toLowerCase())
+        );
         setFilteredProducts(filtered);
         setCurrentPage(1);
     };
+
+    const obtenerNombre = (id: number, opciones: Opcion[]) => {
+        const opcion = opciones.find(op => op.id === id);
+        return opcion ? opcion.descripcion : 'Desconocido';
+    };
+
+    const paginatedProducts = filteredProducts.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
 
     return (
         <Container>
@@ -125,43 +134,53 @@ const GestionInventario: React.FC = () => {
                     <ButtonGroup>
                         <Link className="btn btn-outline-secondary w-40" to='agregar-producto'>+ Añadir </Link>
                         <Link className="btn btn-outline-secondary w-40" to='editar-producto'>Editar</Link>
-                        <Link className="btn btn-outline-secondary w-40" to='borrar-producto' >Borrar </Link>
+                        <Link className="btn btn-outline-secondary w-40" to='borrar-producto'>Borrar</Link>
                     </ButtonGroup>
                 </div>
             </div>
 
-            <Title>Gestión de Inventario</Title>
+            <Title>Inventario de Productos</Title>
 
             <Table>
                 <thead>
                     <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Proveedor</th>
                         <th>Marca</th>
-                        <th>Codigo de Barras</th>
-                        <th>Nombre de producto</th>
-                        <th>Descripcion</th>
-                        <th>Precio de compra</th>
-                        <th>Precio de venta</th>
-                        <th>Impuesto</th>
                         <th>Cantidad en Stock</th>
+                        <th>Precio</th>
+                        <th>ISV</th>
+                        <th>Precio de Venta</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {paginatedProducts.map((item) => (
-                        <tr key={item.id}>
-                            <td>{item.marca}</td>
-                            <td>{item.codigoBarras.toFixed(0)}</td>
-                            <td>{item.nombreProducto}</td>
-                            <td>{item.descripcion}</td>
-                            <td style={{textAlign: 'center'}}>L. {item.precioCompra.toFixed(2)}</td>
-                            <td style={{textAlign: 'center'}}>L. {item.precioVenta.toFixed(2)}</td>
-                            <td style={{textAlign: 'center'}}>{(item.impuesto * 100).toFixed(2)}%</td>
-                            <td style={{textAlign: 'center'}}>{item.stock.toFixed(0)}</td>
+                    {paginatedProducts.length === 0 ? (
+                        <tr>
+                            <td colSpan={8} style={{ textAlign: 'center' }}>No hay productos en el inventario.</td>
                         </tr>
-                    ))}
+                    ) : (
+                        paginatedProducts.map(producto => (
+                            <tr key={producto.Id}>
+                                <td>{producto.Id}</td>
+                                <td>{producto.Nombre}</td>
+                                <td>{obtenerNombre(producto.Proveedor_id, proveedores)}</td>
+                                <td>{obtenerNombre(producto.Marca_id, marcas)}</td>
+                                <td>{producto.Cantidad_stock}</td>
+                                <td>{producto.Precio}</td>
+                                <td>{producto.ISV}</td>
+                                <td>{producto.Precio_venta}</td>
+                            </tr>
+                        ))
+                    )}
                 </tbody>
             </Table>
 
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
         </Container>
     );
 };
