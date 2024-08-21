@@ -196,11 +196,26 @@ const BorrarPromocion = () => {
     navigate("/dashboard-admin/bonificaciones");
   };
 
-  async function traerProSer(id : string){
-    const datos = await fetch(`http://localhost:6500/promociones-servicios/${id}`);
-    const res = await datos.json();
-    return res;
+  async function traerProSer(id: string) {
+    try {
+      const respuesta = await fetch(`http://localhost:6500/promociones-servicios/${id}`);
+  
+      if (!respuesta.ok) {
+        if (respuesta.status === 404) {
+          throw new Error("No existe promocion para este servicio existe.");
+        }
+        throw new Error("Error al obtener la promoción.");
+      }
+  
+      const datos = await respuesta.json();
+      return datos;
+  
+    } catch (error) {
+      console.error("Error en traerProSer:", error);
+      throw error; 
+    }
   }
+  
 
   async function traerSer(id : string){
     const datos = await fetch(`http://localhost:6500/servicios/${id}`);
@@ -210,13 +225,18 @@ const BorrarPromocion = () => {
 
   const seleccionarOpcion = async (opcion: Servicio) => {
     setSearchQuery(opcion.Nombre);
-    const promocion = await traerProSer(opcion.Id);
-    setPromocion(promocion);
 
-    const ser = await traerSer(opcion.Id);
-    setServicio(ser);
-     
-    setOpcionesFiltradas([]); // Limpiar las opciones después de seleccionar
+    try {
+      const promocion = await traerProSer(opcion.Id);
+      setPromocion(promocion);
+
+      const ser = await traerSer(opcion.Id);
+      setServicio(ser);
+      
+      setOpcionesFiltradas([]);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Error desconocido");
+    }
   };
 
   return (
