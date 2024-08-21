@@ -15,25 +15,20 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@react-pdf/renderer": "^3.4.4",
     "@types/react-router-dom": "^5.3.3",
-
     "axios": "^1.7.4",
-    "cors": "^2.8.5",
-
-    "axios": "^1.7.2",
+    "bcrypt": "^5.1.1",
     "convert-number-to-words": "^1.0.3",
-
+    "cors": "^2.8.5",
     "date-fns": "^3.6.0",
     "express": "^4.19.2",
     "framer-motion": "^11.2.12",
-
+    "mongoose": "^8.5.3",
     "mysql": "^2.18.1",
     "mysql2": "^3.11.0",
     "node": "^22.6.0",
     "nodemon": "^3.1.4",
-
     "number-to-words": "^1.2.4",
     "numero-a-letras": "^1.0.6",
-
     "react": "^18.3.1",
     "react-calendar": "^5.0.0",
     "react-dom": "^18.3.1",

@@ -1,341 +1,293 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "../../../components/GestionUsuarios.css";
 import { IoPersonAddSharp, IoFilter } from "react-icons/io5";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  email: string;
-  user: string;
-  password: string;
-  role: string;
+  Id?: number;
+  Nombre: string;
+  Apellido: string;
+  Telefono: string;
+  Email: string;
+  Usuario: string;
+  Contraseña: string;
+  Rol_id: number;
+  Rol?: string; //sera utilizado para comparar con Rol_id y traer de en vez de mostrar solo un numero se mapeara con la base para mostrar la info de ese id
 }
 
 const GestionUsuarios: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: 1,
-      firstName: "Juan",
-      lastName: "Pérez",
-      phoneNumber: "123456789",
-      email: "juan@example.com",
-      user: "juanp",
-      password: "password123",
-      role: "Admin"
-    },
-    {
-      id: 2,
-      firstName: "María",
-      lastName: "Gómez",
-      phoneNumber: "987654321",
-      email: "maria@example.com",
-      user: "mariag",
-      password: "password123",
-      role: "Recepcionista"
-    }
-  ]);
-
+  const [users, setUsers] = useState<User[]>([]);
   const [newUser, setNewUser] = useState<User>({
-    id: 0,
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    email: "",
-    user: "",
-    password: "",
-    role: "Estilista",
+    Nombre: "",
+    Apellido: "",
+    Telefono: "",
+    Email: "",
+    Usuario: "",
+    Contraseña: "",
+    Rol_id: 1,
   });
   const [showForm, setShowForm] = useState(false);
-  const [filterRole, setFilterRole] = useState<string>("");
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [closing, setClosing] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<number | null>(null);
-  const [showPassword, setShowPassword] = useState(false); // Estado para mostrar/ocultar la contraseña
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [filterRole, setFilterRole] = useState("");
 
   useEffect(() => {
     document.title = "Usuarios";
+    fetchUsersRoles(); // Usar la nueva función aquí
   }, []);
+  
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setNewUser({ ...newUser, [name]: value });
-    setErrors({ ...errors, [name]: "" });
+  //Traer los usuarios de la base de datos
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get("http://localhost:4000/usuarios");
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Error al obtener los usuarios:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //Falta funcion const para traer los usuarios con su correspondiente rol mapeado y muestra el nombre no el id
+  const fetchUsersRoles = async () => {
+    setLoading(true);
+    try {
+      // Llamar al endpoint que trae los usuarios
+      const responseUsers = await axios.get("http://localhost:4000/usuarios");
+  
+      // Llamar al endpoint que trae los roles
+      const responseRoles = await axios.get("http://localhost:4000/usuarios-roles");
+  
+      const usersWithRoles = responseUsers.data.map((user: User) => {
+        const role = responseRoles.data.find((rol: { id: number }) => rol.id === user.Rol_id);
+        return { ...user, Rol: role ? role.nombre : "Rol desconocido" };
+      });
+  
+      setUsers(usersWithRoles);
+    } catch (error) {
+      console.error("Error al obtener los usuarios con roles:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  //Agregar usuario a la base de datos
+  const handleAddUser = async () => {
+    if (!validateForm()) return;
+    setLoading(true);
+    try {
+      const response = await axios.post("http://localhost:4000/usuarios", { ...newUser, Rol_id: newUser.Rol_id });
+      setUsers([...users, response.data]);
+      resetForm();
+    } catch (error) {
+      console.error("Error al agregar usuario:", error);
+      setErrors({ server: "Error al guardar el usuario." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditUser = (userId: number) => {
+    const user = users.find((u) => u.Id === userId);
+    if (user) {
+      setNewUser(user);
+      setIsEditing(true);
+      setShowForm(true);
+    }
+  };
+
+  //Actualizar usuario de la base de datos por ID
+  const handleUpdateUser = async () => {
+    if (!validateForm() || newUser.Id === undefined) return;
+    setLoading(true);
+    try {
+      await axios.put(`http://localhost:4000/usuarios/${newUser.Id}`, { ...newUser, Rol_id: newUser.Rol_id });
+      await fetchUsers();
+      resetForm();
+    } catch (error) {
+      console.error("Error al actualizar usuario:", error);
+      setErrors({ server: "Error al actualizar el usuario." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewUser({ ...newUser, [e.target.name]: e.target.value });
   };
 
   const validateForm = () => {
-    const formErrors: { [key: string]: string } = {};
-
-    if (!newUser.firstName) formErrors.firstName = "El nombre es obligatorio.";
-    if (!newUser.lastName) formErrors.lastName = "El apellido es obligatorio.";
-    if (!newUser.phoneNumber) formErrors.phoneNumber = "El número de teléfono es obligatorio.";
-    if (!newUser.email) {
-      formErrors.email = "El correo electrónico es obligatorio.";
-    } else {
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(newUser.email)) {
-        formErrors.email = "El correo electrónico no es válido.";
-      }
-    }
-    if (!newUser.user) formErrors.user = "El usuario es obligatorio.";
-    if (!newUser.password) formErrors.password = "La contraseña es obligatoria.";
-
-    setErrors(formErrors);
-    return Object.keys(formErrors).length === 0;
-  };
-
-  const handleAddUser = () => {
-    if (!validateForm()) {
-      return;
-    }
-
-    if (isEditing) {
-      setUsers(users.map(user => (user.id === newUser.id ? newUser : user)));
-    } else {
-      const newId = users.length ? Math.max(...users.map(user => user.id)) + 1 : 1;
-      setUsers([...users, { ...newUser, id: newId }]);
-    }
-
-    resetForm();
-  };
-
-  const handleDeleteUser = (id: number) => {
-    setUserToDelete(id);
-    setShowConfirmModal(true);
-  };
-
-  const confirmDeleteUser = () => {
-    if (userToDelete !== null) {
-      setUsers(users.filter(user => user.id !== userToDelete));
-      closeModal();
-    }
-  };
-
-  const closeModal = () => {
-    setClosing(true);
-    setTimeout(() => {
-      setShowConfirmModal(false);
-      setClosing(false);
-      setUserToDelete(null);
-    }, 300);  // Duracion de la animacion
-  };
-
-  const handleEditUser = (id: number) => {
-    const userToEdit = users.find(user => user.id === id);
-    if (userToEdit) {
-      setNewUser(userToEdit);
-      setShowForm(true);
-      setIsEditing(true);
-    }
-  };
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilterRole(e.target.value);
-  };
-
-  const filteredUsers = filterRole ? users.filter(user => user.role === filterRole) : users;
-
-  const handleCancel = () => {
-    resetForm();
+    const validationErrors: { [key: string]: string } = {};
+    if (!newUser.Nombre) validationErrors.Nombre = "El nombre es obligatorio";
+    if (!newUser.Apellido) validationErrors.Apellido = "El apellido es obligatorio";
+    if (!newUser.Telefono) validationErrors.Telefono = "El teléfono es obligatorio";
+    if (!newUser.Email) validationErrors.Email = "El email es obligatorio";
+    if (!newUser.Usuario) validationErrors.Usuario = "El nombre de usuario es obligatorio";
+    if (!newUser.Contraseña) validationErrors.Contraseña = "La contraseña es obligatoria";
+    setErrors(validationErrors);
+    return Object.keys(validationErrors).length === 0;
   };
 
   const resetForm = () => {
     setNewUser({
-      id: 0,
-      firstName: "",
-      lastName: "",
-      phoneNumber: "",
-      email: "",
-      user: "",
-      password: "",
-      role: "Estilista",
+      Nombre: "",
+      Apellido: "",
+      Telefono: "",
+      Email: "",
+      Usuario: "",
+      Contraseña: "",
+      Rol_id: 1,
     });
     setShowForm(false);
     setIsEditing(false);
     setErrors({});
   };
 
+  const handleDeleteUser = (user: User) => {
+    setUserToDelete(user);
+  };
+
+  //Eliminar usuario de la base de datos por ID
+  const confirmDeleteUser = async () => {
+    if (userToDelete) {
+      setLoading(true);
+      try {
+        await axios.delete(`http://localhost:4000/usuarios/${userToDelete.Id}`);
+        setUsers(users.filter(user => user.Id !== userToDelete.Id));
+        setUserToDelete(null);
+      } catch (error) {
+        console.error("Error al eliminar usuario:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const filteredUsers = filterRole
+    ? users.filter(user => user.Rol_id === Number(filterRole))
+    : users;
+
   return (
-    <div className="gestion-usuarios p-8">
-      <div className="header">
-        <h1 className="title text-3xl font-bold mb-8 text-gray-900">Gestión de Usuarios</h1>
-        {!showForm && (
-          <button onClick={() => setShowForm(true)} className="btn-add bg-blue-500 text-white p-2 mb-8 flex items-center">
+    <div className="gestion-usuarios-container p-8">
+      <div className="gestion-usuarios-header">
+        <h1 className="title">Gestión de Usuarios</h1>
+        <div className="flex mb-4">
+          <button className="btn-add flex" onClick={() => {
+              resetForm();
+              setShowForm(true);
+          }}>
             <IoPersonAddSharp className="mr-2" />
-            Agregar Nuevo Usuario
+            Agregar Usuario
           </button>
-        )}
-      </div>
-
-      {showForm ? (
-        <div className="form-container mb-8">
-          <h2 className="form-title text-2xl font-bold mb-4">{isEditing ? "Editar Usuario" : "Añadir Usuario"}</h2>
-          <div className="form-row mb-4">
-            <div className="input-container mb-4 w-full">
-              <label htmlFor="firstName" className="block text-gray-700">Nombre</label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={newUser.firstName}
-                onChange={handleInputChange}
-                className={`input border p-2 w-full ${errors.firstName ? 'border-red-500' : ''}`}
-              />
-              {errors.firstName && <p className="error-message text-red-500 mt-1">{errors.firstName}</p>}
-            </div>
-            <div className="input-container mb-4 w-full">
-              <label htmlFor="lastName" className="block text-gray-700">Apellido</label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={newUser.lastName}
-                onChange={handleInputChange}
-                className={`input border p-2 w-full ${errors.lastName ? 'border-red-500' : ''}`}
-              />
-              {errors.lastName && <p className="error-message text-red-500 mt-1">{errors.lastName}</p>}
-            </div>
-          </div>
-          <div className="form-row mb-4">
-            <div className="input-container mb-4 w-full">
-              <label htmlFor="phoneNumber" className="block text-gray-700">Número de Teléfono</label>
-              <input
-                type="text"
-                id="phoneNumber"
-                name="phoneNumber"
-                value={newUser.phoneNumber}
-                onChange={handleInputChange}
-                className={`input border p-2 w-full ${errors.phoneNumber ? 'border-red-500' : ''}`}
-              />
-              {errors.phoneNumber && <p className="error-message text-red-500 mt-1">{errors.phoneNumber}</p>}
-            </div>
-            <div className="input-container mb-4 w-full">
-              <label htmlFor="email" className="block text-gray-700">Correo Electrónico</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={newUser.email}
-                onChange={handleInputChange}
-                className={`input border p-2 w-full ${errors.email ? 'border-red-500' : ''}`}
-              />
-              {errors.email && <p className="error-message text-red-500 mt-1">{errors.email}</p>}
-            </div>
-            <div className="input-container mb-4 w-full">
-              <label htmlFor="user" className="block text-gray-700">Usuario</label>
-              <input
-                type="user"
-                id="user"
-                name="user"
-                value={newUser.user}
-                onChange={handleInputChange}
-                className={`input border p-2 w-full ${errors.user ? 'border-red-500' : ''}`}
-              />
-              {errors.user && <p className="error-message text-red-500 mt-1">{errors.user}</p>}
-            </div>
-            
-            <div className="input-container mb-4 w-full">
-              <label htmlFor="password" className="block text-gray-700">Contraseña</label>
-              <div className="relative w-full">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  value={newUser.password}
-                  onChange={handleInputChange}
-                  className={`input border p-2 w-full pr-10 ${errors.password ? 'border-red-500' : ''}`}
-                />
-                <span
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <FaEye className="text-gray-500" /> : <FaEyeSlash className="text-gray-500" />}
-                </span>
-              </div>
-              {errors.password && <p className="error-message text-red-500 mt-1">{errors.password}</p>}
-            </div>
-
-          </div>
-          <div className="select-container mb-3">
-            <select id="role" name="role" value={newUser.role} onChange={handleInputChange} className="input border p-2 w-full">
-              <option value="Admin">Admin</option>
-              <option value="Recepcionista">Recepcionista</option>
-              <option value="Estilista">Estilista</option>
-            </select>
-          </div>
-          <div className="form-buttons">
-            <button onClick={handleAddUser} className="btn-submit bg-blue-500 text-white p-2 mt-4">
-              {isEditing ? "Guardar Cambios" : "Agregar Usuario"}
-            </button>
-            <button onClick={handleCancel} className="btn-cancel bg-red-500 text-white p-2 mt-4 ml-4">Cancelar</button>
-          </div>
-        </div>
-      ) : (
-        <>
-          <div className="filter-container mb-4">
-            <label htmlFor="filterRole" className="filter-label flex items-center mr-2">
+          <div className="filter-container flex items-center ml-4">
+            <label htmlFor="filterRole" className="flex mr-2">
               <IoFilter /> Filtrar por Rol
             </label>
-            <select id="filterRole" value={filterRole} onChange={handleFilterChange} className="filter-select border p-2">
+            <select 
+              id="filterRole" 
+              value={filterRole} 
+              onChange={e => setFilterRole(e.target.value)} 
+              className="filter-select border p-2"
+            >
               <option value="">Todos</option>
-              <option value="Admin">Admin</option>
-              <option value="Recepcionista">Recepcionista</option>
-              <option value="Estilista">Estilista</option>
+              <option value="1">Estilista</option>
+              <option value="2">Administrador</option>
+              <option value="3">Recepcionista</option>
             </select>
           </div>
+        </div>
+      </div>
 
-          <div>
-            {filteredUsers.length > 0 ? (
-              <table className="users-table border-collapse w-full">
-                <thead>
-                  <tr className="table-header">
-                    <th className="table-cell">Nombre</th>
-                    <th className="table-cell">Apellido</th>
-                    <th className="table-cell">Teléfono</th>
-                    <th className="table-cell">Correo Electrónico</th>
-                    <th className="table-cell">Usuario</th>
-                    <th className="table-cell">Rol</th>
-                    <th className="table-cell">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map(user => (
-                    <tr key={user.id} className="table-row">
-                      <td className="table-cell">{user.firstName}</td>
-                      <td className="table-cell">{user.lastName}</td>
-                      <td className="table-cell">{user.phoneNumber}</td>
-                      <td className="table-cell">{user.email}</td>
-                      <td className="table-cell">{user.user}</td>
-                      <td className="table-cell">{user.role}</td>
-                      <td className="table-cell">
-                        <button onClick={() => handleEditUser(user.id)} className="btn-edit bg-yellow-500 text-white p-1">
-                          Editar
-                        </button>
-                        <button onClick={() => handleDeleteUser(user.id)} className="btn-delete bg-red-500 text-white p-1 ml-2">
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="no-users text-gray-500">No hay usuarios disponibles.</p>
-            )}
-          </div>
-        </>
+      {loading ? (
+        <div>Cargando usuarios...</div>
+      ) : (
+        <div className="gestion-usuarios-content">
+          <table className="tabla-usuarios">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Usuario</th>
+                <th>Rol</th> {/* Mostrar el nombre del rol */}
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user) => (
+                <tr key={user.Id}>
+                  <td>{user.Nombre}</td>
+                  <td>{user.Apellido}</td>
+                  <td>{user.Telefono}</td>
+                  <td>{user.Email}</td>
+                  <td>{user.Usuario}</td>
+                  <td>{user.Rol}</td> {/* Muestra el nombre del rol */}
+                  <td>
+                    <button onClick={() => handleEditUser(user.Id!)} className="btn-edit p-1">Editar</button>
+                    <button onClick={() => handleDeleteUser(user)} className="btn-delete p-1 ml-2">Eliminar</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
-      {showConfirmModal && (
-        <div className={`Overlay ${closing ? "fadeOut" : "fadeIn"}`}>
-          <div className={`Modal ${closing ? "fadeOut" : "fadeIn"}`}>
-            <p>¿Seguro que deseas eliminarlo?</p>
-            <button onClick={confirmDeleteUser} className="btn-submit">Confirmar</button>
-            <button onClick={closeModal} className="btn-cancel">Cancelar</button>
+      {showForm && (
+        <div className="modal-overlay">
+          <div className="form-usuario max-w-md mx-auto p-4 bg-white rounded shadow-lg">
+            <h2 className="form-title text-2xl font-bold mb-8">{isEditing ? "Editar Usuario" : "Agregar Usuario"}</h2>
+
+            <input type="text" className="mt-1 p-2 border rounded w-full" name="Nombre" placeholder="Nombre" value={newUser.Nombre} onChange={handleInputChange} />
+            {errors.Nombre && <span className="error">{errors.Nombre}</span>}
+
+            <input type="text" className="mt-1 p-2 border rounded w-full" name="Apellido" placeholder="Apellido" value={newUser.Apellido} onChange={handleInputChange} />
+            {errors.Apellido && <span className="error">{errors.Apellido}</span>}
+
+            <input type="text" className="mt-1 p-2 border rounded w-full" name="Telefono" placeholder="Teléfono" value={newUser.Telefono} onChange={handleInputChange} />
+            {errors.Telefono && <span className="error">{errors.Telefono}</span>}
+
+            <input type="email" className="mt-1 p-2 border rounded w-full" name="Email" placeholder="Email" value={newUser.Email} onChange={handleInputChange} />
+            {errors.Email && <span className="error">{errors.Email}</span>}
+
+            <input type="text" className="mt-1 p-2 border rounded w-full" name="Usuario" placeholder="Usuario" value={newUser.Usuario} onChange={handleInputChange} />
+            {errors.Usuario && <span className="error">{errors.Usuario}</span>}
+
+            <input type={showPassword ? "text" : "password"} className="mt-1 p-2 border rounded w-full" name="Contraseña" placeholder="Contraseña" value={newUser.Contraseña} onChange={handleInputChange} />
+            {errors.Contraseña && <span className="error">{errors.Contraseña}</span>}
+
+            <select value={newUser.Rol_id} onChange={(e) => setNewUser({ ...newUser, Rol_id: Number(e.target.value) })}>
+              <option value="">Selecciona un rol</option>
+              <option value="1">Administrador</option>
+              <option value="2">Estilista</option>
+              <option value="3">Recepcionista</option>
+            </select>
+
+            <div className="flex justify-center mt-4">
+              <button onClick={isEditing ? handleUpdateUser : handleAddUser} className="btn-submit p-2 rounded">
+                {isEditing ? "Actualizar Usuario" : "Agregar Usuario"}
+              </button>
+              <button onClick={resetForm} className="btn-cancel p-2 rounded ml-4">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {userToDelete && (
+        <div className="confirm-modal">
+          <div className="confirm-modal-content">
+            <h2>Confirmar Eliminación</h2>
+            <p>¿Estás seguro de que deseas eliminar a {userToDelete.Nombre}?</p>
+            <div className="button-container">
+              <button className="btn-confirmar" onClick={confirmDeleteUser}>Sí, eliminar</button>
+              <button className="btn-cancelar" onClick={() => setUserToDelete(null)}>Cancelar</button>
+            </div>
           </div>
         </div>
       )}
