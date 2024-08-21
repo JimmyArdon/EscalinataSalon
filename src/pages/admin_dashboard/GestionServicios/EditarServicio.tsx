@@ -120,7 +120,7 @@ const EditarServicio = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:6500/servicios`)
+      .get(`http://localhost:4000/servicios`)
       .then((response) => {
         setAllServicios(response.data);
       });
@@ -129,7 +129,7 @@ const EditarServicio = () => {
   useEffect(() => {
     if (id) {
       axios
-        .get(`http://localhost:6500/servicios/${id}`)
+        .get(`http://localhost:4000/servicios/${id}`)
         .then((response) => {
           setServicio(response.data);
         });
@@ -179,7 +179,7 @@ const EditarServicio = () => {
     
       if(servicio.Id){
         axios
-        .put(`http://localhost:6500/servicios/${servicio.Id}`, servicio)
+        .put(`http://localhost:4000/servicios/${servicio.Id}`, servicio)
         .then(() => {
           navigate("/dashboard-admin/gestion-de-servicios");
         });
