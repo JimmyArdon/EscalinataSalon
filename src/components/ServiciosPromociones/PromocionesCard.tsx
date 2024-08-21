@@ -27,7 +27,7 @@ const PromocionesCard: React.FC<PromocionCardProps> = ({ promocion }) => {
   };
 
   useEffect(() => {
-    fetch(`http://localhost:4000/servicios/${promocion.Servicio_id}`)
+    fetch(`http://localhost:4000/servicioss/${promocion.Servicio_id}`)
       .then(res => {
         if (!res.ok) {
           throw new Error('Network response was not ok');

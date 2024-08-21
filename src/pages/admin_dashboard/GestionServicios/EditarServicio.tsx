@@ -120,7 +120,7 @@ const EditarServicio = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:4000/servicios`)
+      .get(`http://localhost:4000/servicioss`)
       .then((response) => {
         setAllServicios(response.data);
       });

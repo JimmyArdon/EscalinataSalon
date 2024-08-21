@@ -69,7 +69,7 @@ const AgregarServicio: React.FC = () => {
       );
     } else {
       await fetch(
-        "http://localhost:4000/servicios",
+        "http://localhost:4000/servicioss",
         {
           method: "POST",
           body: JSON.stringify({ Nombre: nombre, Duracion: duracion, Precio: precio }),
