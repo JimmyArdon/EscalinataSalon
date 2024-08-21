@@ -20,6 +20,11 @@ interface Estilista {
   Nombre: string;
 }
 
+interface EstadoCita {
+  id: number;
+  Descripcion: string;
+}
+
 const Container = styled.div`
   margin: 40px;
   display: flex;
@@ -91,27 +96,32 @@ const Salir = styled(IoMdCloseCircleOutline)`
 const EditarCita = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [cliente, setCliente] = useState("");
+  const [clienteId, setClienteId] = useState<number | "">("");
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
-  const [servicio, setServicio] = useState("");
-  const [estilista, setEstilista] = useState("");
-  const [estado, setEstado] = useState("");
+  const [servicioId, setServicioId] = useState<number | "">("");
+  const [estilistaId, setEstilistaId] = useState<number | "">("");
+  const [estadoId, setEstadoId] = useState<number | "">("");
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [servicios, setServicios] = useState<Servicio[]>([]);
   const [estilistas, setEstilistas] = useState<Estilista[]>([]);
+  const [estados, setEstados] = useState<EstadoCita[]>([]);
+  const [searchCliente, setSearchCliente] = useState("");
+  const [searchServicio, setSearchServicio] = useState("");
+  const [searchEstilista, setSearchEstilista] = useState("");
+  const [searchEstado, setSearchEstado] = useState("");
 
   useEffect(() => {
     if (id) {
-      axios.get(`https://localhost:4000/citas/${id}`)
+      axios.get(`http://localhost:4000/citas/${id}`)
         .then((response) => {
           const cita = response.data;
-          setCliente(cita.cliente);
-          setFecha(cita.fecha);
-          setHora(cita.hora);
-          setServicio(cita.servicio);
-          setEstilista(cita.estilista);
-          setEstado(cita.estado);
+          setClienteId(cita.Cliente_id);
+          setFecha(cita.fecha.split('T')[0]); // Convertir a formato yyyy-MM-dd
+          setHora(cita.hora); // Convertir a formato HH:mm
+          setServicioId(cita.Servicio_id);
+          setEstilistaId(cita.Usuario_id);
+          setEstadoId(cita.estado_cita_id);
         });
     }
   }, [id]);
@@ -119,33 +129,67 @@ const EditarCita = () => {
   // Buscar clientes
   const buscarClientes = (search: string) => {
     axios.get(`/clientes?search=${search}`)
-      .then((response) => setClientes(response.data));
+      .then((response) => {
+        const data = Array.isArray(response.data) ? response.data : [];
+        setClientes(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching clientes:", error);
+        setClientes([]);
+      });
   };
 
   // Buscar servicios
   const buscarServicios = (search: string) => {
     axios.get(`/servicios?search=${search}`)
-      .then((response) => setServicios(response.data));
+      .then((response) => {
+        const data = Array.isArray(response.data) ? response.data : [];
+        setServicios(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching servicios:", error);
+        setServicios([]);
+      });
   };
 
   // Buscar estilistas
   const buscarEstilistas = (search: string) => {
     axios.get(`/estilistas?search=${search}`)
-      .then((response) => setEstilistas(response.data));
+      .then((response) => {
+        const data = Array.isArray(response.data) ? response.data : [];
+        setEstilistas(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching estilistas:", error);
+        setEstilistas([]);
+      });
+  };
+
+  // Buscar estados de cita
+  const buscarEstados = (search: string) => {
+    axios.get(`/estados-cita?search=${search}`)
+      .then((response) => {
+        const data = Array.isArray(response.data) ? response.data : [];
+        setEstados(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching estados de cita:", error);
+        setEstados([]);
+      });
   };
 
   // Manejo del formulario
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const citaActualizada = {
-      cliente,
+      clienteId,
       fecha,
       hora,
-      servicio,
-      estilista,
-      estado
+      servicioId,
+      estilistaId,
+      estadoId
     };
-    axios.put(`https://localhost:4000/citas/${id}`, citaActualizada)
+    axios.put(`http://localhost:4000/citas/${id}`, citaActualizada)
       .then(() => {
         navigate("/dashboard-admin/gestion-citas");
       });
@@ -154,6 +198,30 @@ const EditarCita = () => {
   const manejarOnClickSalir = () => {
     navigate("/dashboard-admin/gestion-citas");
   };
+
+  useEffect(() => {
+    if (searchCliente !== "") {
+      buscarClientes(searchCliente);
+    }
+  }, [searchCliente]);
+
+  useEffect(() => {
+    if (searchServicio !== "") {
+      buscarServicios(searchServicio);
+    }
+  }, [searchServicio]);
+
+  useEffect(() => {
+    if (searchEstilista !== "") {
+      buscarEstilistas(searchEstilista);
+    }
+  }, [searchEstilista]);
+
+  useEffect(() => {
+    if (searchEstado !== "") {
+      buscarEstados(searchEstado);
+    }
+  }, [searchEstado]);
 
   return (
     <Container>
@@ -164,21 +232,21 @@ const EditarCita = () => {
           <Label>Cliente</Label>
           <Input
             type="text"
-            value={cliente}
-            onChange={(e) => {
-              setCliente(e.target.value);
-              buscarClientes(e.target.value);
-            }}
+            value={searchCliente}
+            onChange={(e) => setSearchCliente(e.target.value)}
             placeholder="Nombre del cliente"
             required
           />
-          {/* Lista de clientes encontrados */}
           <ul>
-            {clientes.map((cliente) => (
-              <li key={cliente.Nombre} onClick={() => setCliente(cliente.Nombre)}>
-                {cliente.Nombre}
-              </li>
-            ))}
+            {Array.isArray(clientes) && clientes.length > 0 ? (
+              clientes.map((cliente) => (
+                <li key={cliente.id} onClick={() => setClienteId(cliente.id)}>
+                  {cliente.Nombre}
+                </li>
+              ))
+            ) : (
+              <li>No se encontraron clientes</li>
+            )}
           </ul>
         </FormGroup>
         <FormGroup>
@@ -203,55 +271,66 @@ const EditarCita = () => {
           <Label>Servicio</Label>
           <Input
             type="text"
-            value={servicio}
-            onChange={(e) => {
-              setServicio(e.target.value);
-              buscarServicios(e.target.value);
-            }}
+            value={searchServicio}
+            onChange={(e) => setSearchServicio(e.target.value)}
             placeholder="Servicio"
             required
           />
-          {/* Lista de servicios encontrados */}
           <ul>
-            {servicios.map((servicio) => (
-              <li key={servicio.Nombre} onClick={() => setServicio(servicio.Nombre)}>
-                {servicio.Nombre}
-              </li>
-            ))}
+            {Array.isArray(servicios) && servicios.length > 0 ? (
+              servicios.map((servicio) => (
+                <li key={servicio.id} onClick={() => setServicioId(servicio.id)}>
+                  {servicio.Nombre}
+                </li>
+              ))
+            ) : (
+              <li>No se encontraron servicios</li>
+            )}
           </ul>
         </FormGroup>
         <FormGroup>
           <Label>Estilista</Label>
           <Input
             type="text"
-            value={estilista}
-            onChange={(e) => {
-              setEstilista(e.target.value);
-              buscarEstilistas(e.target.value);
-            }}
+            value={searchEstilista}
+            onChange={(e) => setSearchEstilista(e.target.value)}
             placeholder="Nombre del estilista"
             required
           />
-          {/* Lista de estilistas encontrados */}
           <ul>
-            {estilistas.map((estilista) => (
-              <li key={estilista.Nombre} onClick={() => setEstilista(estilista.Nombre)}>
-                {estilista.Nombre}
-              </li>
-            ))}
+            {Array.isArray(estilistas) && estilistas.length > 0 ? (
+              estilistas.map((estilista) => (
+                <li key={estilista.id} onClick={() => setEstilistaId(estilista.id)}>
+                  {estilista.Nombre}
+                </li>
+              ))
+            ) : (
+              <li>No se encontraron estilistas</li>
+            )}
           </ul>
         </FormGroup>
         <FormGroup>
-          <Label>Estado Cita</Label>
+          <Label>Estado</Label>
           <Input
             type="text"
-            value={estado}
-            onChange={(e) => setEstado(e.target.value)}
-            placeholder="Estado Cita"
+            value={searchEstado}
+            onChange={(e) => setSearchEstado(e.target.value)}
+            placeholder="Estado de la cita"
             required
           />
+          <ul>
+            {Array.isArray(estados) && estados.length > 0 ? (
+              estados.map((estado) => (
+                <li key={estado.id} onClick={() => setEstadoId(estado.id)}>
+                  {estado.Descripcion}
+                </li>
+              ))
+            ) : (
+              <li>No se encontraron estados</li>
+            )}
+          </ul>
         </FormGroup>
-        <Button type="submit">Guardar Cambios</Button>
+        <Button type="submit">Actualizar Cita</Button>
         <ClearButton type="button" onClick={() => navigate("/dashboard-admin/gestion-citas")}>
           Cancelar
         </ClearButton>

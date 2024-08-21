@@ -4,13 +4,13 @@ import Pagination from '../../../components/Pagination';
 import axios from 'axios';
 
 interface Producto {
-    id: string;
     Nombre: string;
-    descripcion: string  | null;
+    Marca_id: number;
+    Marca: string;
+    Descripcion: string | null;
     Precio: number;
-    Marca_id: string;
-    Proveedor_id: string;
 }
+
 
 const ProductosProveedor: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -25,15 +25,20 @@ const ProductosProveedor: React.FC = () => {
     useEffect(() => {
         const fetchProductos = async () => {
             try {
-                const response = await axios.get(`/productos-proveedor/:proveedor_id`);
+                const response = await axios.get(`http://localhost:4000/productos-proveedor/${id}`);
                 console.log('Fetched Products:', response.data); // Verifica los datos
-                if (Array.isArray(response.data) && response.data.length > 0) {
-                    setProductos(response.data);
-                    setFilteredData(response.data);
+
+                // Ajusta si los datos están anidados
+                const productosData = Array.isArray(response.data) ? response.data : response.data.productos || [];
+
+                if (Array.isArray(productosData)) {
+                    setProductos(productosData);
+                    setFilteredData(productosData);
                 } else {
-                    setProductos([]);
-                    setFilteredData([]);
+                    console.error('Datos recibidos no son un array:', productosData);
+                    setError('Error en el formato de los datos');
                 }
+
                 setLoading(false);
             } catch (err) {
                 console.error('Error al obtener productos:', err);
@@ -57,11 +62,9 @@ const ProductosProveedor: React.FC = () => {
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
     const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-    console.log('Paginated Data:', paginatedData); // Verifica los datos paginados
-
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-xl font-bold mb-4">Productos del Proveedor {id}</h1>
+            <h1 className="text-xl font-bold mb-4">Productos del Proveedor</h1>
             
             <button 
                 onClick={() => navigate('/dashboard-admin/gestion-proveedores')} 
@@ -87,11 +90,11 @@ const ProductosProveedor: React.FC = () => {
                             </thead>
                             <tbody>
                                 {paginatedData.length > 0 ? (
-                                    paginatedData.map((producto) => (
-                                        <tr key={producto.id} className="bg-white hover:bg-gray-200 transition-colors duration-200">
+                                    paginatedData.map((producto, index) => (
+                                        <tr key={index} className="bg-white hover:bg-gray-200 transition-colors duration-200">
                                             <td className="p-2 border border-gray-500">{producto.Nombre}</td>
-                                            <td className="p-2 border border-gray-500">{producto.Marca_id}</td>
-                                            <td className="p-2 border border-gray-500">{producto.descripcion}</td>
+                                            <td className="p-2 border border-gray-500">{producto.Marca}</td>
+                                            <td className="p-2 border border-gray-500">{producto.Descripcion || 'N/A'}</td>
                                             <td className="p-2 border border-gray-500">{producto.Precio}</td>
                                         </tr>
                                     ))

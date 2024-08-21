@@ -44,7 +44,6 @@ import HistorialVenta from "./pages/admin_dashboard/ControlVentas/HistorialVenta
 import GestionClientes from "./pages/admin_dashboard/ControlVentas/BDClientes/Clientes";
 import AgregarCliente from "./pages/admin_dashboard/ControlVentas/BDClientes/AgregarCliente";
 import EditarCliente from "./pages/admin_dashboard/ControlVentas/BDClientes/EditarCliente";
-import BorrarCliente from "./pages/admin_dashboard/ControlVentas/BDClientes/BorrarCliente";
 import VentasCredito from "./pages/admin_dashboard/ControlVentas/VentasCredito";
 
 
@@ -127,8 +126,7 @@ root.render(
         <Route path="dashboard-admin/control-ventas/historial-venta" element={<HistorialVenta />} />   
         <Route path="dashboard-admin/control-ventas/gestion-clientes" element={<GestionClientes />} /> 
         <Route path="dashboard-admin/control-ventas/gestion-clientes/agregar-cliente" element={<AgregarCliente />} /> 
-        <Route path="dashboard-admin/control-ventas/gestion-clientes/editar-cliente" element={<EditarCliente />} /> 
-        <Route path="dashboard-admin/control-ventas/gestion-clientes/borrar-cliente" element={<BorrarCliente />} /> 
+        <Route path="dashboard-admin/control-ventas/gestion-clientes/editar-cliente/:id" element={<EditarCliente />} /> 
         <Route path="dashboard-admin/control-ventas/ventas-creditos" element={<VentasCredito/>} /> 
 
 
