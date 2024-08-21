@@ -10,8 +10,8 @@ const app = express();
 const db = mysql.createConnection({
     host: 'localhost', // Cambia estos valores según tu configuración
     user: 'root', // Cambia estos valores según tu configuración
-    password: 'root0101', // Cambia estos valores según tu configuración
-    database: 'EscalinataSalon' // Nombre de la base de datos
+    password: '12345678', // Cambia estos valores según tu configuración
+    database: 'escalinataSalon' // Nombre de la base de datos
 });
 
 app.use(express.json());
@@ -273,6 +273,17 @@ app.put('/citas/:id', (req, res) => {
 // GET Obtener los nombres de los servicios
 app.get('/servicios', (req, res) => {
     db.query('SELECT Nombre FROM servicio', (err, results) => {
+        if (err) {
+            console.error('Error al obtener servicios:', err);
+            return res.status(500).json({ error: 'Error al obtener servicios' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+// GET Obtener data de los servicios
+app.get('/servicioss', (req, res) => {
+    db.query('SELECT * FROM servicio', (err, results) => {
         if (err) {
             console.error('Error al obtener servicios:', err);
             return res.status(500).json({ error: 'Error al obtener servicios' });
