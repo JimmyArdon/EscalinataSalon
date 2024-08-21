@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { VscOutput, VscGear } from "react-icons/vsc";
 import { FiUsers} from "react-icons/fi";
-import { LiaCalendarWeekSolid } from "react-icons/lia";
+import { LiaCalendarWeekSolid , LiaBullhornSolid} from "react-icons/lia";
 import { BsShop } from "react-icons/bs";
 import DashboardButton from "../../components/DashboardButton";
 import { recepcionistaRoutes, RecepcionistaRouteKeys } from "../../api/routesConfig";
@@ -24,6 +24,8 @@ const DashboardRecepcion: React.FC = () => {
         return <VscGear size={32} />;
       case "Gestión de Proveedores":
           return <FiUsers size={32} />;
+          case "Promociones y Bonificaciones":
+          return <LiaBullhornSolid size={32} />;
      
       default:
         return null;
