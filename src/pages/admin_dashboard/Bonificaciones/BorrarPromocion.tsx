@@ -5,10 +5,17 @@ import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
 
 interface Promocion {
-  id: string;
-  descripcion: string;
-  precio?: string;
-  descuento?: string;
+  Id: string;
+  Servicio_id: string;
+  Descuento?: string;
+  Fecha_inicio?: string;
+  Fecha_fin?: string;
+  Nombre?: string; // Añadido para manejar la propiedad Nombre
+}
+
+interface Servicio {
+  Id: string;
+  Nombre: string;
 }
 
 const Container = styled.div`
@@ -118,11 +125,15 @@ const DropdownItem = styled.li`
 const BorrarPromocion = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [promocion, setPromocion] = useState<Partial<Promocion>>({ descripcion: "" });
+  const [promocion, setPromocion] = useState<Partial<Promocion>>({ Servicio_id: "" });
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [opcionesFiltradas, setOpcionesFiltradas] = useState<Promocion[]>([]);
   const [loading, setLoading] = useState(false);
+  const [servicio, setServicio] = useState<Servicio>({
+    Id: '', 
+    Nombre: ''
+  });
 
   useEffect(() => {
     const fetchPromociones = async () => {
@@ -130,9 +141,10 @@ const BorrarPromocion = () => {
         setLoading(true);
         try {
           const response = await axios.get<Promocion[]>(
-            `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones?descripcion=${searchQuery}`
+            `http://localhost:6500/servicios?Nombre=${searchQuery}`
           );
           setOpcionesFiltradas(response.data);
+          
         } catch {
           setOpcionesFiltradas([]);
         } finally {
@@ -148,10 +160,10 @@ const BorrarPromocion = () => {
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (promocion.id) {
+    if (promocion.Id) {
       axios
         .get<Promocion>(
-          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${promocion.id}`
+          `http://localhost:6500/promociones-servicios/${promocion.Id}`
         )
         .then((response) => {
           setPromocion(response.data);
@@ -163,10 +175,10 @@ const BorrarPromocion = () => {
   };
 
   const handleDelete = () => {
-    if (promocion.id) {
+    if (promocion.Id) {
       axios
         .delete(
-          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${promocion.id}`
+          `http://localhost:6500/promociones-servicios/${promocion.Id}`
         )
         .then(() => {
           setMessage("Promoción eliminada con éxito.");
@@ -184,9 +196,26 @@ const BorrarPromocion = () => {
     navigate("/dashboard-admin/bonificaciones");
   };
 
-  const seleccionarOpcion = (opcion: Promocion) => {
-    setSearchQuery(opcion.descripcion);
-    setPromocion(opcion);
+  async function traerProSer(id : string){
+    const datos = await fetch(`http://localhost:6500/promociones-servicios/${id}`);
+    const res = await datos.json();
+    return res;
+  }
+
+  async function traerSer(id : string){
+    const datos = await fetch(`http://localhost:6500/servicios/${id}`);
+    const res = await datos.json();
+    return res;
+  }
+
+  const seleccionarOpcion = async (opcion: Servicio) => {
+    setSearchQuery(opcion.Nombre);
+    const promocion = await traerProSer(opcion.Id);
+    setPromocion(promocion);
+
+    const ser = await traerSer(opcion.Id);
+    setServicio(ser);
+     
     setOpcionesFiltradas([]); // Limpiar las opciones después de seleccionar
   };
 
@@ -212,10 +241,10 @@ const BorrarPromocion = () => {
               <Dropdown>
                 {opcionesFiltradas.map((opcion) => (
                   <DropdownItem
-                    key={opcion.id}
+                    key={opcion.Id}
                     onClick={() => seleccionarOpcion(opcion)}
                   >
-                    {opcion.descripcion}
+                    {opcion.Nombre}
                   </DropdownItem>
                 ))}
               </Dropdown>
@@ -229,11 +258,11 @@ const BorrarPromocion = () => {
           Limpiar
         </ClearButton>
       </form>
-      {promocion.descripcion && (
+      {searchQuery && (
         <div className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md text-center">
           <h3>
-            ¿Estás seguro de que deseas eliminar la promoción "
-            {promocion.descripcion}"?
+            ¿Estás seguro de que deseas eliminar la promoción en "
+            {servicio.Nombre}"?
           </h3>
           <div
             style={{

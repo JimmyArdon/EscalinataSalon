@@ -68,18 +68,16 @@ const AgregarPromocion: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${id}`)
+      fetch(`http://localhost:6500/promociones-servicios/${id}`)
         .then((res) => res.json())
         .then((data) => {
-          setDescripcion(data.descripcion);
-          setPrecio(data.precio);
-          setPrecioOriginal(data.precio); // Guardar el precio original
-          setDescuento(data.descuento);
-          setOpcionSeleccionada(data.descripcion); // Preseleccionar la opción
-          setBusqueda(data.descripcion); // Mostrar la opción en el input
+          setDescuento(data.Descuento);
+          setBusqueda(data.Nombre); // Mostrar la opción en el input
         });
     }
   }, [id]);
+
+
 
   useEffect(() => {
     if (busqueda === "") {
@@ -148,19 +146,18 @@ const AgregarPromocion: React.FC = () => {
     if (!validarDescripcion() || !validarDescuento() || !validarFechas()) return; // Validar antes de proceder
 
     const url = id
-      ? `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${id}`
-      : "https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones";
+      ? `http://localhost:6500/promociones-servicios/${id}`
+      : "http://localhost:6500/promociones-servicios";
 
     const method = id ? "PUT" : "POST";
 
     await fetch(url, {
       method,
       body: JSON.stringify({ 
-                             descripcion: opcionSeleccionada, 
-                             precio, 
-                             descuento, 
-                             fechaInicio, 
-                             fechaFinal,
+                             Servicios_id :opcionSeleccionada,
+                             Descuento: descuento, 
+                             Fecha_inicio : fechaInicio, 
+                             Fecha_fin : fechaFinal,
                             }),
       headers: {
         "Content-Type": "application/json",
@@ -176,7 +173,7 @@ const AgregarPromocion: React.FC = () => {
 
   const manejarEliminar = async () => {
     if (id) {
-      await fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/tarifasPromociones/${id}`, {
+      await fetch(`http://localhost:6500/promociones-servicios/${id}`, {
         method: "DELETE",
       });
       navigate('/dashboard-admin/bonificaciones');
@@ -193,7 +190,7 @@ const AgregarPromocion: React.FC = () => {
     );
   
     if (servicioSeleccionado) {
-      setOpcionSeleccionada(opcion);
+      setOpcionSeleccionada(servicioSeleccionado.Id);
       setDescripcion(opcion);
       setPrecioOriginal(servicioSeleccionado.Precio);
       setPrecio(calcularPrecioConDescuento(servicioSeleccionado.Precio, descuento));
@@ -207,6 +204,7 @@ const AgregarPromocion: React.FC = () => {
     setDescuento(nuevoDescuento);
     setPrecio(calcularPrecioConDescuento(precioOriginal, nuevoDescuento)); // Actualizar el Precio con el nuevo descuento
   };
+
 
   return (
     <Container>
