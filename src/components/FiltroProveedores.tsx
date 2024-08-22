@@ -15,19 +15,19 @@ interface FiltroProveedoresProps {
 
 const FiltroProveedores: React.FC<FiltroProveedoresProps> = ({ aplicarFiltros, setServicios }) => {
     const [proveedor, setProveedor] = useState("");
-    const [filtroServicios, setFiltroServicios] = useState("") //Servicios
+    const [filtroServicios, setFiltroServicios] = useState(""); //Servicios
 
-    const ubicacion = useLocation()
+    const ubicacion = useLocation();
     const urlActual = ubicacion.pathname;
 
-    const lugar = urlActual === '/dashboard-admin/gestion-de-servicios'
+    const lugar = urlActual === '/dashboard-admin/gestion-de-servicios';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();    
 
         if (lugar) {
             try {
-                const res = await fetch(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/servicios?filter=${filtroServicios}`);
+                const res = await fetch(`http://localhost:4000/servicios/nombre?Nombre=${filtroServicios}`);
                 if (!res.ok) {
                     throw new Error(`Error: ${res.status} ${res.statusText}`);
                 }
@@ -37,10 +37,12 @@ const FiltroProveedores: React.FC<FiltroProveedoresProps> = ({ aplicarFiltros, s
                     throw new Error("No se encontraron servicios con ese filtro.");
                 }
 
-                setServicios(data);
-            } catch (error) {
-                console.error("Error al filtrar servicios:", error);
-                alert(error.message); 
+                setServicios?.(data); // Manejo opcional de setServicios
+            } catch (error: unknown) {
+                // Manejo adecuado del tipo de error
+                const errorMessage = error instanceof Error ? error.message : "Error desconocido";
+                console.error("Error al filtrar servicios:", errorMessage);
+                alert(errorMessage);
             }
         } else {
             aplicarFiltros(proveedor);
@@ -49,9 +51,15 @@ const FiltroProveedores: React.FC<FiltroProveedoresProps> = ({ aplicarFiltros, s
 
     const handleReset = () => {
 
-        lugar ? (setFiltroServicios("") ) : (setProveedor(""), aplicarFiltros(""))
+
+
+        if (lugar) {
+            setFiltroServicios("");
+        } else {
+            setProveedor("");
+            aplicarFiltros("");
+        }
     };
-    
 
     return (
         <form onSubmit={handleSubmit} className="bg-white p-4 rounded-lg shadow-md flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
@@ -61,7 +69,7 @@ const FiltroProveedores: React.FC<FiltroProveedoresProps> = ({ aplicarFiltros, s
                     type="text"
                     id={lugar ? "servicio" : "proveedor"}
                     value={lugar ? filtroServicios : proveedor}
-                    onChange={ lugar ? (e) => setFiltroServicios(e.target.value)  : (e) => setProveedor(e.target.value)}
+                    onChange={lugar ? (e) => setFiltroServicios(e.target.value) : (e) => setProveedor(e.target.value)}
                     className="p-2 border rounded-md"
                 />
             </div>

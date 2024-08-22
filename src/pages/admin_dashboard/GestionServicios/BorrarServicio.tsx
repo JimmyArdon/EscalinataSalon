@@ -121,7 +121,7 @@ const BorrarServicio = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:4000/servicios`)
+      .get(`http://localhost:4000/servicioss`)
       .then((response) => {
         setAllServicios(response.data);
       });
@@ -156,6 +156,8 @@ const BorrarServicio = () => {
   
 
   const handleDelete = () => {
+    console.log(servicio);
+    
     if (servicio && servicio.Id) {
       axios
         .delete(
