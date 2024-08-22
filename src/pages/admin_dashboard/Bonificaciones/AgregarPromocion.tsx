@@ -58,7 +58,7 @@ const AgregarPromocion: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:4000/servicios')
+    fetch('http://localhost:4000/servicioss')
       .then((res) => res.json())
       .then(data => {
         setListaServicios(data);
@@ -145,16 +145,14 @@ const AgregarPromocion: React.FC = () => {
 
     if (!validarDescripcion() || !validarDescuento() || !validarFechas()) return; // Validar antes de proceder
 
-    const url = id
-      ? `http://localhost:4000/promociones-servicios/${id}`
-      : "http://localhost:4000/promociones-servicios";
+    const url =  "http://localhost:4000/promociones-servicios";
 
-    const method = id ? "PUT" : "POST";
+    const method = "POST";
 
     await fetch(url, {
       method,
       body: JSON.stringify({ 
-                             Servicios_id :opcionSeleccionada,
+                             Servicio_id :opcionSeleccionada,
                              Descuento: descuento, 
                              Fecha_inicio : fechaInicio, 
                              Fecha_fin : fechaFinal,
@@ -190,6 +188,7 @@ const AgregarPromocion: React.FC = () => {
     );
   
     if (servicioSeleccionado) {
+      
       setOpcionSeleccionada(servicioSeleccionado.Id);
       setDescripcion(opcion);
       setPrecioOriginal(servicioSeleccionado.Precio);
