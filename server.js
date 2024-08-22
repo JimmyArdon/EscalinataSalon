@@ -324,6 +324,25 @@ app.delete('/servicios', (req, res) => {
     });
 });
 
+// Método PUT para actualizar un servicio existente
+app.put('/servicios/:id', (req, res) => {
+    const { id } = req.params;
+    const { Nombre, Duracion, Precio, Descripcion } = req.body;
+    const query = 'UPDATE Servicio SET Nombre = ?, Duracion = ?, Precio = ?, Descripcion = ? WHERE Id = ?';
+    db.query(query, [Nombre, Duracion, Precio, Descripcion, id], (err, result) => {
+        if (err) {
+            console.error('Error al actualizar el servicio:', err);
+            res.status(500).send('Error al actualizar el servicio');
+            return;
+        }
+        if (result.affectedRows === 0) {
+            res.status(404).send('Servicio no encontrado');
+            return;
+        }
+        res.send('Servicio actualizado exitosamente');
+    });
+});
+
 // Método POST para crear un nuevo servicio
 app.post('/servicios', (req, res) => {
     const { Nombre, Duracion, Precio, Descripcion } = req.body;
