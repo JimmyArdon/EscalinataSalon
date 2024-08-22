@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef , useEffect} from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import Modal from 'react-modal';
+import axios from 'axios';
 import Select from 'react-select';
 import ModalConfirmarCompra from '../../../components/ModalConfirmarCompra'; 
 import { Container, TopSection, InfoSection, Title, InfoContainer, InfoItem, 
@@ -18,8 +19,26 @@ interface Client {
   address : string;
 }
 
+interface EmpresaInfo {
+  nombre: string;
+  razonSocial: string;
+  rtn: string;
+  Teléfono: string;
+  direccion: string;
+  Correo_electronico: string;
+  cai: string;
+  establecimiento: string;
+  puntoEmision: string;
+  tipoDocumento: string;
+  facturaInicio: string;
+  facturaLimite: string;
+  facturaActual: string;
+  fechaLimiteEmision: string;
+  fechaInicio: string;
+}
 const Venta: React.FC = () => {
-  
+
+  const [clients, setClients] = useState<Client[]>([]);
   const [searchTerm, setSearchTerm ] = useState('');
   const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [products, setProducts] = useState([
@@ -83,15 +102,11 @@ const Venta: React.FC = () => {
     // Más filas de productos aquí
   ]);
 
-  const [clients, setClients] = useState<Client[]>([
-    { name: 'Juan Pérez', rtn: '0801-123456-001' , address:'SRC' },
-    { name: 'Ana Gómez', rtn: '0802-654321-001', address:'SRC'},
-    // Agrega más clientes aquí
-  ]);
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [paymentType, setPaymentType] = useState('contado')
+  const [empresaInfo, setEmpresaInfo] = useState<EmpresaInfo | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false); 
   const [newClient, setNewClient] = useState({
     name: '',
@@ -106,19 +121,16 @@ const Venta: React.FC = () => {
    address:'SRC'
   };
 
-  // Datos para el rango autorizado
-  const establecimiento = '000';
-  const puntoDeEmision = '001';
-  const tipoDocumento = '01';
-  const facturaInicio = '00000301';
-  const facturaFin = '00000400';
-  const facturaActual = '00000327';
-
-  // Concatenar el rango autorizado
-  const rangoAutorizado = `${establecimiento}-${puntoDeEmision}-${tipoDocumento} ${facturaInicio} 
-  al ${establecimiento}-${puntoDeEmision}-${tipoDocumento} ${facturaFin}`;
-
-  const factActual = `${establecimiento}-${puntoDeEmision}-${tipoDocumento} ${facturaActual}`;
+  useEffect(() => {
+    // Fetch the company information on component mount
+    axios.get('http://localhost:4000/empresa')
+      .then(response => {
+        setEmpresaInfo(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching company information:', error);
+      });
+  }, []);
 
   const filteredProducts = products.filter((product) =>
     product.concept.toLowerCase().includes(searchTerm.toLowerCase())
@@ -295,20 +307,51 @@ const Venta: React.FC = () => {
   }
 };
 
+// Datos para el rango autorizado
+const establecimiento = empresaInfo?.establecimiento;
+const puntoDeEmision = empresaInfo?.puntoEmision;
+const tipoDocumento = empresaInfo?.tipoDocumento;
+const facturaInicio =empresaInfo?.facturaInicio ;
+const facturaFin = empresaInfo?.facturaLimite;
+const facturaActual = empresaInfo?.facturaActual;
+
+// Concatenar el rango autorizado
+const rangoAutorizado = `${establecimiento}-${puntoDeEmision}-${tipoDocumento} ${facturaInicio} 
+al ${establecimiento}-${puntoDeEmision}-${tipoDocumento} ${facturaFin}`;
+
+const factActual = `${establecimiento}-${puntoDeEmision}-${tipoDocumento} ${facturaActual}`;
+
+
   return (
     <Container>
       <Title>Factura</Title>
       <TopSection>
         <InfoSection>
-          <InfoContainer>
-            <InfoItem><strong>Nombre:</strong> Inversiones Estéticas C&C</InfoItem>
-            <InfoItem><strong>RTN:</strong> 05019021339269</InfoItem>
-            <InfoItem><strong>Teléfono:</strong> +(504) 8912-6011</InfoItem>
-            <InfoItem><strong>Correo:</strong> escalinatacys@gmail.com</InfoItem>
-            <InfoItem><strong>Dirección Principal:</strong> Col. Osorio, calle principal, atrás de iglesia Renacer, Santa Rosa de Copán, Honduras</InfoItem>
-            <InfoItem><strong>CAI:</strong> 672002-A60EB4-6946A1-E1437B-9925CE-35</InfoItem>
-            <InfoItem><strong>Rango Autorizado:</strong> {rangoAutorizado}</InfoItem>
-            <InfoItem><strong>Fecha Límite de Emisión:</strong> 09/10/2024</InfoItem>
+        <InfoContainer>
+            {empresaInfo ? (
+              <>
+                <InfoItem><strong>Nombre:</strong> {empresaInfo.nombre}</InfoItem>
+                <InfoItem><strong>Razón Social:</strong> {empresaInfo.razonSocial}</InfoItem>
+                <InfoItem><strong>RTN:</strong> {empresaInfo.rtn}</InfoItem>
+                <InfoItem><strong>Teléfono:</strong> {empresaInfo.Teléfono}</InfoItem>
+                <InfoItem><strong>Correo Electrónico:</strong> {empresaInfo.Correo_electronico}</InfoItem>
+                <InfoItem><strong>Dirección:</strong> {empresaInfo.direccion}</InfoItem>
+                <InfoItem><strong>CAI:</strong> {empresaInfo.cai}</InfoItem>
+                <InfoItem><strong>Rango de Autorizado:</strong> {rangoAutorizado}</InfoItem>
+                <InfoItem>
+                <strong>Fecha Limite Emisión:</strong> 
+                {new Date(empresaInfo.fechaLimiteEmision).toLocaleDateString('es-ES', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                 })}
+                </InfoItem>
+
+
+              </>
+            ) : (
+              <p>Cargando información de la empresa...</p>
+            )}
           </InfoContainer>
         </InfoSection>
         <FormSection>
@@ -324,7 +367,12 @@ const Venta: React.FC = () => {
             <tbody>
               <tr>
               <InvoiceTableCell>{factActual}</InvoiceTableCell>
-              <InvoiceTableCell>19/08/2024</InvoiceTableCell>
+              <InvoiceTableCell>{new Date().toLocaleDateString('es-ES', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                })}</InvoiceTableCell> {/* Fecha del día en curso */}
+    
               <InvoiceTableCell>
               <Select
                     value={{ value: paymentType, label: paymentType }}

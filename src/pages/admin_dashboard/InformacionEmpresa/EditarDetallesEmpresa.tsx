@@ -154,8 +154,14 @@ const EditarDetallesEmpresa = () => {
 
   const handleSave = () => {
     if (detallesEmpresa && validateForm()) {
+      const detallesParaGuardar = { ...detallesEmpresa };
+
+    // Extraer solo la parte de la fecha de las propiedades fechaLimiteEmision y fechaInicio
+    detallesParaGuardar.fechaLimiteEmision = detallesEmpresa.fechaLimiteEmision.split('T')[0];
+    detallesParaGuardar.fechaInicio = detallesEmpresa.fechaInicio.split('T')[0];
       axios
-        .put("http://localhost:4000/empresa", detallesEmpresa)
+      
+        .put("http://localhost:4000/empresa/detalles", detallesEmpresa)
         .then((response) => {
           console.log("Información guardada exitosamente", response.data);
           alert("Información actualizada correctamente");

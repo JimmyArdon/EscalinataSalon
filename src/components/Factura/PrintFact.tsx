@@ -253,7 +253,7 @@ const PrintFact: React.FC<{ data: FacturaData }> = ({ data }) => {
         <View>
           <Text style={styles.lineItem}>
             <Text style={styles.lineLabel}>SON:</Text>
-            <Text style={styles.lineText}>{montoEnLetras} Lempiras</Text>
+            <Text style={styles.lineText}>{montoEnLetras} LEMPIRAS</Text>
           </Text>
         </View>
 

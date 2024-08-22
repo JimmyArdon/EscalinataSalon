@@ -77,7 +77,6 @@ const Salir = styled(IoMdCloseCircleOutline)`
     color: #8b4513;
   }
 `;
-
 interface Producto {
   Nombre: string;
   Proveedor_id: number;
@@ -130,7 +129,6 @@ const AgregarProducto: React.FC = () => {
       [name]: name === 'Proveedor_id' || name === 'Marca_id' || name === 'Cantidad_stock' || name === 'Precio' || name === 'ISV' || name === 'Precio_venta' ? parseFloat(value) : value,
     });
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -169,7 +167,7 @@ const AgregarProducto: React.FC = () => {
           <Input type="text" name="Nombre" value={producto.Nombre} onChange={handleChange} required />
         </FormGroup>
         <FormGroup>
-          <Label>Proveedor:</Label>
+        <Label>Proveedor:</Label>
           <Select name="Proveedor_id" value={producto.Proveedor_id} onChange={handleChange} required>
             <option value="">Selecciona un proveedor</option>
             {proveedores.map((proveedor) => (
@@ -191,17 +189,14 @@ const AgregarProducto: React.FC = () => {
           </Select>
         </FormGroup>
         <FormGroup>
-          <Label>Cantidad en Stock:</Label>
-          <Input type="number" name="Cantidad_stock" value={producto.Cantidad_stock} onChange={handleChange} required />
-        </FormGroup>
+        <Label>Cantidad en Stock:</Label>
+        <Input type="number" name="Cantidad_stock" value={producto.Cantidad_stock} onChange={handleChange} required /></FormGroup>
         <FormGroup>
-          <Label>Precio:</Label>
-          <Input type="number" name="Precio" value={producto.Precio} onChange={handleChange} required />
-        </FormGroup>
+        <Label>Precio:</Label>
+        <Input type="number" name="Precio" value={producto.Precio} onChange={handleChange} required /> </FormGroup>
         <FormGroup>
-          <Label>ISV (%):</Label>
-          <Input type="number" name="ISV" value={producto.ISV} onChange={handleChange} required />
-        </FormGroup>
+        <Label>ISV (%):</Label>
+        <Input type="number" name="ISV" value={producto.ISV} onChange={handleChange} required /></FormGroup>
         <FormGroup>
           <Label>Precio de Venta:</Label>
           <Input type="number" name="Precio_venta" value={producto.Precio_venta} onChange={handleChange} required />

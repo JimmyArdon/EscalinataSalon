@@ -35,7 +35,7 @@ const GestionProveedores: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/proveedoress');
+                const response = await axios.get('http://localhost:4000/proveedores');
                 setInitialData(response.data);
                 setFilteredData(response.data);
             } catch (error) {

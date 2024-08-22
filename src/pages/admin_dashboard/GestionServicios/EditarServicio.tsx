@@ -5,19 +5,19 @@ import axios from "axios";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 
 const Container = styled.div`
-  margin: 0 auto; 
+  margin: 0 auto; /* Centra horizontalmente el contenedor */
   display: flex;
   align-items: center;
   flex-direction: column;
-  gap: 20px; 
+  gap: 20px; /* Espacio entre elementos */
   background-color: #d9d9d9;
   padding: 40px;
   border-radius: 10px;
   position: relative;
-  width: 80%; 
-  max-width: 800px; 
+  width: 80%; /* Ajusta el ancho del contenedor según sea necesario */
+  max-width: 800px; /* Tamaño máximo del contenedor */
   box-sizing: border-box;
-  min-height: 100vh; 
+  min-height: 100vh; /* Asegura que el contenedor ocupe al menos el alto de la pantalla */
 `;
 
 const FormGroup = styled.div`
@@ -96,6 +96,7 @@ const ResultItem = styled.li`
   }
 `;
 
+// Define the type for a service
 interface Service {
   Id: string;
   Nombre: string;
@@ -119,7 +120,7 @@ const EditarServicio = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:4000/servicios`)
+      .get(`http://localhost:4000/servicioss`)
       .then((response) => {
         setAllServicios(response.data);
       });
@@ -272,7 +273,7 @@ const EditarServicio = () => {
               required
             />
           </FormGroup>
-          <Button type="submit">Actualizar Servicio</Button>
+          <Button type="submit">Guardar Cambios</Button>
         </form>
       )}
     </Container>

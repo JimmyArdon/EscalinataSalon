@@ -61,7 +61,7 @@ const AgregarProveedor: React.FC = () => {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    fetch("http://localhost:4000/proveedoress", {
+    fetch("http://localhost:4000/proveedores", {
       method: "POST",
       body: JSON.stringify(formData),
       headers: {
