@@ -1,70 +1,44 @@
-.gestion-usuarios {
+.gestion-usuarios-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 1rem;
 }
 
-.header {
+.gestion-usuarios-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 1.5rem;
+}
+
+.gestion-usuarios-content{
+    margin-top: 1rem;
+    color: #000000;
+    box-shadow: #888484 4px 0 15px;
+    border-radius: 10px;
 }
 
 .title {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #a08c1f;
-    margin-top: 3.5rem;
-    margin-left: 2.5rem;
+    color: #2ec35b;
 }
 
-/* Comienzan botones */
-.btn-add,
-.btn-submit,
-.btn-cancel,
-.btn-edit,
-.btn-delete {
+.btn-add{
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 0.5rem;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    margin: 0 0.5rem;    
-}
-
-.btn-add {
-    background-color: #aba618;
-    color: white;
-}
-
-.btn-add:hover {
-    background-color: #93700d;
-    transform: scale(1.05);
-}
-
-.btn-submit {
-    background-color: #1baa19;
-    color: white;
-}
-
-.btn-submit:hover {
-    background-color: #000000;
-    transform: scale(1.05);
-}
-
-.btn-cancel {
-    background-color: #dc3545;
-    color: white;
-}
-
-.btn-cancel:hover {
-    background-color: #000000;
-    transform: scale(1.05);
+    margin: 0 0.5rem;
+    background-color: #25b425;
+    color: #fefefe;
 }
 
 .btn-edit {
     background-color: #ffc107;
-    color: #333;
+    color: #554646;
+    
 }
 
 .btn-edit:hover {
@@ -74,16 +48,56 @@
 
 .btn-delete {
     background-color: #dc3545;
-    color: white;
+    color: #554646;
 }
 
 .btn-delete:hover {
     background-color: #bd2130;
     transform: scale(1.05);
 }
-/* Terminan botones */
 
-.form-container {
+.btn-submit, .btn-confirmar {
+    background-color: #1baa19;
+    color: white;
+
+}
+
+.btn-submit:hover, .btn-confirmar:hover {
+    background-color: #000000;
+    transform: scale(1.05);
+}
+
+.btn-cancel, .btn-cancelar {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-cancel:hover, .btn-cancelar:hover {
+    background-color: #000000;
+    transform: scale(1.05);
+}
+
+.tabla-usuarios {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-usuarios th, .tabla-usuarios td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-usuarios th {
+    background-color: #736329;
+    color: white;
+}
+
+.tabla-usuarios tr:hover {
+    background-color: #f1f1f1;
+}
+
+.form-usuario {
     background-color: #f3f4f6;
     padding: 1.5rem;
     border-radius: 1rem;
@@ -91,171 +105,118 @@
     margin-bottom: 1.5rem;
 }
 
-.form-title {
+.form-usuario input, .form-usuario select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s;
+}
+
+.form-usuario input:focus, .form-usuario select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.form-usuario .error {
+    color: red;
+    font-size: 0.9rem;
+}
+.form-title{
     font-size: 1.75rem;
     font-weight: bold;
     color: #333;
     margin-bottom: 1rem;
-}   
-
-.form-row {
-    display: flex;
-    gap: 1rem;
-    justify-content: end;
 }
 
-.input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 2px solid #333618;
-    border-radius: 0.75rem;
-    margin-bottom: 1rem;
-    transition: border-color 0.3s ease;
-}
-
-.input:focus {
-    border-color: #a08c1f;
-    outline: none;
-}
-
-/* Estilos para el campo de contraseña con icono */
-.input-container {
-    position: relative;
-}
-
-.input-container .absolute {
-    position: absolute;
-    right: 0.2rem; /* Incrementa el valor para mover el icono más hacia la derecha */
-    top: 40%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    font-size: 1.6rem; /* Incrementa el tamaño del icono */
-}
-
-.input-container .absolute .text-gray-500 {
-    color: #000000;
-}
-
-/* Estilo para mensajes de error */
-.error-message {
-    font-size: 0.875rem;
-    color: #dc3545;
-    margin-top: -0.5rem;
-    margin-bottom: 1rem;
-}
-
-.filter-container {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-  
-.filter-label {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #333;
-    margin-right: 0.5rem;
-}
-  
-.filter-select {
-    padding: 0.5rem;
-    border: 2px solid #e6dedebf;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-}
-
-.users-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1rem;
-}
-
-.table-header {
-    background-color: #866e2cd5;
-    color: white;
-    padding: 0.75rem;
-    text-align: center;
-    font-weight: bold;
-}
-
-.table-cell {
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    text-align: center;
-}
-
-.select-container {
-    display: flex;
-    justify-content: right;
-    width: 45rem;
-}
-
-.select-container .input {
-    width: 50%;
-}
-
-.form-buttons {
+.confirm-modal {
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
-
-/* Animaciones para el modal */
-@keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.8);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-}
-  
-@keyframes fadeOut {
-    from {
-      opacity: 1;
-      transform: scale(1);
-    }
-    to {
-      opacity: 0;
-      transform: scale(0.8);
-    }
-}
-
-.Overlay {
-    background-color: rgba(161, 143, 46, 0.383);
+    align-items: center;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.confirm-modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 10px;
+}
+
+.button-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Espacio entre botones */
+}
+
+.btn-confirmar {
+    background-color: #28a745; /* Verde */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-cancelar {
+    background-color: #dc3545; /* Rojo */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+@media (max-width: 768px) {
+    .gestion-usuarios-container {
+        padding: 10px;
+    }
+    .form-usuario {
+        padding: 15px;
+    }
+    .tabla-usuarios th, .tabla-usuarios td {
+        padding: 8px;
+    }
+}
+
+.card {
+    background: rgb(191, 58, 58);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    padding: 15px;
+}
+
+.modal {
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
-    animation: fadeIn 0.3s ease-out forwards;
-}
-  
-.Modal {
-    background: rgba(254, 254, 254, 0.988);
-    padding: 1%;
-    border-radius: 5%;
-    max-width: 400px;
-    width: 100%;
-    box-shadow: 0 4px 8px rgba(98, 94, 94, 0.93);
-    text-align: center;
-    animation: fadeIn 0.3s ease-out forwards;
-}
-  
-.Modal.fadeOut {
-    animation: fadeOut 0.3s ease-out forwards;
-}
-
-.Modal p {
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
-    color: #000000;
-}
+    z-index: 1000; /* Asegura que el modal esté por encima de otros elementos */
+  }
