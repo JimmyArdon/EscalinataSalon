@@ -141,7 +141,7 @@ const BorrarPromocion = () => {
         setLoading(true);
         try {
           const response = await axios.get<Promocion[]>(
-            `http://localhost:4000/servicios?Nombre=${searchQuery}`
+            `http://localhost:4000/servicios/nombre?Nombre=${searchQuery}`
           );
           setOpcionesFiltradas(response.data);
           
@@ -160,6 +160,7 @@ const BorrarPromocion = () => {
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
     if (promocion.Id) {
       axios
         .get<Promocion>(
@@ -198,6 +199,7 @@ const BorrarPromocion = () => {
 
   async function traerProSer(id: string) {
     try {
+      
       const respuesta = await fetch(`http://localhost:4000/promociones-servicios/${id}`);
   
       if (!respuesta.ok) {
@@ -218,26 +220,38 @@ const BorrarPromocion = () => {
   
 
   async function traerSer(id : string){
-    const datos = await fetch(`http://localhost:4000/servicios/${id}`);
+    const datos = await fetch(`http://localhost:4000/servicioss/${id}`);
     const res = await datos.json();
     return res;
   }
 
-  const seleccionarOpcion = async (opcion: Servicio) => {
-    setSearchQuery(opcion.Nombre);
-
-    try {
-      const promocion = await traerProSer(opcion.Id);
-      setPromocion(promocion);
-
-      const ser = await traerSer(opcion.Id);
-      setServicio(ser);
-      
-      setOpcionesFiltradas([]);
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Error desconocido");
+  const seleccionarOpcion = async (opcion: Promocion) => {
+    
+    // Asegúrate de que opcion.Nombre esté definido antes de asignar
+    if (opcion.Nombre) {
+      setSearchQuery(opcion.Nombre);
+  
+      try {
+        const promocion = await traerProSer(opcion.Id);
+        setPromocion(promocion);
+  
+        // Crear un objeto Servicio usando los datos de opcion
+        const servicio: Servicio = {
+          Id: opcion.Id,
+          Nombre: opcion.Nombre,
+        };
+  
+        setServicio(servicio);
+  
+        setOpcionesFiltradas([]);
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : "Error desconocido");
+      }
+    } else {
+      setErrorMessage("Nombre del servicio no disponible.");
     }
   };
+  
 
   return (
     <Container>
