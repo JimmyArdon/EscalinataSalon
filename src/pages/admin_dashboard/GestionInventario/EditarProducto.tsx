@@ -1,159 +1,283 @@
-// import React, { useState } from 'react';
-// import styled from 'styled-components';
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import styled from "styled-components";
+import axios from "axios";
+import { IoMdCloseCircleOutline } from "react-icons/io";
 
-// const Container = styled.div`
-//   padding: 20px;
-// `;
+const Container = styled.div`
+  margin: 0 auto; /* Centra horizontalmente el contenedor */
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px; /* Espacio entre elementos */
+  background-color: #d9d9d9;
+  padding: 40px;
+  border-radius: 10px;
+  position: relative;
+  width: 80%; /* Ajusta el ancho del contenedor según sea necesario */
+  max-width: 800px; /* Tamaño máximo del contenedor */
+  box-sizing: border-box;
+  min-height: 100vh; /* Asegura que el contenedor ocupe al menos el alto de la pantalla */
+`;
 
-// const SearchInput = styled.input`
-//   padding: 8px;
-//   margin-right: 10px;
-// `;
+const FormGroup = styled.div`
+  margin-bottom: 15px;
+`;
 
-// const Button = styled.button`
-//   padding: 8px;
-//   margin-top: 10px;
-// `;
+const Label = styled.label`
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+`;
 
-// const FormContainer = styled.div`
-//   margin-top: 20px;
-// `;
+const Input = styled.input`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
 
-// const FormInput = styled.input`
-//   display: block;
-//   margin-bottom: 10px;
-//   padding: 8px;
-//   width: 100%;
-// `;
+const Button = styled.button`
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: #45a049;
+  }
+`;
 
-// const ProductEditView: React.FC = () => {
-//   const [searchName, setSearchName] = useState<string>('');
-//   const [product, setProduct] = useState(null);
-//   const [editData, setEditData] = useState({
-//     Proveedor_id: '',
-//     Marca_id: '',
-//     Cantidad_stock: '',
-//     Precio: '',
-//     ISV: '',
-//     Precio_venta: '',
-//   });
+const ClearButton = styled(Button)`
+  background-color: #f44336;
+  &:hover {
+    background-color: #d32f2f;
+  }
+`;
 
-//   const handleSearch = async () => {
-//     try {
-//       const response = await fetch(`/nameProductos?Nombre=${searchName}`);
-//       const data = await response.json();
-//       if (data.length > 0) {
-//         setProduct(data[0]); // Assuming you only want to edit one product at a time
-//         setEditData({
-//           Proveedor_id: data[0].Proveedor_id,
-//           Marca_id: data[0].Marca_id,
-//           Cantidad_stock: data[0].Cantidad_stock,
-//           Precio: data[0].Precio,
-//           ISV: data[0].ISV,
-//           Precio_venta: data[0].Precio_venta,
-//         });
-//       } else {
-//         alert('Producto no encontrado');
-//       }
-//     } catch (error) {
-//       console.error('Error fetching product:', error);
-//     }
-//   };
+const Salir = styled(IoMdCloseCircleOutline)`
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 
-//   const handleEdit = async () => {
-//     try {
-//       const response = await fetch('/productos', {
-//         method: 'PUT',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ Nombre: searchName, ...editData }),
-//       });
-//       const result = await response.json();
-//       if (response.ok) {
-//         alert('Producto editado exitosamente');
-//       } else {
-//         alert(result.error || 'Error al editar el producto');
-//       }
-//     } catch (error) {
-//       console.error('Error editing product:', error);
-//     }
-//   };
+  &:hover {
+    width: 60px;
+    height: 60px;
+    color: #8b4513;
+  }
+`;
 
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const { name, value } = e.target;
-//     setEditData(prevState => ({ ...prevState, [name]: value }));
-//   };
+const ErrorMessage = styled.p`
+  color: #f44336;
+  font-weight: bold;
+`;
 
-//   return (
-//     <Container>
-//       <h1>Buscar y Editar Producto</h1>
-//       <div>
-//         <SearchInput
-//           type="text"
-//           placeholder="Nombre del producto"
-//           value={searchName}
-//           onChange={(e) => setSearchName(e.target.value)}
-//         />
-//         <Button onClick={handleSearch}>Buscar</Button>
-//       </div>
+const ResultList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: #fff;
+`;
 
-//       {product && (
-//         <FormContainer>
-//           <h2>Editar Producto</h2>
-//           <FormInput
-//             type="text"
-//             name="Proveedor_id"
-//             placeholder="ID del Proveedor"
-//             value={editData.Proveedor_id}
-//             onChange={handleChange}
-//           />
-//           <FormInput
-//             type="text"
-//             name="Marca_id"
-//             placeholder="ID de la Marca"
-//             value={editData.Marca_id}
-//             onChange={handleChange}
-//           />
-//           <FormInput
-//             type="number"
-//             name="Cantidad_stock"
-//             placeholder="Cantidad en stock"
-//             value={editData.Cantidad_stock}
-//             onChange={handleChange}
-//           />
-//           <FormInput
-//             type="number"
-//             name="Precio"
-//             placeholder="Precio de compra"
-//             value={editData.Precio}
-//             onChange={handleChange}
-//           />
-//           <FormInput
-//             type="number"
-//             name="ISV"
-//             placeholder="ISV"
-//             value={editData.ISV}
-//             onChange={handleChange}
-//           />
-//           <FormInput
-//             type="number"
-//             name="Precio_venta"
-//             placeholder="Precio de venta"
-//             value={editData.Precio_venta}
-//             onChange={handleChange}
-//           />
-//           <Button onClick={handleEdit}>Actualizar Producto</Button>
-//         </FormContainer>
-//       )}
-//     </Container>
-//   );
-// };
+const ResultItem = styled.li`
+  padding: 8px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
 
-// export default ProductEditView;
-import React from 'react';
+// Define the type for a service
+interface Service {
+  Id: string;
+  Nombre: string;
+  Duracion: string;
+  Precio: string;
+}
 
-const ProductEditView: React.FC = () => {
-    return (
-        <h1>Hola</h1>
-    )
-    };
-export default ProductEditView;
+const EditarServicio = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [servicio, setServicio] = useState<Service>({
+    Id: "",
+    Nombre: "",
+    Duracion: "",
+    Precio: "",
+  });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [allServicios, setAllServicios] = useState<Service[]>([]);
+  const [filteredServicios, setFilteredServicios] = useState<Service[]>([]);
+
+  useEffect(() => {
+    axios
+      .get(`http://localhost:4000/servicioss`)
+      .then((response) => {
+        setAllServicios(response.data);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (id) {
+      axios
+        .get(`http://localhost:4000/servicios/${id}`)
+        .then((response) => {
+          setServicio(response.data);
+        });
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (searchQuery) {
+      setFilteredServicios(
+        allServicios.filter((servicio) =>
+          servicio.Nombre.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    } else {
+      setFilteredServicios([]);
+    }
+  }, [searchQuery, allServicios]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setServicio({
+      ...servicio,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const result = allServicios.find(
+      (servicio) => servicio.Nombre.toLowerCase() === searchQuery.toLowerCase()
+    );
+    if (result) {
+      setServicio(result);
+      setErrorMessage("");
+    } else {
+      setServicio({
+        Id: "",
+        Nombre: "",
+        Duracion: "",
+        Precio: "",
+      });
+      setErrorMessage("No se encontró ningún servicio con ese nombre.");
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+      if(servicio.Id){
+        axios
+        .put(`http://localhost:4000/servicios/${servicio.Id}`, servicio)
+        .then(() => {
+          navigate("/dashboard-admin/gestion-de-servicios");
+        });
+      }
+    
+  };
+
+  const handleClear = () => {
+    setSearchQuery("");
+    setServicio({
+      Id: "",
+      Nombre: "",
+      Duracion: "",
+      Precio: "",
+    });
+    setErrorMessage("");
+  };
+
+  const manejarOnClickSalir = () => {
+    navigate("/dashboard-admin/gestion-de-servicios");
+  };
+
+  const handleSelectService = (selectedService: Service) => {
+    setServicio(selectedService);
+    setSearchQuery(selectedService.Nombre);
+    setFilteredServicios([]);
+    setErrorMessage("");
+  };
+
+  return (
+    <Container>
+      <Salir onClick={manejarOnClickSalir} />
+      <h2>Editar Servicio</h2>
+      <form onSubmit={handleSearch} className="bg-slate-500 p-10 rounded-[15px] w-full">
+        <FormGroup>
+          <Label>Buscar por Nombre</Label>
+          <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+            <Input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Nombre del servicio"
+              required
+            />
+            <Button type="submit">Buscar</Button>
+            <ClearButton type="button" onClick={handleClear}>
+              Limpiar
+            </ClearButton>
+          </div>
+          {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+          {filteredServicios.length > 0 && (
+            <ResultList>
+              {filteredServicios.map((servicio) => (
+                <ResultItem key={servicio.Id} onClick={() => handleSelectService(servicio)}>
+                  {servicio.Nombre}
+                </ResultItem>
+              ))}
+            </ResultList>
+          )}
+        </FormGroup>
+      </form>
+      {servicio.Nombre && (
+        <form onSubmit={handleSubmit} className="bg-slate-500 p-10 rounded-[15px] w-full">
+          <FormGroup>
+            <Label>Nombre</Label>
+            <Input
+              type="text"
+              name="Nombre"
+              value={servicio.Nombre}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Duración</Label>
+            <Input
+              type="text"
+              name="Duracion"
+              value={servicio.Duracion}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Precio</Label>
+            <Input
+              type="number"
+              name="Precio"
+              value={servicio.Precio}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <Button type="submit">Guardar Cambios</Button>
+        </form>
+      )}
+    </Container>
+  );
+};
+
+export default EditarServicio;

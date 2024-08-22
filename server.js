@@ -10,7 +10,7 @@ const app = express();
 const db = mysql.createConnection({
     host: 'localhost', // Cambia estos valores según tu configuración
     user: 'root', // Cambia estos valores según tu configuración
-    password: '12345678', // Cambia estos valores según tu configuración
+    password: 'root0101', // Cambia estos valores según tu configuración
     database: 'escalinataSalon' // Nombre de la base de datos
 });
 
@@ -281,6 +281,64 @@ app.get('/servicios', (req, res) => {
     });
 });
 
+app.delete('/servicios', (req, res) => {
+    const nombreServicio = req.body.Nombre;
+
+    // Primero, verificamos si el servicio existe
+    const checkSql = 'SELECT * FROM Servicio WHERE Nombre = ?';
+    db.query(checkSql, [nombreServicio], (err, results) => {
+        if (err) {
+            console.error('Error al buscar el servicio:', err);
+            res.status(500).json({ error: 'Error al buscar el servicio' });
+            return;
+        }
+
+        if (results.length === 0) {
+            res.status(404).json({ error: 'Servicio no encontrado' });
+            return;
+        }
+
+        const servicioId = results[0].Id;
+
+        // Eliminar las citas relacionadas
+        const deleteCitasSql = 'DELETE FROM Cita WHERE Servicio_id = ?';
+        db.query(deleteCitasSql, [servicioId], (err) => {
+            if (err) {
+                console.error('Error al eliminar citas relacionadas:', err);
+                res.status(500).json({ error: 'Error al eliminar citas relacionadas' });
+                return;
+            }
+
+            // Ahora, eliminar el servicio
+            const deleteSql = 'DELETE FROM Servicio WHERE Nombre = ?';
+            db.query(deleteSql, [nombreServicio], (err) => {
+                if (err) {
+                    console.error('Error al eliminar el servicio:', err);
+                    res.status(500).json({ error: 'Error al eliminar el servicio' });
+                    return;
+                }
+
+                res.json({ message: 'Servicio y citas relacionadas eliminados con éxito' });
+            });
+        });
+    });
+});
+
+// Método POST para crear un nuevo servicio
+app.post('/servicios', (req, res) => {
+    const { Nombre, Duracion, Precio, Descripcion } = req.body;
+    const query = 'INSERT INTO Servicio (Nombre, Duracion, Precio, Descripcion) VALUES (?, ?, ?, ?)';
+    db.query(query, [Nombre, Duracion, Precio, Descripcion], (err, result) => {
+        if (err) {
+            console.error('Error al crear el servicio:', err);
+            res.status(500).send('Error al crear el servicio');
+            return;
+        }
+        res.status(201).send(`Servicio creado con ID: ${result.insertId}`);
+    });
+});
+
+
 // GET Obtener data de los servicios
 app.get('/servicioss', (req, res) => {
     db.query('SELECT * FROM servicio', (err, results) => {
@@ -291,6 +349,7 @@ app.get('/servicioss', (req, res) => {
         res.status(200).json(results);
     });
 });
+
 // GET /estilistas - Obtener todos los usuarios con rol de estilista
 app.get('/estilistas', (req, res) => {
     db.query('SELECT Nombre FROM usuario WHERE rol_id = 2', (err, results) => {
@@ -722,38 +781,38 @@ app.get('/historial-venta', (req, res) => {
 
 // Obtener ventas al crédito con filtro de cliente
 app.get('/ventas-credito', (req, res) => {
-      db.query('  SELECT vc.*, c.nombre, tev.Descripcion FROM ventas_credito vc JOIN cliente c ON vc.cliente_id = c.id JOIN tipo_estado_venta tev ON vc.Tipo_estado_id  = tev.Id ',
-    (err, results) => {
-      if (err) {
-        console.error('Error fetching ventas data:', err);
-        res.status(500).send('Internal Server Error');
-        return;
-      }
-      res.json(results);
-    });
-  });
-  
-  // Obtener historial de pagos
-  app.get('/historial-pagos', (req, res) => {
+    db.query('  SELECT vc.*, c.nombre, tev.Descripcion FROM ventas_credito vc JOIN cliente c ON vc.cliente_id = c.id JOIN tipo_estado_venta tev ON vc.Tipo_estado_id  = tev.Id ',
+        (err, results) => {
+            if (err) {
+                console.error('Error fetching ventas data:', err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+            res.json(results);
+        });
+});
+
+// Obtener historial de pagos
+app.get('/historial-pagos', (req, res) => {
     db.query('SELECT hp.*, c.Nombre FROM historial_pagos hp JOIN cliente c ON hp.Cliente_id = c.id', (err, results) => {
-      if (err) {
-        console.error('Error fetching historial pagos data:', err);
-        res.status(500).send('Internal Server Error');
-        return;
-      }
-      res.json(results);
+        if (err) {
+            console.error('Error fetching historial pagos data:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        res.json(results);
     });
-  });
-  
-  // Define el endpoint para registrar un pago
+});
+
+// Define el endpoint para registrar un pago
 app.post('/registrar-pago', (req, res) => {
     const { ClienteId, montoPagado, fechaPago } = req.body;
-  
+
     // Verifica que los datos requeridos estén presentes
     if (typeof ClienteId !== 'number' || typeof montoPagado !== 'number' || typeof fechaPago !== 'string') {
-      return res.status(400).send('Invalid input');
+        return res.status(400).send('Invalid input');
     }
-  
+
     // Actualizar venta
     const updateQuery = `
       UPDATE ventas_credito
@@ -764,26 +823,26 @@ app.post('/registrar-pago', (req, res) => {
                           END
       WHERE id = ?;
     `;
-  
+
     db.query(updateQuery, [montoPagado, montoPagado, ClienteId], (err) => {
-      if (err) {
-        console.error('Error updating venta:', err);
-        return res.status(500).send('Internal Server Error');
-      }
-  
-      // Insertar en historial de pagos
-      const insertQuery = 'INSERT INTO historial_pagos (Cliente_id, Monto_pagado, Fecha_pago) VALUES (?, ?, ?)';
-      db.query(insertQuery, [ClienteId, montoPagado, fechaPago], (err) => {
         if (err) {
-          console.error('Error inserting into historial pagos:', err);
-          return res.status(500).send('Internal Server Error');
+            console.error('Error updating venta:', err);
+            return res.status(500).send('Internal Server Error');
         }
-        res.status(200).send('Pago registrado exitosamente');
-      });
+
+        // Insertar en historial de pagos
+        const insertQuery = 'INSERT INTO historial_pagos (Cliente_id, Monto_pagado, Fecha_pago) VALUES (?, ?, ?)';
+        db.query(insertQuery, [ClienteId, montoPagado, fechaPago], (err) => {
+            if (err) {
+                console.error('Error inserting into historial pagos:', err);
+                return res.status(500).send('Internal Server Error');
+            }
+            res.status(200).send('Pago registrado exitosamente');
+        });
     });
-  });
-  
-  
+});
+
+
 
 app.listen(4000, () => {
     console.log("Backend conectado en el puerto 4000");
