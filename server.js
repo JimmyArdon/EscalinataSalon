@@ -17,7 +17,7 @@ const app = express();
 const db = mysql.createConnection({
     host: 'localhost', // Cambia estos valores según tu configuración
     user: 'root', // Cambia estos valores según tu configuración
-    password: '12345678', // Cambia estos valores según tu configuración
+    password: '@ElPoderMental99', // Cambia estos valores según tu configuración
     database: 'escalinatasalon' // Nombre de la base de datos
 
 });
@@ -891,20 +891,50 @@ app.post('/clientes', (req, res) => {
 app.post('/citas', (req, res) => {
     const { Cliente_id, fecha, hora, Servicio_id, Usuario_id } = req.body;
 
-    const query = `
-        INSERT INTO cita (Cliente_id, fecha, hora, Servicio_id, Usuario_id, estado_cita_id)
-        VALUES (?, ?, ?, ?, ?, (SELECT id FROM estado_cita WHERE descripcion = 'Pendiente'))
+    // Query to check if the Cliente, Usuario, and Servicio IDs exist
+    const validationQuery = `
+        SELECT EXISTS(SELECT 1 FROM cliente WHERE Id = ?) AS clienteExists,
+               EXISTS(SELECT 1 FROM usuario WHERE Id = ?) AS usuarioExists,
+               EXISTS(SELECT 1 FROM servicio WHERE Id = ?) AS servicioExists
     `;
 
-    db.query(query, [Cliente_id, fecha, hora,  Servicio_id, Usuario_id ], (err, results) => {
+
+    db.query(validationQuery, [Cliente_id, Usuario_id, Servicio_id], (err, results) => {
         if (err) {
-            console.error('Error al agregar cita:', err);
-            return res.status(500).json({ error: 'Error al agregar cita' });
+            console.error('Error al validar IDs:', err);
+            return res.status(500).json({ error: 'Error al validar IDs' });
         }
 
-        res.status(201).json({ message: 'Cita agregada con éxito', id: results.insertId });
+        const { clienteExists, usuarioExists, servicioExists } = results[0];
+
+        if (!clienteExists) {
+            return res.status(400).json({ error: 'Cliente no encontrado' });
+        }
+        if (!usuarioExists) {
+            return res.status(400).json({ error: 'Usuario no encontrado' });
+        }
+        if (!servicioExists) {
+            return res.status(400).json({ error: 'Servicio no encontrado' });
+        }
+
+        // Proceed with the insertion if all IDs are valid
+        const insertQuery = `
+            INSERT INTO cita (Cliente_id, fecha, hora, Servicio_id, Usuario_id, estado_cita_id)
+            VALUES (?, ?, ?, ?, ?, (SELECT id FROM estado_cita WHERE descripcion = 'Pendiente'))
+        `;
+
+        db.query(insertQuery, [Cliente_id, fecha, hora, Servicio_id, Usuario_id], (err, results) => {
+            if (err) {
+                console.error('Error al agregar cita:', err);
+                return res.status(500).json({ error: 'Error al agregar cita' });
+            }
+
+            res.status(201).json({ message: 'Cita agregada con éxito', id: results.insertId });
+        });
     });
 });
+
+
 
 
 app.delete('/citas/:id', (req, res) => {
@@ -944,18 +974,18 @@ app.get('/empresa', (req, res) => {
     `;
   
     db.query(query, (err, results) => {
-      if (err) {
-        console.error('Error al obtener la información de la empresa:', err);
-        return res.status(500).json({ error: 'Error al obtener la información de la empresa' });
-      }
-  
-      if (results.length > 0) {
-        res.json(results[0]);
-      } else {
-        res.status(404).json({ message: 'Información de la empresa no encontrada' });
-      }
+        if (err) {
+            console.error('Error al obtener la información de la empresa:', err);
+            return res.status(500).json({ error: 'Error al obtener la información de la empresa' });
+        }
+
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.status(404).json({ message: 'Información de la empresa no encontrada' });
+        }
     });
-  });
+}) ;
 
   // Endpoint para obtener la información de la empresa
 app.get('/empresa/detalles', (req, res) => {
@@ -1081,7 +1111,7 @@ app.get('/proveedores', (req, res) => {
 app.get('/productos-proveedor/:Proveedor_id', (req, res) => {
     const { Proveedor_id } = req.params;
 
-    const query = ' SELECT Nombre, Marca_id, descripcion, Precio FROM producto WHERE Proveedor_id = ?';
+    const query = ' SELECT Nombre, Marca_id, m.Descripcion as Marca , p.Descripcion, Precio FROM producto p join marca m on p.Marca_id = m.Id WHERE Proveedor_id = ?';
     db.query(query, [Proveedor_id], (err, results) => {
         if (err) {
             console.error('Error al realizar la consulta: ' + err.stack);
@@ -1091,7 +1121,7 @@ app.get('/productos-proveedor/:Proveedor_id', (req, res) => {
     });
 });
 
-app.post('/proveedores', (req, res) => {
+app.post('/proveedoress', (req, res) => {
     const { Nombre, Direccion, Numero_Telefono, Email } = req.body;
 
     const query = 'INSERT INTO proveedor (Nombre, Direccion, Numero_Telefono , Email) VALUES (?, ?, ?, ?)';
@@ -1104,7 +1134,7 @@ app.post('/proveedores', (req, res) => {
     });
 });
 
-app.put('/proveedores/:id', (req, res) => {
+app.put('/proveedoress/:id', (req, res) => {
     const { id } = req.params;
     const { Nombre, Direccion, Numero_Telefono, Email} = req.body;
 
@@ -1118,7 +1148,7 @@ app.put('/proveedores/:id', (req, res) => {
     });
 });
 
-app.delete('/proveedores/:id', (req, res) => {
+app.delete('/proveedoress/:id', (req, res) => {
     const { id } = req.params;
 
     const query = 'DELETE FROM proveedor WHERE id = ?';
@@ -1227,6 +1257,271 @@ app.get('/marca/:id', (req, res) => {
             res.status(200).json(rows[0]);
         });
 })
+
+/// Eliminados antes
+// Buscar productos por nombre
+app.get('/nameProductos', (req, res) => {
+    const nombre = req.query.Nombre || '';
+    const query = 'SELECT Id, Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta FROM Producto WHERE Nombre LIKE ?';
+    db.query(query, [`%${nombre}%`], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Error al obtener los productos' });
+        }
+        res.json(results);
+    });
+});
+
+app.get('/clientess', (req, res) => {
+    db.query('SELECT * FROM cliente', (err, results) => {
+        if (err) {
+            console.error('Error al obtener clientes:', err);
+            return res.status(500).json({ error: 'Error al obtener clientes' });
+        }
+        res.status(200).json(results);
+    })
+});
+
+// Endpoint para agregar un cliente
+app.post('/clientes', (req, res) => {
+    const { Nombre, Rtn, Direccion, Numero_Telefono, Email } = req.body;
+    db.query('INSERT INTO cliente (Nombre, Rtn, Direccion, Numero_Telefono, Email) VALUES (?, ?, ?, ?, ?)',
+        [Nombre, Rtn, Direccion, Numero_Telefono, Email], (err, results) => {
+
+            if (err) {
+                console.error('Error al agregar cliente:', err);
+                return res.status(500).json({ error: 'Error al agregar cliente' });
+            }
+            res.status(201).json({ message: 'Cliente agregado con éxito', id: results.insertId });
+            res.status(200).json(rows[0]);
+        });
+})
+
+// Endpoint para eliminar un cliente
+app.delete('/clientess/:id', (req, res) => {
+    const { id } = req.params;
+    
+    const query = 'DELETE FROM cliente WHERE id = ?';
+    db.query(query, [id], (err) => {
+        if (err) {
+            console.error('Error al eliminar el cliente: ' + err.stack);
+            return res.status(500).json({ error: 'Error al eliminar el cliente' });
+        }
+        res.status(200).json({ message: 'Cliente eliminado con exito' });
+    });
+});
+
+// Endpoint para obtener un cliente
+app.get('/clientess/:id', (req, res) => {
+    const { id } = req.params; // Obtén el ID del parámetro de la solicitud
+
+    // Realiza la consulta con un filtro WHERE para obtener el cliente específico
+    db.query('SELECT * FROM cliente WHERE id = ?', [id], (err, results) => {
+    if (err) {
+        console.error('Error al obtener cliente:', err);
+        return res.status(500).json({ error: 'Error al obtener cliente' });
+    }
+
+    if (results.length === 0) {
+        // Si no se encuentra el cliente, devuelve un error 404
+        return res.status(404).json({ error: 'Cliente no encontrado' });
+    }
+    });
+})
+
+// Endpoint para actualizar un cliente
+app.put('/clientess/:id', (req, res) => {
+    const { id } = req.params;
+    const { Nombre, Rtn, Direccion, Numero_Telefono, Email } = req.body;
+
+    
+    // Verificar que todos los campos necesarios están presentes
+    if (!Nombre || !Rtn || !Direccion || !Numero_Telefono || !Email) {
+        return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    const query = `
+        UPDATE cliente 
+        SET Nombre = ?, Rtn = ?, Direccion = ?, Numero_Telefono = ?, Email = ?
+        WHERE id = ?
+    `;
+    const values = [Nombre, Rtn, Direccion, Numero_Telefono, Email, id];
+
+    db.query(query, values, (err) => {
+        if (err) {
+            console.error('Error al actualizar cliente:', err);
+            return res.status(500).json({ error: 'Error al actualizar cliente' });
+        }
+    });
+});
+
+// DELETE CITA 
+app.delete('/citas/:id', (req, res) => {
+    const { id } = req.params;
+    
+    const query = 'DELETE FROM cita WHERE id = ?';
+    db.query(query, [id], (err) => {
+        if (err) {
+            console.error('Error al eliminar el cliente: ' + err.stack);
+            return res.status(500).json({ error: 'Error al eliminar el cliente' });
+        }
+        res.status(200).json({ message: 'Cliente eliminado con exito' });
+    });
+});
+
+
+// POST - Ingresar una promocion de servicios 
+app.post('/promociones-servicios',(req, res) => {
+    const { Servicio_id, Descuento, Fecha_inicio, Fecha_fin } = req.body;
+
+        db.query(
+            `INSERT INTO promociones_servicios (Servicio_id, Descuento, Fecha_inicio, Fecha_fin)
+            VALUES (?, ?, ?, ?);`,
+            [Servicio_id, Descuento, Fecha_inicio, Fecha_fin],
+            (err, result) => {
+                if (err) {
+                    return res.status(400).json({ error: err.message });
+                }
+                res.status(201).json({ id: result.insertId });
+            }
+        );
+});
+
+
+// Obtener todos los proveedores
+app.get('/proveedoress', (req, res) => {
+    const query = 'SELECT * FROM proveedor';
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching proveedores:', err);
+            return res.status(500).json({ error: 'Error al obtener la lista de proveedores' });
+        }
+
+        res.json(results);
+    });
+});
+
+
+app.get('/marcas', (req, res) => {
+    const query = 'SELECT Id as id, Descripcion as descripcion FROM Marca';
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Error al obtener las marcas' });
+        }
+        res.json(results);
+    });
+});
+
+app.get('/historial-venta', (req, res) => {
+    const { filter, clientFilter } = req.query;
+
+    // Consulta base
+    let query = `
+        SELECT hv.*, c.nombre AS nombreCliente, f.numero_factura
+        FROM historial_ventas hv
+        JOIN cliente c ON hv.Cliente_id = c.id
+        JOIN factura f ON hv.Factura_id = f.id
+        WHERE 1=1
+    `;
+    const params = [];
+
+    // Filtro por nombre de cliente
+    if (clientFilter) {
+        query += ' AND c.nombre LIKE ?';
+        params.push(`%${clientFilter}%`);
+    }
+
+    // Filtro por fecha
+    if (filter === 'today') {
+        query += ' AND DATE(hv.fecha) = CURDATE()';
+    } else if (filter === 'week') {
+        query += ' AND YEARWEEK(hv.fecha, 1) = YEARWEEK(CURDATE(), 1)';
+    } else if (filter === 'month') {
+        query += ' AND MONTH(hv.fecha) = MONTH(CURDATE()) AND YEAR(hv.fecha) = YEAR(CURDATE())';
+    } else if (filter === 'year') {
+        query += ' AND YEAR(hv.fecha) = YEAR(CURDATE())';
+    }
+
+    // Ejecución de la consulta
+    db.query(query, params, (err, results) => {
+        if (err) {
+            console.error('Error fetching sales data:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        res.json(results);
+    });
+});
+
+// Obtener ventas al crédito con filtro de cliente
+app.get('/ventas-credito', (req, res) => {
+      db.query('  SELECT vc.*, c.nombre, tev.Descripcion FROM ventas_credito vc JOIN cliente c ON vc.cliente_id = c.id JOIN tipo_estado_venta tev ON vc.Tipo_estado_id  = tev.Id ',
+    (err, results) => {
+      if (err) {
+        console.error('Error fetching ventas data:', err);
+        res.status(500).send('Internal Server Error');
+        return;
+      }
+      res.json(results);
+    });
+  });
+
+  // Obtener historial de pagos
+  app.get('/historial-pagos', (req, res) => {
+    db.query('SELECT hp.*, c.Nombre FROM historial_pagos hp JOIN cliente c ON hp.Cliente_id = c.id', (err, results) => {
+      if (err) {
+        console.error('Error fetching historial pagos data:', err);
+        res.status(500).send('Internal Server Error');
+        return;
+      }
+      res.json(results);
+    });
+  });
+
+  // Define el endpoint para registrar un pago
+app.post('/registrar-pago', (req, res) => {
+    const { ClienteId, montoPagado, fechaPago } = req.body;
+
+    // Verifica que los datos requeridos estén presentes
+    if (typeof ClienteId !== 'number' || typeof montoPagado !== 'number' || typeof fechaPago !== 'string') {
+      return res.status(400).send('Invalid input');
+    }
+
+    // Actualizar venta
+    const updateQuery = `
+      UPDATE ventas_credito
+      SET Monto_pendiente = Monto_pendiente - ?, 
+          Tipo_estado_id = CASE 
+                            WHEN Monto_pendiente - ? = 0 THEN 1 
+                            ELSE 2 
+                          END
+      WHERE id = ?;
+    `;
+
+    db.query(updateQuery, [montoPagado, montoPagado, ClienteId], (err) => {
+      if (err) {
+        console.error('Error updating venta:', err);
+        return res.status(500).send('Internal Server Error');
+      }
+
+      // Insertar en historial de pagos
+      const insertQuery = 'INSERT INTO historial_pagos (Cliente_id, Monto_pagado, Fecha_pago) VALUES (?, ?, ?)';
+      db.query(insertQuery, [ClienteId, montoPagado, fechaPago], (err) => {
+        if (err) {
+          console.error('Error inserting into historial pagos:', err);
+          return res.status(500).send('Internal Server Error');
+        }
+        res.status(200).send('Pago registrado exitosamente');
+      });
+    });
+  });
+
+
+
+
+
 
 
 app.listen(4000, () => {
