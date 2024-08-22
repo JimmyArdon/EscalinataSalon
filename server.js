@@ -272,7 +272,7 @@ app.get('/servicioss/:id', (req, res) => {
 })
 
 //GETBYNAME - Consultar Servicio por nombre
-app.get('/servicioss', (req, res) => {
+app.get('/servicios/nombre', (req, res) => {
     const { Nombre } = req.query;
 
     if (!Nombre) {
@@ -281,15 +281,14 @@ app.get('/servicioss', (req, res) => {
 
     db.query(
         'SELECT * FROM servicio WHERE Nombre LIKE ?',
-        [`%${Nombre}`],
+        [`%${Nombre}%`],
         (err, rows) => {
             if (err) {
-                console.error('Error al obtener servicios por nombre:', err);
                 return res.status(400).json({ error: err.message });
             }
             res.status(200).json(rows);
         }
-    );
+    );    
 });
 
 //GETONE - Ingresar un Servicio
