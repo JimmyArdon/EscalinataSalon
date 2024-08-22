@@ -55,26 +55,20 @@ const GestionUsuarios: React.FC = () => {
 
   //Falta funcion const para traer los usuarios con su correspondiente rol mapeado y muestra el nombre no el id
   const fetchUsersRoles = async () => {
-    setLoading(true);
-    try {
-      // Llamar al endpoint que trae los usuarios
-      const responseUsers = await axios.get("http://localhost:4000/usuarios");
-  
-      // Llamar al endpoint que trae los roles
-      const responseRoles = await axios.get("http://localhost:4000/usuarios-roles");
-  
-      const usersWithRoles = responseUsers.data.map((user: User) => {
-        const role = responseRoles.data.find((rol: { id: number }) => rol.id === user.Rol_id);
-        return { ...user, Rol: role ? role.nombre : "Rol desconocido" };
-      });
-  
-      setUsers(usersWithRoles);
-    } catch (error) {
-      console.error("Error al obtener los usuarios con roles:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    // Llamar al endpoint que trae los usuarios con roles ya mapeados
+    const response = await axios.get("http://localhost:4000/usuarios-roles");
+    
+    // Los datos ya están en el formato esperado, solo actualizamos el estado
+    setUsers(response.data);
+  } catch (error) {
+    console.error("Error al obtener los usuarios con roles:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
   
   //Agregar usuario a la base de datos
   const handleAddUser = async () => {
