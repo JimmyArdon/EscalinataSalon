@@ -1,10 +1,53 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // para redirección
+import axios from 'axios';
 import logo1 from '../assets/Logo1.png';
 
 const Login: React.FC = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
     useEffect(() => {
         document.title = "Login - Escalinata";
     }, []);
+
+    const handleLogin = async (event: React.FormEvent) => {
+        event.preventDefault();
+
+        try {
+            const response = await axios.post('http://localhost:4000/login', { Usuario: username, Contraseña: password });
+            const { token, Rol_id } = response.data;
+
+            // Almacenar el token en el almacenamiento local si es necesario
+            localStorage.setItem('token', token);
+
+            // Redirigir basado en el rol
+            switch (Rol_id) {
+                case 1: // Administrador
+                    navigate('/dashboard-admin/main');
+                    break;
+                case 2: // Recepcionista
+                    navigate('/dashboard-recepcionista/main');
+                    break;
+                case 3: // Estilista
+                    navigate('/dashboard-estilista/main');
+                    break;
+                default:
+                    setError('Rol no reconocido.');
+            }
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                // Error específico de Axios
+                setError('Error de login: ' + (err.response?.data?.error || 'Error desconocido'));
+            } else {
+                // Otro tipo de error
+                setError('Error de login: ' + (err as Error).message);
+            }
+            console.error('Error de login:', err);
+        }
+    };
 
     return (
         <>
@@ -18,7 +61,7 @@ const Login: React.FC = () => {
                     
                     {/* Formulario de Login */}
                     <div className="bg-[#CCC5B7] w-full sm:w-8/12 md:w-6/12 lg:w-5/12 xl:w-4/12 shadow-2xl rounded-lg p-4 sm:p-4">
-                        <form className="p-1">
+                        <form className="p-1" onSubmit={handleLogin}>
                             <div className="flex items-center text-lg mb-6 md:mb-8 relative">
                                 <svg className="absolute ml-3" width="24" viewBox="0 0 24 24">
                                     <path d="M20.822 18.096c-3.439-.794-6.64-1.49-5.09-4.418 4.72-8.912 1.251-13.678-3.732-13.678-5.082 0-8.464 4.949-3.732 13.678 1.597 2.945-1.725 3.641-5.09 4.418-3.073.71-3.188 2.236-3.178 4.904l.004 1h23.99l.004-.969c.012-2.688-.092-4.222-3.176-4.935z" />
@@ -28,6 +71,8 @@ const Login: React.FC = () => {
                                     id="username"
                                     className="bg-gray-200 pl-12 py-2 md:py-4 text-sm focus:outline-none w-full rounded-md shadow-lg focus:ring-2 focus:ring-[#6F5D44]"
                                     placeholder="Usuario"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
                                 />
                             </div>
                             <div className="flex items-center text-lg mb-6 md:mb-8 relative">
@@ -39,9 +84,12 @@ const Login: React.FC = () => {
                                     id="password"
                                     className="bg-gray-200 pl-12 py-2 md:py-4 focus:outline-none w-full rounded-md shadow-lg focus:ring-2 focus:ring-[#6F5D44] text-sm"
                                     placeholder="Contraseña"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                 />
                             </div>
-                            <button className="bg-gradient-to-b from-[#6F5D44] to-[#4A3C28] font-medium p-2 md:p-4 text-white uppercase w-full rounded-md shadow-xl hover:from-[#5A4B37] hover:to-[#4A3C28] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6F5D44]">
+                            {error && <div className="text-red-500 mb-4">{error}</div>}
+                            <button type="submit" className="bg-gradient-to-b from-[#6F5D44] to-[#4A3C28] font-medium p-2 md:p-4 text-white uppercase w-full rounded-md shadow-xl hover:from-[#5A4B37] hover:to-[#4A3C28] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6F5D44]">
                                 Login
                             </button>
                         </form>
@@ -56,6 +104,6 @@ const Login: React.FC = () => {
             </div>
         </>
     );
-}
+};
 
 export default Login;

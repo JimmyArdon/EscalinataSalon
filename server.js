@@ -1,20 +1,26 @@
 
+import dotenv from 'dotenv';
+
 import express from 'express';
 import mysql from 'mysql';
 import cors from 'cors';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 
 
+dotenv.config();
 const app = express();
+
 
 // Configuración de la base de datos
 const db = mysql.createConnection({
     host: 'localhost', // Cambia estos valores según tu configuración
     user: 'root', // Cambia estos valores según tu configuración
-    password: '@ElPoderMental99', // Cambia estos valores según tu configuración
+    password: '12345678', // Cambia estos valores según tu configuración
     database: 'escalinatasalon' // Nombre de la base de datos
 });
+
 
 app.use(express.json());
 app.use(cors());
@@ -38,6 +44,60 @@ app.get('/', (req, res) => {
             </body>
         </html>
     `);
+});
+
+// Middleware de Autorización
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer token
+
+    if (token == null) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
+// Ruta de login
+app.post('/login', async (req, res) => {
+    const { Usuario, Contraseña } = req.body;
+
+    if (!Usuario || !Contraseña) {
+        return res.status(400).json({ error: 'Faltan datos requeridos' });
+    }
+
+    const query = 'SELECT * FROM usuario WHERE Usuario = ?';
+    db.query(query, [Usuario], async (err, results) => {
+        if (err) {
+            console.error('Error en la base de datos:', err);
+            return res.status(500).json({ error: 'Error en la base de datos' });
+        }
+        if (results.length === 0) {
+            return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
+        }
+
+        const user = results[0];
+
+        const isMatch = await bcrypt.compare(Contraseña, user.Contraseña);
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
+        }
+
+        if (!process.env.JWT_SECRET) {
+            console.error('La clave secreta para JWT no está definida en las variables de entorno.');
+            return res.status(500).json({ error: 'Error en la configuración del servidor' });
+        }
+
+        const token = jwt.sign({ id: user.id, Rol_id: user.Rol_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.json({ token, Rol_id: user.Rol_id });
+    });
+});
+
+
+app.get('/protected', authenticateToken, (req, res) => {
+    res.json({ message: 'Acceso concedido', user: req.user });
 });
 
 // Obtener usuarios

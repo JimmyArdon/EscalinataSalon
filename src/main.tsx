@@ -71,6 +71,10 @@ import BonificacionesR from "./pages/recepcionistas_dashboard/Bonificaciones/Bon
 import AgregarBonificacionR from "./pages/recepcionistas_dashboard/Bonificaciones/AgregarBonificacionR";
 import EditarBonificacionR from "./pages/recepcionistas_dashboard/Bonificaciones/EditarBonificacionR";
 import BorrarBonificacionR from "./pages/recepcionistas_dashboard/Bonificaciones/BorrarBonificacionR";
+import Logout from "./pages/Logout";
+
+
+
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 
@@ -89,6 +93,7 @@ root.render(
 
         {/* Rutas con Layout_Login */}
         <Route path="/" element={<Layout_Login />}>
+       
 
 
         {/* Rutas Recepcionista */}
@@ -186,6 +191,7 @@ root.render(
           <Route path="dashboard-estilista/perfil" element={<Perfil />} />
           <Route path="dashboard-estilista/cambiar-contrasena" element={<CambiarContrasena />} />
 
+          <Route path="/cerrar-sesion" element={<Logout />}/>
         </Route>
       </Routes>
     </BrowserRouter>
