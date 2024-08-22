@@ -69,7 +69,7 @@ const EditarCliente = () => {
 
 
   const manejarOnClickSalir = () => {
-    navigate("/dashboard-admin/gestion-clientes");
+    navigate("/dashboard-admin/control-ventas/gestion-clientes");
   };
 
   return (

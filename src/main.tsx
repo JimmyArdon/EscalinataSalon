@@ -59,18 +59,7 @@ import GestionClientesR from "./pages/recepcionistas_dashboard/ControlVentas/BDC
 import AgregarClienteR from "./pages/recepcionistas_dashboard/ControlVentas/BDClientesR/AgregarClienteR";
 import EditarClienteR from "./pages/recepcionistas_dashboard/ControlVentas/BDClientesR/EditarClienteR";
 import VentasCreditoR from "./pages/recepcionistas_dashboard/ControlVentas/VentasCreditoR";
-import GestionDeServiciosR from "./pages/recepcionistas_dashboard/GestionServicios/GestionDeServiciosR";
-import GestionInventarioR from './pages/recepcionistas_dashboard/GestionInventario/GestionInventarioR';
-import AgregarProductoR from "./pages/recepcionistas_dashboard/GestionInventario/AgregarProductoR";
-import EditarProductoR from "./pages/recepcionistas_dashboard/GestionInventario/EditarProductoR";
-import BorrarProductoR from "./pages/recepcionistas_dashboard/GestionInventario/BorrarProductoR";
-import AgregarPromocionR from "./pages/recepcionistas_dashboard/Bonificaciones/AgregarPromocionR";
-import EditarPromocionR from "./pages/recepcionistas_dashboard/Bonificaciones/EditarPromocionR";
-import BorrarPromocionR from "./pages/recepcionistas_dashboard/Bonificaciones/BorrarPromocionR";
-import BonificacionesR from "./pages/recepcionistas_dashboard/Bonificaciones/BonificacionesR";
-import AgregarBonificacionR from "./pages/recepcionistas_dashboard/Bonificaciones/AgregarBonificacionR";
-import EditarBonificacionR from "./pages/recepcionistas_dashboard/Bonificaciones/EditarBonificacionR";
-import BorrarBonificacionR from "./pages/recepcionistas_dashboard/Bonificaciones/BorrarBonificacionR";
+
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 
@@ -93,16 +82,15 @@ root.render(
 
         {/* Rutas Recepcionista */}
 
-        <Route path="dashboard-recepcionista/control-ventas/gestion-clientes" element={<GestionClientesR />} /> 
-        <Route path="dashboard-recepcionista/control-ventas/gestion-clientes/agregar-cliente" element={<AgregarClienteR />} /> 
-        <Route path="dashboard-recepcionista/control-ventas/gestion-clientes/editar-cliente/:id" element={<EditarClienteR />} /> 
-
         <Route path="dashboard-recepcionista/control-ventas" element={<DashboardR />} />  
         <Route path="dashboard-recepcionista/control-ventas/venta" element={<VentaR />} />  
         <Route path="dashboard-recepcionista/control-ventas/cotizacion" element={<CotizacionR />} />  
         <Route path="dashboard-recepcionista/control-ventas/historial-venta" element={<HistorialVentaR />} />   
+        <Route path="dashboard-recepcionista/control-ventas/gestion-clientes" element={<GestionClientesR />} /> 
+        <Route path="dashboard-recepcionista/control-ventas/gestion-clientes/agregar-cliente" element={<AgregarClienteR />} /> 
+        <Route path="dashboard-recepcionista/control-ventas/gestion-clientes/editar-cliente" element={<EditarClienteR />} /> 
         <Route path="dashboard-recepcionista/control-ventas/ventas-creditos" element={<VentasCreditoR/>} /> 
-        
+
         <Route path="dashboard-recepcionista/gestion-citas/" element={<GestionCitasR />} />
         <Route path="dashboard-recepcionista/gestion-citas/agregar-cita/" element={<AgregarCitaR />} />
         <Route path="dashboard-recepcionista/gestion-citas/editar-cita/:id" element={<EditarCitaR />} />
@@ -115,20 +103,7 @@ root.render(
           <Route path="dashboard-recepcionista/gestion-proveedores" element={<GestionProveedoresR />} />
           <Route path="dashboard-recepcionista/gestion-proveedores/productos-proveedor/:id" element={<ProductosProveedorR />} />
          
-        <Route path="dashboard-recepcionista/gestion-de-servicios" element={<GestionDeServiciosR />} />
-  
-        <Route path="dashboard-recepcionista/inventario" element={<GestionInventarioR />} />
-        <Route path="dashboard-recepcionista/inventario/agregar-producto" element={<AgregarProductoR />}/>
-        <Route path="dashboard-recepcionista/inventario/editar-producto" element={<EditarProductoR />}/> 
-        <Route path="dashboard-recepcionista/inventario/borrar-producto" element={<BorrarProductoR />} />   
 
-        <Route path="dashboard-recepcionista/bonificaciones" element={<BonificacionesR/>}/>
-        <Route path="dashboard-recepcionista/bonificaciones/agregar-promociones" element={<AgregarPromocionR />} />
-        <Route path="dashboard-recepcionista/bonificaciones/editar-promociones" element={<EditarPromocionR />} />  
-        <Route path="dashboard-recepcionista/bonificaciones/borrar-promociones" element={<BorrarPromocionR />} />
-        <Route path="dashboard-recepcionista/bonificaciones/agregar-bonificacion" element={<AgregarBonificacionR />}/>
-        <Route path="dashboard-recepcionista/bonificaciones/editar-bonificacion" element={<EditarBonificacionR />}/>
-        <Route path="dashboard-recepcionista/bonificaciones/borrar-bonificacion" element={<BorrarBonificacionR />}/>
 
         {/* Rutas Administracion*/}
         <Route path="dashboard-admin/main" element={<DashboardAdmin />} />
@@ -174,12 +149,12 @@ root.render(
         <Route path="dashboard-admin/control-ventas/venta" element={<Venta />} />  
         <Route path="dashboard-admin/control-ventas/cotizacion" element={<Cotizacion />} />  
         <Route path="dashboard-admin/control-ventas/historial-venta" element={<HistorialVenta />} />   
-    
+        <Route path="dashboard-admin/control-ventas/gestion-clientes" element={<GestionClientes />} /> 
+        <Route path="dashboard-admin/control-ventas/gestion-clientes/agregar-cliente" element={<AgregarCliente />} /> 
+        <Route path="dashboard-admin/control-ventas/gestion-clientes/editar-cliente" element={<EditarCliente />} /> 
         <Route path="dashboard-admin/control-ventas/ventas-creditos" element={<VentasCredito/>} /> 
 
-        <Route path="dashboard-admin/gestion-clientes" element={<GestionClientes />} /> 
-        <Route path="dashboard-admin/gestion-clientes/agregar-cliente" element={<AgregarCliente />} /> 
-        <Route path="dashboard-admin/gestion-clientes/editar-cliente/:id" element={<EditarCliente />} /> 
+
 
         {/* Rutas Estilista*/}
           <Route path="dashboard-estilista/main" element={<DashboardEstilista />}/>

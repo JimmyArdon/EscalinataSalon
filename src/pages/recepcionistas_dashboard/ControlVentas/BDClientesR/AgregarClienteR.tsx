@@ -125,7 +125,7 @@ const AgregarCliente: React.FC = () => {
     .then(response => response.json())
     .then(() => {
       setSuccessMessage("Cliente agregado con éxito.");
-      setTimeout(() => navigate("/dashboard-recepcionista/gestion-clientes"), 2000);
+      setTimeout(() => navigate("/dashboard-recepcionista/control-ventas/gestion-clientes"), 2000);
     })
     .catch(err => {
       console.error("Error al agregar cliente:", err);
@@ -134,7 +134,7 @@ const AgregarCliente: React.FC = () => {
   };
 
   const manejarOnClickSalir = () => {
-    navigate("/dashboard-recepcionista/gestion-clientes");
+    navigate("/dashboard-recepcionista/control-ventas/gestion-clientes");
   };
 
   return (

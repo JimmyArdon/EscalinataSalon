@@ -71,6 +71,7 @@ const Dashboard = () => {
         <Button onClick={() => navigate('venta')}>Realizar una Venta</Button>
         <Button onClick={() => navigate('cotizacion')}>Realizar una Cotización</Button>
         <Button onClick={() => navigate('historial-venta')}>Historial de Ventas</Button>
+        <Button onClick={() => navigate('gestion-clientes')}>Clientes</Button>
         <Button onClick={() => navigate('ventas-creditos')}>Ventas al Crédito</Button>
       </ButtonContainer>
     </Container>
