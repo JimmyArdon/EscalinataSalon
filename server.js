@@ -9,13 +9,8 @@ const app = express();
 const db = mysql.createConnection({
     host: 'localhost', // Cambia estos valores según tu configuración
     user: 'root', // Cambia estos valores según tu configuración
-<<<<<<< Updated upstream
-    password: '12345678', // Cambia estos valores según tu configuración
-    database: 'EscalinataSalon' // Nombre de la base de datos
-=======
     password: '@ElPoderMental99', // Cambia estos valores según tu configuración
     database: 'escalinatasalon' // Nombre de la base de datos
->>>>>>> Stashed changes
 });
 
 app.use(express.json());
@@ -164,9 +159,6 @@ JOIN cliente ON cita.cliente_id = cliente.id
         res.json(results);
     });
 });
-<<<<<<< Updated upstream
-// GET Obtener los nombres de los servicios
-=======
 
 // Endpoint para obtener una cita específica
 app.get('/citas/:id', (req, res) => {
@@ -242,7 +234,6 @@ app.put('/citas/:id', (req, res) => {
 });
 
 // GETALL Obtener los nombres de los servicios
->>>>>>> Stashed changes
 app.get('/servicios', (req, res) => {
     db.query('SELECT Nombre FROM servicio', (err, results) => {
         if (err) {
@@ -252,8 +243,6 @@ app.get('/servicios', (req, res) => {
         res.status(200).json(results);
     });
 });
-<<<<<<< Updated upstream
-=======
 
 // GET Obtener data de los servicios
 app.get('/servicioss', (req, res) => {
@@ -473,7 +462,6 @@ app.delete('/promociones-servicios/:id', (req, res) => {
 })
 
 
->>>>>>> Stashed changes
 // GET /estilistas - Obtener todos los usuarios con rol de estilista
 app.get('/estilistas', (req, res) => {
     db.query('SELECT Nombre FROM usuario WHERE rol_id = 2', (err, results) => {
