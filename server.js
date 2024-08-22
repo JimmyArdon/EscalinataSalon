@@ -114,30 +114,27 @@ app.delete('/nameProductos', (req, res) => {
     });
 });
 
-// Editar un producto por nombre
-app.put('/productos', (req, res) => {
+// Método PUT para actualizar un producto existente
+app.put('/productos/:id', (req, res) => {
+    const { id } = req.params;
     const { Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta } = req.body;
-
-    if (!Nombre) {
-        return res.status(400).json({ error: 'Por favor, proporciona el nombre del producto a editar' });
-    }
-
+    
     const query = `
-        UPDATE Producto
-        SET Proveedor_id = ?, Marca_id = ?, Cantidad_stock = ?, Precio = ?, ISV = ?, Precio_venta = ?
-        WHERE Nombre = ?
-    `;
+        UPDATE Producto 
+        SET Nombre = ?, Proveedor_id = ?, Marca_id = ?, Cantidad_stock = ?, Precio = ?, ISV = ?, Precio_venta = ? 
+        WHERE Id = ?`;
 
-    db.query(query, [Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, Nombre], (err, result) => {
+    db.query(query, [Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, id], (err, result) => {
         if (err) {
-            return res.status(500).json({ error: 'Error al editar el producto' });
+            console.error('Error al actualizar el producto:', err);
+            res.status(500).send('Error al actualizar el producto');
+            return;
         }
-
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+            res.status(404).send('Producto no encontrado');
+            return;
         }
-
-        res.status(200).json({ message: 'Producto editado exitosamente' });
+        res.send('Producto actualizado exitosamente');
     });
 });
 

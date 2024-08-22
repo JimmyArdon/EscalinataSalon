@@ -1,23 +1,22 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import axios from "axios";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 
 const Container = styled.div`
-  margin: 0 auto; 
+  margin: 0 auto;
   display: flex;
   align-items: center;
   flex-direction: column;
-  gap: 20px; 
+  gap: 20px;
   background-color: #d9d9d9;
   padding: 40px;
   border-radius: 10px;
   position: relative;
-  width: 80%; 
-  max-width: 800px; 
+  width: 80%;
+  max-width: 800px;
   box-sizing: border-box;
-  min-height: 100vh; 
+  min-height: 100vh;
 `;
 
 const FormGroup = styled.div`
@@ -37,8 +36,15 @@ const Input = styled.input`
   border-radius: 4px;
 `;
 
+const Select = styled.select`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
 const Button = styled.button`
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 10px 15px;
   border: none;
@@ -96,122 +102,157 @@ const ResultItem = styled.li`
   }
 `;
 
-interface Service {
-  Id: string;
-  Nombre: string;
-  Duracion: string;
-  Precio: string;
+interface Opcion {
+  id: string;
+  descripcion: string;
 }
 
-const EditarServicio = () => {
+interface Producto {
+  Id: string;
+  Nombre: string;
+  Proveedor_id: string;
+  Marca_id: string;
+  Cantidad_stock: string;
+  Precio: string;
+  ISV: string;
+  Precio_venta: string;
+}
+
+const EditarProducto = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [servicio, setServicio] = useState<Service>({
+  const [producto, setProducto] = useState<Producto>({
     Id: "",
     Nombre: "",
-    Duracion: "",
+    Proveedor_id: "",
+    Marca_id: "",
+    Cantidad_stock: "",
     Precio: "",
+    ISV: "",
+    Precio_venta: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [allServicios, setAllServicios] = useState<Service[]>([]);
-  const [filteredServicios, setFilteredServicios] = useState<Service[]>([]);
+  const [allProductos, setAllProductos] = useState<Producto[]>([]);
+  const [filteredProductos, setFilteredProductos] = useState<Producto[]>([]);
+  const [proveedores, setProveedores] = useState<Opcion[]>([]);
+  const [marcas, setMarcas] = useState<Opcion[]>([]);
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:4000/servicios`)
-      .then((response) => {
-        setAllServicios(response.data);
-      });
+    fetch("http://localhost:4000/proveedores")
+      .then((response) => response.json())
+      .then((data) => setProveedores(data))
+      .catch((error) => console.error("Error al cargar los proveedores:", error));
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:4000/marcas")
+      .then((response) => response.json())
+      .then((data) => setMarcas(data))
+      .catch((error) => console.error("Error al cargar las marcas:", error));
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:4000/productos")
+      .then((response) => response.json())
+      .then((data) => setAllProductos(data));
   }, []);
 
   useEffect(() => {
     if (id) {
-      axios
-        .get(`http://localhost:4000/servicios/${id}`)
-        .then((response) => {
-          setServicio(response.data);
-        });
+      fetch(`http://localhost:4000/productos/${id}`)
+        .then((response) => response.json())
+        .then((data) => setProducto(data));
     }
   }, [id]);
 
   useEffect(() => {
     if (searchQuery) {
-      setFilteredServicios(
-        allServicios.filter((servicio) =>
-          servicio.Nombre.toLowerCase().includes(searchQuery.toLowerCase())
+      setFilteredProductos(
+        allProductos.filter((producto) =>
+          producto.Nombre.toLowerCase().includes(searchQuery.toLowerCase())
         )
       );
     } else {
-      setFilteredServicios([]);
+      setFilteredProductos([]);
     }
-  }, [searchQuery, allServicios]);
+  }, [searchQuery, allProductos]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setServicio({
-      ...servicio,
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    setProducto({
+      ...producto,
       [e.target.name]: e.target.value,
     });
   };
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = allServicios.find(
-      (servicio) => servicio.Nombre.toLowerCase() === searchQuery.toLowerCase()
+    const result = allProductos.find(
+      (producto) => producto.Nombre.toLowerCase() === searchQuery.toLowerCase()
     );
     if (result) {
-      setServicio(result);
+      setProducto(result);
       setErrorMessage("");
     } else {
-      setServicio({
+      setProducto({
         Id: "",
         Nombre: "",
-        Duracion: "",
+        Proveedor_id: "",
+        Marca_id: "",
+        Cantidad_stock: "",
         Precio: "",
+        ISV: "",
+        Precio_venta: "",
       });
-      setErrorMessage("No se encontró ningún servicio con ese nombre.");
+      setErrorMessage("No se encontró ningún producto con ese nombre.");
     }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-      if(servicio.Id){
-        axios
-        .put(`http://localhost:4000/servicios/${servicio.Id}`, servicio)
-        .then(() => {
-          navigate("/dashboard-admin/gestion-de-servicios");
-        });
-      }
-    
+    if (producto.Id) {
+      fetch(`http://localhost:4000/productos/${producto.Id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(producto),
+      }).then(() => {
+        navigate("/dashboard-admin/inventario");
+      });
+    }
   };
 
   const handleClear = () => {
     setSearchQuery("");
-    setServicio({
+    setProducto({
       Id: "",
       Nombre: "",
-      Duracion: "",
+      Proveedor_id: "",
+      Marca_id: "",
+      Cantidad_stock: "",
       Precio: "",
+      ISV: "",
+      Precio_venta: "",
     });
     setErrorMessage("");
   };
 
   const manejarOnClickSalir = () => {
-    navigate("/dashboard-admin/gestion-de-servicios");
+    navigate("/dashboard-admin/inventario");
   };
 
-  const handleSelectService = (selectedService: Service) => {
-    setServicio(selectedService);
-    setSearchQuery(selectedService.Nombre);
-    setFilteredServicios([]);
+  const handleSelectProducto = (selectedProducto: Producto) => {
+    setProducto(selectedProducto);
+    setSearchQuery(selectedProducto.Nombre);
+    setFilteredProductos([]);
     setErrorMessage("");
   };
 
   return (
     <Container>
       <Salir onClick={manejarOnClickSalir} />
-      <h2>Editar Servicio</h2>
+      <h2>Editar Producto</h2>
       <form onSubmit={handleSearch} className="bg-slate-500 p-10 rounded-[15px] w-full">
         <FormGroup>
           <Label>Buscar por Nombre</Label>
@@ -220,7 +261,7 @@ const EditarServicio = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Nombre del servicio"
+              placeholder="Nombre del producto"
               required
             />
             <Button type="submit">Buscar</Button>
@@ -229,54 +270,96 @@ const EditarServicio = () => {
             </ClearButton>
           </div>
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-          {filteredServicios.length > 0 && (
+          {filteredProductos.length > 0 && (
             <ResultList>
-              {filteredServicios.map((servicio) => (
-                <ResultItem key={servicio.Id} onClick={() => handleSelectService(servicio)}>
-                  {servicio.Nombre}
+              {filteredProductos.map((producto) => (
+                <ResultItem key={producto.Id} onClick={() => handleSelectProducto(producto)}>
+                  {producto.Nombre}
                 </ResultItem>
               ))}
             </ResultList>
           )}
         </FormGroup>
       </form>
-      {servicio.Nombre && (
+      {producto.Nombre && (
         <form onSubmit={handleSubmit} className="bg-slate-500 p-10 rounded-[15px] w-full">
           <FormGroup>
             <Label>Nombre</Label>
             <Input
               type="text"
               name="Nombre"
-              value={servicio.Nombre}
+              value={producto.Nombre}
               onChange={handleChange}
               required
             />
           </FormGroup>
           <FormGroup>
-            <Label>Duración</Label>
+            <Label>Proveedor:</Label>
+            <Select name="Proveedor_id" value={producto.Proveedor_id} onChange={handleChange} required>
+              <option value="">Selecciona un proveedor</option>
+              {proveedores.map((proveedor) => (
+                <option key={proveedor.id} value={proveedor.id}>
+                  {proveedor.descripcion}
+                </option>
+              ))}
+            </Select>
+          </FormGroup>
+          <FormGroup>
+            <Label>Marca:</Label>
+            <Select name="Marca_id" value={producto.Marca_id} onChange={handleChange} required>
+              <option value="">Selecciona una marca</option>
+              {marcas.map((marca) => (
+                <option key={marca.id} value={marca.id}>
+                  {marca.descripcion}
+                </option>
+              ))}
+            </Select>
+          </FormGroup>
+          <FormGroup>
+            <Label>Cantidad en Stock</Label>
             <Input
-              type="text"
-              name="Duracion"
-              value={servicio.Duracion}
+              type="number"
+              name="Cantidad_stock"
+              value={producto.Cantidad_stock}
               onChange={handleChange}
               required
             />
           </FormGroup>
           <FormGroup>
-            <Label>Precio</Label>
+            <Label>Precio de Compra</Label>
             <Input
               type="number"
               name="Precio"
-              value={servicio.Precio}
+              value={producto.Precio}
               onChange={handleChange}
               required
             />
           </FormGroup>
-          <Button type="submit">Actualizar Servicio</Button>
+          <FormGroup>
+            <Label>ISV (%)</Label>
+            <Input
+              type="number"
+              name="ISV"
+              value={producto.ISV}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Precio de Venta</Label>
+            <Input
+              type="number"
+              name="Precio_venta"
+              value={producto.Precio_venta}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <Button type="submit">Guardar Cambios</Button>
         </form>
       )}
     </Container>
   );
 };
 
-export default EditarServicio;
+export default EditarProducto;
