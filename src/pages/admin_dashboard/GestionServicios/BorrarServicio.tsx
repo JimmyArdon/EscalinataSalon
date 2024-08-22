@@ -156,10 +156,11 @@ const BorrarServicio = () => {
   
 
   const handleDelete = () => {
-    if (servicio && servicio.Id) {
+    if (servicio) {
       axios
         .delete(
-          `http://localhost:4000/servicios/${servicio.Id}`
+          `http://localhost:4000/servicios`, 
+          { data: { Nombre: servicio.Nombre } }
         )
         .then(() => {
           setMessage("Servicio eliminado con éxito.");

@@ -4,12 +4,10 @@ import Pagination from "../../../Pagination";
 import BonificacionesCard from "../../BonificacionesCard/BonificacionesCard";
 
 interface Bonificacion {
-  id: string;
-  descripcion: string;
-  compre: number;
-  lleve: number;
-  idProducto: string;
-  preUniDescuento: number;
+  Id: string;
+  Descripcion: string;
+  Precio_unitario: number;
+  Producto_id: string;
 }
 
 const Container = styled.div`
@@ -25,9 +23,10 @@ const ShowBonificaciones: React.FC = () => {
   const [promocionesPerPage] = useState(10);
 
   useEffect(() => {
-    fetch("https://66972cf402f3150fb66cd356.mockapi.io/api/v1/Bonificaciones")
+    fetch("http://localhost:4000/bonificaciones")
       .then((res) => res.json())
-      .then((data) => setBonificaciones(data));
+      .then((data) => setBonificaciones(data)
+      );
   }, []);
 
   
@@ -56,7 +55,7 @@ const ShowBonificaciones: React.FC = () => {
           </thead>
           <tbody>
             {currentBonificaciones.map((bonificacion) => (
-              <BonificacionesCard bonificacion={bonificacion} key={bonificacion.id} />
+              <BonificacionesCard bonificacion={bonificacion} key={bonificacion.Id} />
             ))}
           </tbody>
         </table>

@@ -5,12 +5,10 @@ import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
 
 interface Bonificacion {
-  id: string;
-  descripcion: string;
-  compre?: number;
-  lleve?: number;
-  preUniDescuento?: number;
-  idProducto?: string;
+  Id: string;
+  Descripcion: string;
+  Precio_unitario: number;
+  Producto_id: string;
 }
 
 const Container = styled.div`
@@ -120,7 +118,7 @@ const DropdownItem = styled.li`
 const BorrarBonificacion = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [bonificacion, setBonificacion] = useState<Partial<Bonificacion>>({ descripcion: "" });
+  const [bonificacion, setBonificacion] = useState<Partial<Bonificacion>>({ Descripcion: "" });
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [opcionesFiltradas, setOpcionesFiltradas] = useState<Bonificacion[]>([]);
@@ -132,7 +130,7 @@ const BorrarBonificacion = () => {
         setLoading(true);
         try {
           const response = await axios.get<Bonificacion[]>(
-            `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/Bonificaciones?descripcion=${searchQuery}`
+            `http://localhost:4000/bonificaciones/descripcion?Descripcion=${searchQuery}`
           );
           setOpcionesFiltradas(response.data);
         } catch {
@@ -150,10 +148,10 @@ const BorrarBonificacion = () => {
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (bonificacion.id) {
+    if (bonificacion.Id) {
       axios
         .get<Bonificacion>(
-          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/Bonificaciones/${bonificacion.id}`
+          `http://localhost:4000/bonificaciones/${bonificacion.Id}`
         )
         .then((response) => {
           setBonificacion(response.data);
@@ -165,10 +163,10 @@ const BorrarBonificacion = () => {
   };
 
   const handleDelete = () => {
-    if (bonificacion.id) {
+    if (bonificacion.Id) {
       axios
         .delete(
-          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/Bonificaciones/${bonificacion.id}`
+          `http://localhost:4000/bonificaciones/${bonificacion.Id}`
         )
         .then(() => {
           setMessage("Bonificación eliminada con éxito.");
@@ -187,7 +185,7 @@ const BorrarBonificacion = () => {
   };
 
   const seleccionarOpcion = (opcion: Bonificacion) => {
-    setSearchQuery(opcion.descripcion);
+    setSearchQuery(opcion.Descripcion);
     setBonificacion(opcion);
     setOpcionesFiltradas([]); // Limpiar las opciones después de seleccionar
   };
@@ -214,10 +212,10 @@ const BorrarBonificacion = () => {
               <Dropdown>
                 {opcionesFiltradas.map((opcion) => (
                   <DropdownItem
-                    key={opcion.id}
+                    key={opcion.Id}
                     onClick={() => seleccionarOpcion(opcion)}
                   >
-                    {opcion.descripcion}
+                    {opcion.Descripcion}
                   </DropdownItem>
                 ))}
               </Dropdown>
@@ -231,11 +229,11 @@ const BorrarBonificacion = () => {
           Limpiar
         </ClearButton>
       </form>
-      {bonificacion.descripcion && (
+      {bonificacion.Descripcion && (
         <div className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md text-center">
           <h3>
             ¿Estás seguro de que deseas eliminar la bonificación "
-            {bonificacion.descripcion}"?
+            {bonificacion.Descripcion}"?
           </h3>
           <div
             style={{

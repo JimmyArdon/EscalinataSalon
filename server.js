@@ -19,6 +19,7 @@ const db = mysql.createConnection({
     user: 'root', // Cambia estos valores según tu configuración
     password: '12345678', // Cambia estos valores según tu configuración
     database: 'escalinatasalon' // Nombre de la base de datos
+
 });
 
 
@@ -216,21 +217,37 @@ app.get('/productos', (req, res) => {
     });
 });
 
+// Obtener un productos del inventario
+app.get('/productos/:id', (req, res) => {
+    const { id } = req.params;
+    try {
+      db.query(`SELECT * FROM Producto WHERE Id = ?`, [id], (err, rows) => {
+        if (err) {
+          res.status(400).send(err);
+        } else {
+          res.status(200).json(rows[0]);
+        }
+      });
+    } catch (err) {
+      res.status(500).send(err.message);
+    }
+})
+
 // Agregar un nuevo producto al inventario
 app.post('/addProductos', (req, res) => {
-    const { Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta } = req.body;
+    const { Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, CodigoBarra } = req.body;
 
     // Validación simple de datos
-    if (!Nombre || !Proveedor_id || !Marca_id || !Cantidad_stock || !Precio || !ISV || !Precio_venta) {
+    if (!Nombre || !Proveedor_id || !Marca_id || !Cantidad_stock || !Precio || !ISV || !Precio_venta || !CodigoBarra) {
         return res.status(400).json({ error: 'Por favor, proporciona todos los campos requeridos' });
     }
 
     const query = `
-        INSERT INTO Producto (Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO Producto (Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, CodigoBarra)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(query, [Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta], (err, result) => {
+    db.query(query, [Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, CodigoBarra], (err, result) => {
         if (err) {
             console.error(err); // Agregar un log para más detalles en caso de error
             return res.status(500).json({ error: 'Error al agregar el producto' });
@@ -239,6 +256,7 @@ app.post('/addProductos', (req, res) => {
         res.status(201).json({ message: 'Producto agregado exitosamente', productId: result.insertId });
     });
 });
+
 
 // Borrar un producto por nombre
 app.delete('/productos', (req, res) => {
@@ -263,30 +281,27 @@ app.delete('/productos', (req, res) => {
     });
 });
 
-// Editar un producto por nombre
-app.put('/productos', (req, res) => {
+// Método PUT para actualizar un producto existente
+app.put('/productos/:id', (req, res) => {
+    const { id } = req.params;
     const { Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta } = req.body;
-
-    if (!Nombre) {
-        return res.status(400).json({ error: 'Por favor, proporciona el nombre del producto a editar' });
-    }
-
+    
     const query = `
-        UPDATE Producto
-        SET Proveedor_id = ?, Marca_id = ?, Cantidad_stock = ?, Precio = ?, ISV = ?, Precio_venta = ?
-        WHERE Nombre = ?
-    `;
+        UPDATE Producto 
+        SET Nombre = ?, Proveedor_id = ?, Marca_id = ?, Cantidad_stock = ?, Precio = ?, ISV = ?, Precio_venta = ? 
+        WHERE Id = ?`;
 
-    db.query(query, [Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, Nombre], (err, result) => {
+    db.query(query, [Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, id], (err, result) => {
         if (err) {
-            return res.status(500).json({ error: 'Error al editar el producto' });
+            console.error('Error al actualizar el producto:', err);
+            res.status(500).send('Error al actualizar el producto');
+            return;
         }
-
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+            res.status(404).send('Producto no encontrado');
+            return;
         }
-
-        res.status(200).json({ message: 'Producto editado exitosamente' });
+        res.send('Producto actualizado exitosamente');
     });
 });
 
@@ -407,6 +422,83 @@ app.get('/servicios', (req, res) => {
         res.status(200).json(results);
     });
 });
+
+app.delete('/servicios', (req, res) => {
+    const nombreServicio = req.body.Nombre;
+
+    // Primero, verificamos si el servicio existe
+    const checkSql = 'SELECT * FROM Servicio WHERE Nombre = ?';
+    db.query(checkSql, [nombreServicio], (err, results) => {
+        if (err) {
+            console.error('Error al buscar el servicio:', err);
+            res.status(500).json({ error: 'Error al buscar el servicio' });
+            return;
+        }
+
+        if (results.length === 0) {
+            res.status(404).json({ error: 'Servicio no encontrado' });
+            return;
+        }
+
+        const servicioId = results[0].Id;
+
+        // Eliminar las citas relacionadas
+        const deleteCitasSql = 'DELETE FROM Cita WHERE Servicio_id = ?';
+        db.query(deleteCitasSql, [servicioId], (err) => {
+            if (err) {
+                console.error('Error al eliminar citas relacionadas:', err);
+                res.status(500).json({ error: 'Error al eliminar citas relacionadas' });
+                return;
+            }
+
+            // Ahora, eliminar el servicio
+            const deleteSql = 'DELETE FROM Servicio WHERE Nombre = ?';
+            db.query(deleteSql, [nombreServicio], (err) => {
+                if (err) {
+                    console.error('Error al eliminar el servicio:', err);
+                    res.status(500).json({ error: 'Error al eliminar el servicio' });
+                    return;
+                }
+
+                res.json({ message: 'Servicio y citas relacionadas eliminados con éxito' });
+            });
+        });
+    });
+});
+
+// Método PUT para actualizar un servicio existente
+app.put('/servicios/:id', (req, res) => {
+    const { id } = req.params;
+    const { Nombre, Duracion, Precio, Descripcion } = req.body;
+    const query = 'UPDATE Servicio SET Nombre = ?, Duracion = ?, Precio = ?, Descripcion = ? WHERE Id = ?';
+    db.query(query, [Nombre, Duracion, Precio, Descripcion, id], (err, result) => {
+        if (err) {
+            console.error('Error al actualizar el servicio:', err);
+            res.status(500).send('Error al actualizar el servicio');
+            return;
+        }
+        if (result.affectedRows === 0) {
+            res.status(404).send('Servicio no encontrado');
+            return;
+        }
+        res.send('Servicio actualizado exitosamente');
+    });
+});
+
+// Método POST para crear un nuevo servicio
+app.post('/servicios', (req, res) => {
+    const { Nombre, Duracion, Precio, Descripcion } = req.body;
+    const query = 'INSERT INTO Servicio (Nombre, Duracion, Precio, Descripcion) VALUES (?, ?, ?, ?)';
+    db.query(query, [Nombre, Duracion, Precio, Descripcion], (err, result) => {
+        if (err) {
+            console.error('Error al crear el servicio:', err);
+            res.status(500).send('Error al crear el servicio');
+            return;
+        }
+        res.status(201).send(`Servicio creado con ID: ${result.insertId}`);
+    });
+});
+
 
 // GET Obtener data de los servicios
 app.get('/servicioss', (req, res) => {
@@ -635,6 +727,130 @@ app.delete('/promociones-servicios/:id', (req, res) => {
     }
 })
 
+// GET BONIFICACIONES
+app.get('/bonificaciones',(req, res) => {
+    db.query('SELECT Id, Producto_id, Descripcion, Precio_unitario FROM bonificaciones;', (err, results) => {
+        if (err) {
+            console.error('Error al obtener estilistas:', err);
+            return res.status(500).json({ error: 'Error al obtener bonificaciones' });
+        }
+        res.status(200).json(results);
+    });
+})
+
+// GET una bonificación por Descripción
+app.get('/bonificaciones/descripcion', (req, res) => {
+    const { Descripcion } = req.query;
+
+    if (!Descripcion) {
+        return res.status(400).json({ error: 'El parámetro de búsqueda es obligatorio' });
+    }
+
+    db.query(
+        'SELECT * FROM bonificaciones WHERE Descripcion LIKE ?',
+        [`%${Descripcion}%`],
+        (err, rows) => {
+            if (err) {
+                return res.status(400).json({ error: err.message });
+            }
+            res.status(200).json(rows);
+        }
+    );    
+});
+
+// GET una bonificacion
+app.get('/bonificaciones/:id', (req, res) => {
+    const { id } = req.params;
+        
+        
+        db.query('SELECT * FROM bonificaciones WHERE Id = ?', [id], (err, rows) => {
+            if (err) {
+                return res.status(400).json({ error: err.message });
+            }
+            
+            if (rows.length === 0) {
+                return res.status(404).json({ message: 'Bonificacion no encontrado' });
+            }
+            res.status(200).json(rows[0]);
+        });
+})
+
+// DELETE UNA BONIFICACION 
+app.delete('/bonificaciones/:id', (req, res) => {
+    const { id } = req.params;
+
+    const query = 'DELETE FROM bonificaciones WHERE id = ?';
+    db.query(query, [id], (err) => {
+        if (err) {
+            console.error('Error al eliminar la bonificacion: ' + err.stack);
+            return res.status(500).json({ error: 'Error al eliminar la bonificacion' });
+        }
+        res.status(200).json({ message: 'bonificacion eliminada con exito' });
+    });
+});
+
+// POST - Una bonificacion
+
+app.post('/bonificaciones',(req, res) => {
+    const { Producto_id, Descripcion, Precio_unitario } = req.body;
+        
+        db.query(
+            `INSERT INTO bonificaciones (Id, Producto_id, Descripcion, Precio_unitario)
+            VALUES (NULL, ?, ?, ?);`,
+            [Producto_id, Descripcion, Precio_unitario],
+            (err, result) => {
+                if (err) {
+                    return res.status(400).json({ error: err.message });
+                }
+                res.status(201).json({ id: result.insertId });
+            }
+        );
+})
+
+// PUT - ACTUALIZAAR BONIFICAION
+app.put('/bonificaciones/:id', (req, res) => {
+    const { id } = req.params;
+    const { Producto_id, Descripcion, Precio_unitario } = req.body;
+
+    if (id) {
+        // Actualizar por ID
+        db.query(
+            `UPDATE bonificaciones SET Producto_id = ?, Descripcion = ?, Precio_unitario = ? WHERE Id = ?`,
+            [Producto_id, Descripcion, Precio_unitario, id],
+            (err, result) => {
+                if (err) {
+                    return res.status(400).json({ error: err.message });
+                }
+                if (result.affectedRows === 0) {
+                    return res.status(404).json({ message: 'Bonificacion no encontrada' });
+                }
+                res.status(200).json({ message: 'Bonificacion actualizada correctamente' });
+            }
+        );
+    } 
+});
+
+app.put('/promociones-servicios/:id', (req, res) => {
+    const { id } = req.params;
+    const { Servicio_id, Descuento, Fecha_inicio, Fecha_fin } = req.body;
+
+    if (id) {
+        // Actualizar por ID
+        db.query(
+            `UPDATE promociones_servicios SET Servicio_id = ?, Descuento = ?, Fecha_inicio = ?, Fecha_fin = ? WHERE Id = ?`,
+            [Servicio_id, Descuento, Fecha_inicio, Fecha_fin, id],
+            (err, result) => {
+                if (err) {
+                    return res.status(400).json({ error: err.message });
+                }
+                if (result.affectedRows === 0) {
+                    return res.status(404).json({ message: 'Promoción no encontrada' });
+                }
+                res.status(200).json({ message: 'Promoción actualizada correctamente' });
+            }
+        );
+    } 
+});
 
 // GET /estilistas - Obtener todos los usuarios con rol de estilista
 app.get('/estilistas', (req, res) => {
@@ -914,6 +1130,104 @@ app.delete('/proveedores/:id', (req, res) => {
         res.status(200).json({ message: 'Proveedor eliminado' });
     });
 });
+
+// GETALL - Trae las marcas
+app.get('/marca', (req, res) => {
+    const query = 'SELECT Id, Descripcion FROM marca;';
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching marcas:', err);
+            return res.status(500).json({ error: 'Error al obtener la lista de marcas' });
+        }
+
+        res.json(results);
+    });
+});
+
+
+// Obtener ventas al crédito con filtro de cliente
+app.get('/ventas-credito', (req, res) => {
+    db.query('  SELECT vc.*, c.nombre, tev.Descripcion FROM ventas_credito vc JOIN cliente c ON vc.cliente_id = c.id JOIN tipo_estado_venta tev ON vc.Tipo_estado_id  = tev.Id ',
+        (err, results) => {
+            if (err) {
+                console.error('Error fetching ventas data:', err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+            res.json(results);
+        });
+});
+
+// Obtener historial de pagos
+app.get('/historial-pagos', (req, res) => {
+    db.query('SELECT hp.*, c.Nombre FROM historial_pagos hp JOIN cliente c ON hp.Cliente_id = c.id', (err, results) => {
+        if (err) {
+            console.error('Error fetching historial pagos data:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        res.json(results);
+    });
+});
+
+// Define el endpoint para registrar un pago
+app.post('/registrar-pago', (req, res) => {
+    const { ClienteId, montoPagado, fechaPago } = req.body;
+
+    // Verifica que los datos requeridos estén presentes
+    if (typeof ClienteId !== 'number' || typeof montoPagado !== 'number' || typeof fechaPago !== 'string') {
+        return res.status(400).send('Invalid input');
+    }
+
+    // Actualizar venta
+    const updateQuery = `
+      UPDATE ventas_credito
+      SET Monto_pendiente = Monto_pendiente - ?, 
+          Tipo_estado_id = CASE 
+                            WHEN Monto_pendiente - ? = 0 THEN 1 
+                            ELSE 2 
+                          END
+      WHERE id = ?;
+    `;
+
+    db.query(updateQuery, [montoPagado, montoPagado, ClienteId], (err) => {
+        if (err) {
+            console.error('Error updating venta:', err);
+            return res.status(500).send('Internal Server Error');
+        }
+
+        // Insertar en historial de pagos
+        const insertQuery = 'INSERT INTO historial_pagos (Cliente_id, Monto_pagado, Fecha_pago) VALUES (?, ?, ?)';
+        db.query(insertQuery, [ClienteId, montoPagado, fechaPago], (err) => {
+            if (err) {
+                console.error('Error inserting into historial pagos:', err);
+                return res.status(500).send('Internal Server Error');
+            }
+            res.status(200).send('Pago registrado exitosamente');
+        });
+    });
+});
+
+
+
+// GETALL - Trae una marcas
+app.get('/marca/:id', (req, res) => {
+    const { id } = req.params;
+        
+        
+        db.query('SELECT * FROM marca WHERE Id = ?', [id], (err, rows) => {
+            if (err) {
+                return res.status(400).json({ error: err.message });
+            }
+            
+            if (rows.length === 0) {
+                return res.status(404).json({ message: 'Marca no encontrado' });
+            }
+            res.status(200).json(rows[0]);
+        });
+})
+
 
 app.listen(4000, () => {
     console.log("Backend conectado en el puerto 4000");
