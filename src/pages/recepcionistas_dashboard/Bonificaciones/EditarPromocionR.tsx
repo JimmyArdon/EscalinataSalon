@@ -4,17 +4,14 @@ import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
 
-interface Bonificacion {
+interface Promocion {
   Id: string;
-  Descripcion: string;
-  Precio_unitario: number;
-  Producto_id: string;
+  descuento: number;
+  fechaInicio: string;
+  fechaFinal: string;
+  Servicio_id: string;
 }
-interface Producto {
-  Id: string;
-  nombre: string;
-  precioVenta: string; 
-}
+
 
 const Container = styled.div`
   margin: 40px;
@@ -113,49 +110,26 @@ const DropdownItem = styled.li`
   }
 `;
 
-const EditarBonificacion = () => {
+const EditarPromocion = () => {
   const navigate = useNavigate();
-  const [bonificacion, setBonificacion] = useState<Bonificacion>({
+  const [promocion, setPromocion] = useState<Promocion>({
     Id: "",
-    Descripcion: "",
-    Producto_id: "",
-    Precio_unitario: 0,
+    descuento: 0,
+    fechaInicio: "",
+    fechaFinal: "",
+    Servicio_id: ""
   });
-  const [productos, setProductos] = useState<Producto[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [opcionesFiltradas, setOpcionesFiltradas] = useState<Bonificacion[]>([]);
+  const [opcionesFiltradas, setOpcionesFiltradas] = useState<Promocion[]>([]);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (bonificacion.Id) {
-      axios.get(`http://localhost:4000/bonificaciones/${bonificacion.Id}`)
-        .then(response => {
-          setBonificacion(response.data);
-        })
-        .catch(() => {
-          setErrorMessage("No se pudo cargar la bonificación.");
-        });
-    }
-  }, [bonificacion.Id]);
-
-  useEffect(() => {
-    axios.get('https://66972cf402f3150fb66cd356.mockapi.io/api/v1/productos')
-      .then(response => {
-        setProductos(response.data);
-      })
-      .catch(() => {
-        setErrorMessage("No se pudo cargar los productos.");
-      });
-  }, []);
+  
 
   useEffect(() => {
     if (searchQuery) {
       setLoading(true);
       axios
-        .get(
-          `http://localhost:4000/bonificaciones/descripcion?Descripcion=${searchQuery}`
-        )
+        .get(`http://localhost:4000/servicios?Nombre=${searchQuery}`)
         .then((response) => {
           setOpcionesFiltradas(response.data);
         })
@@ -171,48 +145,63 @@ const EditarBonificacion = () => {
   }, [searchQuery]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setBonificacion(prevBonificacion => ({
-      ...prevBonificacion,
-      [name]: name === "Precio_unitario" ? parseFloat(value) || 0 : value
-    }));
+    setPromocion({
+      ...promocion,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     axios
-      .get(
-        `http://localhost:4000/bonificaciones/descripcion?Descripcion=${searchQuery}`
-      )
+      .get(`http://localhost:4000/servicios?Nombre=${searchQuery}`)
       .then((response) => {
         if (response.data.length > 0) {
-          const foundBonificacion = response.data[0];
-          setBonificacion(foundBonificacion);
+          setPromocion(response.data[0]);
           setErrorMessage("");
         } else {
-          setErrorMessage("No se encontró ninguna bonificación con ese nombre.");
+          setErrorMessage("No se encontró ninguna promoción con ese nombre.");
         }
       });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+   async function traerServicio_id (){
+    const data = await fetch(`http://localhost:4000/servicios?Nombre=${promocion.Nombre}`);
+    const res = await data.json();
+    return res[0].Id;
+    
+
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const idServicio = await traerServicio_id()
+    console.log(idServicio);
+    
+    
     axios
-      .put(
-        `http://localhost:4000/bonificaciones/${bonificacion.Id}`,
-        bonificacion
-      )
+      .put(`http://localhost:4000/promociones-servicios/${promocion.Id}`, {
+        Descuento: promocion.descuento,
+        Fecha_inicio: promocion.fechaInicio,
+        Fecha_fin: promocion.fechaFinal,
+        Servicio_id: idServicio
+      })
       .then(() => {
         navigate("/dashboard-admin/bonificaciones");
+      })
+      .catch((error) => {
+        console.error("Error al actualizar la promoción:", error);
       });
   };
 
   const handleClear = () => {
-    setBonificacion({
+    setPromocion({
       Id: "",
-      Descripcion: "",
-      Precio_unitario: 0,
-      Producto_id: "",
+      descuento: 0,
+      fechaInicio: "",
+      fechaFinal: "",
+      Servicio_id: ""
     });
     setSearchQuery("");
     setOpcionesFiltradas([]);
@@ -222,28 +211,28 @@ const EditarBonificacion = () => {
     navigate("/dashboard-admin/bonificaciones");
   };
 
-  const seleccionarOpcion = (opcion: Bonificacion) => {
-    setBonificacion(opcion);
-    setSearchQuery(opcion.Descripcion);
+  const seleccionarOpcion = (opcion: Promocion) => {
+    setPromocion(opcion);
+    setSearchQuery(opcion.Nombre);
     setOpcionesFiltradas([]);
   };
 
   return (
     <Container>
       <Salir onClick={manejarOnClickSalir} />
-      <h2>Editar Bonificación</h2>
+      <h2>Editar Promoción</h2>
       <form
         onSubmit={handleSearch}
         className="bg-slate-500 p-10 rounded-[15px] w-2/4"
       >
         <FormGroup>
-          <Label>Buscar por Descripción</Label>
+          <Label>Buscar por Nombre</Label>
           <div style={{ position: "relative" }}>
             <Input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Descripción de la bonificación"
+              placeholder="Nombre de la promoción"
               required
             />
             {searchQuery && opcionesFiltradas.length > 0 && (
@@ -253,7 +242,7 @@ const EditarBonificacion = () => {
                     key={opcion.Id}
                     onClick={() => seleccionarOpcion(opcion)}
                   >
-                    {opcion.Descripcion}
+                    {opcion.Nombre}
                   </DropdownItem>
                 ))}
               </Dropdown>
@@ -267,27 +256,57 @@ const EditarBonificacion = () => {
           Limpiar
         </ClearButton>
       </form>
-      {bonificacion.Descripcion && (
+      {promocion.Descripcion && (
         <form
           onSubmit={handleSubmit}
           className="bg-slate-500 p-10 rounded-[15px] w-2/4"
         >
           <FormGroup>
-            <Label>Descripción de la Bonificación</Label>
+            <Label>Descripción</Label>
             <Input
               type="text"
               name="Descripcion"
-              value={bonificacion.Descripcion}
+              value={promocion.Descripcion || ''}
               onChange={handleChange}
               required
             />
           </FormGroup>
           <FormGroup>
-            <Label>Precio Unitario</Label>
+            <Label>Descuento</Label>
             <Input
               type="number"
-              name="Precio_unitario"
-              value={bonificacion.Precio_unitario}
+              name="descuento"
+              value={promocion.descuento || 0}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Precio</Label>
+            <Input
+              type="number"
+              name="precio"
+              value={promocion.Precio || 0}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Fecha Inicial</Label>
+            <Input
+              type="date"
+              name="fechaInicio"
+              value={promocion.fechaInicio || ''}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Fecha de Finalizacion</Label>
+            <Input
+              type="date"
+              name="fechaFinal"
+              value={promocion.fechaFinal || ''}
               onChange={handleChange}
               required
             />
@@ -299,4 +318,4 @@ const EditarBonificacion = () => {
   );
 };
 
-export default EditarBonificacion;
+export default EditarPromocion;

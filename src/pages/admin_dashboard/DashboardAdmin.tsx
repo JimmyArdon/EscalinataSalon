@@ -3,7 +3,6 @@ import DashboardButton from "../../components/DashboardButton";
 import { VscAccount, VscOutput, VscGear } from "react-icons/vsc";
 import { FiUsers} from "react-icons/fi";
 import { LiaCalendarWeekSolid } from "react-icons/lia";
-import { TbReport } from "react-icons/tb";
 import { BsShop } from "react-icons/bs";
 import { LiaBullhornSolid } from "react-icons/lia";
 import { MdInfoOutline } from "react-icons/md";
@@ -28,8 +27,8 @@ const DashboardAdmin: React.FC = () => {
         return <VscGear size={32} />;
       case "Gestión de Proveedores":
           return <FiUsers size={32} />;
-      case "Reportes y Analisis":
-          return <TbReport size={32} />;
+          case "Clientes":
+            return <FiUsers size={32} />;
       case "Información":
           return <MdInfoOutline  size={32} />;
       case "Promociones y Bonificaciones":

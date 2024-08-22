@@ -4,18 +4,13 @@ import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
 
-interface Promocion {
-  Id: string;
-  Servicio_id: string;
-  Descuento?: string;
-  Fecha_inicio?: string;
-  Fecha_fin?: string;
-  Nombre?: string; // Añadido para manejar la propiedad Nombre
-}
-
-interface Servicio {
-  Id: string;
-  Nombre: string;
+interface Bonificacion {
+  id: string;
+  descripcion: string;
+  compre?: number;
+  lleve?: number;
+  preUniDescuento?: number;
+  idProducto?: string;
 }
 
 const Container = styled.div`
@@ -122,29 +117,24 @@ const DropdownItem = styled.li`
   }
 `;
 
-const BorrarPromocion = () => {
+const BorrarBonificacion = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [promocion, setPromocion] = useState<Partial<Promocion>>({ Servicio_id: "" });
+  const [bonificacion, setBonificacion] = useState<Partial<Bonificacion>>({ descripcion: "" });
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [opcionesFiltradas, setOpcionesFiltradas] = useState<Promocion[]>([]);
+  const [opcionesFiltradas, setOpcionesFiltradas] = useState<Bonificacion[]>([]);
   const [loading, setLoading] = useState(false);
-  const [servicio, setServicio] = useState<Servicio>({
-    Id: '', 
-    Nombre: ''
-  });
 
   useEffect(() => {
-    const fetchPromociones = async () => {
+    const fetchBonificaciones = async () => {
       if (searchQuery.length > 0) {
         setLoading(true);
         try {
-          const response = await axios.get<Promocion[]>(
-            `http://localhost:4000/servicios/nombre?Nombre=${searchQuery}`
+          const response = await axios.get<Bonificacion[]>(
+            `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/Bonificaciones?descripcion=${searchQuery}`
           );
           setOpcionesFiltradas(response.data);
-          
         } catch {
           setOpcionesFiltradas([]);
         } finally {
@@ -155,40 +145,39 @@ const BorrarPromocion = () => {
       }
     };
 
-    fetchPromociones();
+    fetchBonificaciones();
   }, [searchQuery]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    if (promocion.Id) {
+    if (bonificacion.id) {
       axios
-        .get<Promocion>(
-          `http://localhost:4000/promociones-servicios/${promocion.Id}`
+        .get<Bonificacion>(
+          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/Bonificaciones/${bonificacion.id}`
         )
         .then((response) => {
-          setPromocion(response.data);
+          setBonificacion(response.data);
         })
         .catch(() => {
-          setErrorMessage("No se encontró la promoción.");
+          setErrorMessage("No se encontró la bonificación.");
         });
     }
   };
 
   const handleDelete = () => {
-    if (promocion.Id) {
+    if (bonificacion.id) {
       axios
         .delete(
-          `http://localhost:4000/promociones-servicios/${promocion.Id}`
+          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/Bonificaciones/${bonificacion.id}`
         )
         .then(() => {
-          setMessage("Promoción eliminada con éxito.");
+          setMessage("Bonificación eliminada con éxito.");
           setTimeout(() => {
             navigate("/dashboard-admin/bonificaciones");
           }, 2000);
         })
         .catch(() => {
-          setErrorMessage("No se pudo eliminar la promoción.");
+          setErrorMessage("No se pudo eliminar la bonificación.");
         });
     }
   };
@@ -197,88 +186,38 @@ const BorrarPromocion = () => {
     navigate("/dashboard-admin/bonificaciones");
   };
 
-  async function traerProSer(id: string) {
-    try {
-      
-      const respuesta = await fetch(`http://localhost:4000/promociones-servicios/${id}`);
-  
-      if (!respuesta.ok) {
-        if (respuesta.status === 404) {
-          throw new Error("No existe promocion para este servicio existe.");
-        }
-        throw new Error("Error al obtener la promoción.");
-      }
-  
-      const datos = await respuesta.json();
-      return datos;
-  
-    } catch (error) {
-      console.error("Error en traerProSer:", error);
-      throw error; 
-    }
-  }
-  
-
-  async function traerSer(id : string){
-    const datos = await fetch(`http://localhost:4000/servicioss/${id}`);
-    const res = await datos.json();
-    return res;
-  }
-
-  const seleccionarOpcion = async (opcion: Promocion) => {
-    
-    // Asegúrate de que opcion.Nombre esté definido antes de asignar
-    if (opcion.Nombre) {
-      setSearchQuery(opcion.Nombre);
-  
-      try {
-        const promocion = await traerProSer(opcion.Id);
-        setPromocion(promocion);
-  
-        // Crear un objeto Servicio usando los datos de opcion
-        const servicio: Servicio = {
-          Id: opcion.Id,
-          Nombre: opcion.Nombre,
-        };
-  
-        setServicio(servicio);
-  
-        setOpcionesFiltradas([]);
-      } catch (error) {
-        setErrorMessage(error instanceof Error ? error.message : "Error desconocido");
-      }
-    } else {
-      setErrorMessage("Nombre del servicio no disponible.");
-    }
+  const seleccionarOpcion = (opcion: Bonificacion) => {
+    setSearchQuery(opcion.descripcion);
+    setBonificacion(opcion);
+    setOpcionesFiltradas([]); // Limpiar las opciones después de seleccionar
   };
-  
 
   return (
     <Container>
       <Salir onClick={manejarOnClickSalir} />
-      <h2>Eliminar Promoción</h2>
+      <h2>Eliminar Bonificación</h2>
       <form
         onSubmit={handleSearch}
         className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md"
       >
         <FormGroup>
-          <Label>Buscar por Nombre</Label>
+          <Label>Buscar por Descripción</Label>
           <div style={{ position: "relative" }}>
             <Input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Nombre de la promoción"
+              placeholder="Descripción de la bonificación"
               required
             />
             {searchQuery && opcionesFiltradas.length > 0 && (
               <Dropdown>
                 {opcionesFiltradas.map((opcion) => (
                   <DropdownItem
-                    key={opcion.Id}
+                    key={opcion.id}
                     onClick={() => seleccionarOpcion(opcion)}
                   >
-                    {opcion.Nombre}
+                    {opcion.descripcion}
                   </DropdownItem>
                 ))}
               </Dropdown>
@@ -292,11 +231,11 @@ const BorrarPromocion = () => {
           Limpiar
         </ClearButton>
       </form>
-      {searchQuery && (
+      {bonificacion.descripcion && (
         <div className="bg-slate-500 p-10 rounded-[15px] w-full max-w-md text-center">
           <h3>
-            ¿Estás seguro de que deseas eliminar la promoción en "
-            {servicio.Nombre}"?
+            ¿Estás seguro de que deseas eliminar la bonificación "
+            {bonificacion.descripcion}"?
           </h3>
           <div
             style={{
@@ -321,4 +260,4 @@ const BorrarPromocion = () => {
   );
 };
 
-export default BorrarPromocion;
+export default BorrarBonificacion;

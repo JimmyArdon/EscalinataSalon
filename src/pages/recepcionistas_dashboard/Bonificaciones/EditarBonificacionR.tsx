@@ -5,13 +5,16 @@ import { IoMdCloseCircleOutline } from "react-icons/io";
 import axios from "axios";
 
 interface Bonificacion {
-  Id: string;
-  Descripcion: string;
-  Precio_unitario: number;
-  Producto_id: string;
+  id: string;
+  descripcion: string;
+  compre: number;
+  lleve: number;
+  preUniDescuento: number;
+  idProducto: string;
 }
+
 interface Producto {
-  Id: string;
+  id: string;
   nombre: string;
   precioVenta: string; 
 }
@@ -116,10 +119,12 @@ const DropdownItem = styled.li`
 const EditarBonificacion = () => {
   const navigate = useNavigate();
   const [bonificacion, setBonificacion] = useState<Bonificacion>({
-    Id: "",
-    Descripcion: "",
-    Producto_id: "",
-    Precio_unitario: 0,
+    id: "",
+    descripcion: "",
+    compre: 0,
+    lleve: 0,
+    preUniDescuento: 0,
+    idProducto: "",
   });
   const [productos, setProductos] = useState<Producto[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -128,8 +133,8 @@ const EditarBonificacion = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (bonificacion.Id) {
-      axios.get(`http://localhost:4000/bonificaciones/${bonificacion.Id}`)
+    if (bonificacion.id) {
+      axios.get(`https://66972cf402f3150fb66cd356.mockapi.io/api/v1/Bonificaciones/${bonificacion.id}`)
         .then(response => {
           setBonificacion(response.data);
         })
@@ -137,7 +142,7 @@ const EditarBonificacion = () => {
           setErrorMessage("No se pudo cargar la bonificación.");
         });
     }
-  }, [bonificacion.Id]);
+  }, [bonificacion.id]);
 
   useEffect(() => {
     axios.get('https://66972cf402f3150fb66cd356.mockapi.io/api/v1/productos')
@@ -150,11 +155,29 @@ const EditarBonificacion = () => {
   }, []);
 
   useEffect(() => {
+  
+    const productoSeleccionado = productos.find(p => p.id === bonificacion.idProducto);
+  
+    if (productoSeleccionado) {
+      const precioVenta = parseFloat(productoSeleccionado.precioVenta);
+  
+      const nuevoPrecioUnitarioDescuento = ( (bonificacion.lleve + bonificacion.compre) * precioVenta ) / bonificacion.compre;
+  
+      setBonificacion(prev => ({
+        ...prev,
+        preUniDescuento: nuevoPrecioUnitarioDescuento
+      }));
+    }
+  }, [bonificacion.compre, bonificacion.lleve, bonificacion.idProducto, productos]);
+  
+  
+
+  useEffect(() => {
     if (searchQuery) {
       setLoading(true);
       axios
         .get(
-          `http://localhost:4000/bonificaciones/descripcion?Descripcion=${searchQuery}`
+          `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/Bonificaciones?descripcion=${searchQuery}`
         )
         .then((response) => {
           setOpcionesFiltradas(response.data);
@@ -168,13 +191,13 @@ const EditarBonificacion = () => {
     } else {
       setOpcionesFiltradas([]);
     }
-  }, [searchQuery]);
+  }, [searchQuery])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setBonificacion(prevBonificacion => ({
       ...prevBonificacion,
-      [name]: name === "Precio_unitario" ? parseFloat(value) || 0 : value
+      [name]: name === "compre" || name === "lleve" ? parseFloat(value) || 0 : value
     }));
   };
 
@@ -182,7 +205,7 @@ const EditarBonificacion = () => {
     e.preventDefault();
     axios
       .get(
-        `http://localhost:4000/bonificaciones/descripcion?Descripcion=${searchQuery}`
+        `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/Bonificaciones?descripcion=${searchQuery}`
       )
       .then((response) => {
         if (response.data.length > 0) {
@@ -199,7 +222,7 @@ const EditarBonificacion = () => {
     e.preventDefault();
     axios
       .put(
-        `http://localhost:4000/bonificaciones/${bonificacion.Id}`,
+        `https://66972cf402f3150fb66cd356.mockapi.io/api/v1/Bonificaciones/${bonificacion.id}`,
         bonificacion
       )
       .then(() => {
@@ -209,10 +232,12 @@ const EditarBonificacion = () => {
 
   const handleClear = () => {
     setBonificacion({
-      Id: "",
-      Descripcion: "",
-      Precio_unitario: 0,
-      Producto_id: "",
+      id: "",
+      descripcion: "",
+      compre: 0,
+      lleve: 0,
+      preUniDescuento: 0,
+      idProducto: "",
     });
     setSearchQuery("");
     setOpcionesFiltradas([]);
@@ -224,7 +249,7 @@ const EditarBonificacion = () => {
 
   const seleccionarOpcion = (opcion: Bonificacion) => {
     setBonificacion(opcion);
-    setSearchQuery(opcion.Descripcion);
+    setSearchQuery(opcion.descripcion);
     setOpcionesFiltradas([]);
   };
 
@@ -250,10 +275,10 @@ const EditarBonificacion = () => {
               <Dropdown>
                 {opcionesFiltradas.map((opcion) => (
                   <DropdownItem
-                    key={opcion.Id}
+                    key={opcion.id}
                     onClick={() => seleccionarOpcion(opcion)}
                   >
-                    {opcion.Descripcion}
+                    {opcion.descripcion}
                   </DropdownItem>
                 ))}
               </Dropdown>
@@ -267,29 +292,48 @@ const EditarBonificacion = () => {
           Limpiar
         </ClearButton>
       </form>
-      {bonificacion.Descripcion && (
+      {bonificacion.descripcion && (
         <form
           onSubmit={handleSubmit}
           className="bg-slate-500 p-10 rounded-[15px] w-2/4"
         >
           <FormGroup>
-            <Label>Descripción de la Bonificación</Label>
+            <Label>Descripción de la Bonificacion</Label>
             <Input
               type="text"
-              name="Descripcion"
-              value={bonificacion.Descripcion}
+              name="descripcion"
+              value={bonificacion.descripcion}
               onChange={handleChange}
               required
             />
           </FormGroup>
           <FormGroup>
-            <Label>Precio Unitario</Label>
+            <Label>Por la Compra de: </Label>
             <Input
               type="number"
-              name="Precio_unitario"
-              value={bonificacion.Precio_unitario}
+              name="compre"
+              value={bonificacion.compre}
               onChange={handleChange}
               required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Lleva Gratis: </Label>
+            <Input
+              type="number"
+              name="lleve"
+              value={bonificacion.lleve}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Precio Unitario con Descuento aplicado</Label>
+            <Input
+              type="number"
+              name="preUniDescuento"
+              value={bonificacion.preUniDescuento}
+              readOnly
             />
           </FormGroup>
           <Button type="submit">Guardar Cambios</Button>

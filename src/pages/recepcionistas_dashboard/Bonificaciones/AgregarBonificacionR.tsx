@@ -5,16 +5,18 @@ import styled from "styled-components";
 import axios from "axios";
 
 interface Bonificacion {
-  Id: string;
-  Descripcion: string;
-  Precio_unitario: number;
-  Producto_id: string;
+  id: string;
+  descripcion: string;
+  compre: number;
+  lleve: number;
+  idProducto: string;
+  preUniDescuento: number;
 }
 
 interface Producto {
-  Id: string;
-  Nombre: string;
-  Precio_venta: string;
+  idProducto: string;
+  nombre: string;
+  precioVenta: string;
 }
 
 const Container = styled.div`
@@ -50,7 +52,8 @@ const Salir = styled(IoMdCloseCircleOutline)`
 const AgregarBonificacion: React.FC = () => {
   const [listaProductos, setListaProductos] = useState<Producto[]>([]);
   const [descripcion, setDescripcion] = useState("");
-  const [precioUnitario, setPrecioUnitario] = useState("");
+  const [compre, setCompre] = useState("");
+  const [lleve, setLleve] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [opcionesFiltradas, setOpcionesFiltradas] = useState<Producto[]>([]);
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<Producto | null>(null);
@@ -59,7 +62,7 @@ const AgregarBonificacion: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:4000/productos')
+    axios.get('https://66972cf402f3150fb66cd356.mockapi.io/api/v1/productos')
       .then((response) => {
         setListaProductos(response.data);
         setOpcionesFiltradas(response.data);
@@ -76,13 +79,23 @@ const AgregarBonificacion: React.FC = () => {
     } else {
       setOpcionesFiltradas(
         listaProductos.filter((producto) =>
-          producto.Nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
-          producto.Nombre !== opcionSeleccionada?.Nombre 
+          producto.nombre.toLowerCase().includes(busqueda.toLowerCase()) &&
+          producto.nombre !== opcionSeleccionada?.nombre 
         )
       );
     }
   }, [busqueda, listaProductos, opcionSeleccionada]);
 
+  const validarCampos = () => {
+    const compreNumero = Number(compre);
+    const lleveNumero = Number(lleve);
+    if (isNaN(compreNumero) || isNaN(lleveNumero) || compreNumero < 1 || lleveNumero < 1) {
+      setError("Los campos 'Compre' y 'Lleve' deben ser números positivos.");
+      return false;
+    }
+    setError(null);
+    return true;
+  };
 
   const manejarOnSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -92,13 +105,22 @@ const AgregarBonificacion: React.FC = () => {
       return;
     }
   
-    const url = "http://localhost:4000/bonificaciones"; // Asegúrate de que la URL y el endpoint sean correctos.
+    if (!validarCampos()) return;
+
+    const url = "https://66972cf402f3150fb66cd356.mockapi.io/api/v1/Bonificaciones";
   
+    const precioUniDescuento =
+      ((parseFloat(compre) + parseFloat(lleve)) * parseFloat(opcionSeleccionada.precioVenta)) /
+      parseFloat(compre);
+  
+   
     const bonificacionData: Bonificacion = {
-      Id: "", // O un valor válido si es necesario.
-      Descripcion: descripcion, // Asegúrate de que esto esté lleno.
-      Precio_unitario: parseFloat(precioUnitario), // Convierte el precioUnitario a número.
-      Producto_id: opcionSeleccionada.Id, // Usa el ID del producto seleccionado.
+      id: "",
+      descripcion,
+      compre: parseFloat(compre),
+      lleve: parseFloat(lleve),
+      idProducto: opcionSeleccionada.idProducto,
+      preUniDescuento: precioUniDescuento,
     };
   
     try {
@@ -115,7 +137,6 @@ const AgregarBonificacion: React.FC = () => {
   };
   
   
-  
 
   const manejarBusqueda = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBusqueda(e.target.value);
@@ -123,7 +144,7 @@ const AgregarBonificacion: React.FC = () => {
 
   const seleccionarOpcion = (opcion: Producto) => {
     setOpcionSeleccionada(opcion);
-    setBusqueda(opcion.Nombre); 
+    setBusqueda(opcion.nombre); 
     setOpcionesFiltradas([]); 
   };
 
@@ -152,11 +173,11 @@ const AgregarBonificacion: React.FC = () => {
           <ul className="bg-white border border-gray-300 rounded-lg mt-2">
             {opcionesFiltradas.map((producto) => (
               <li
-                key={producto.Id}
+                key={producto.idProducto}
                 onClick={() => seleccionarOpcion(producto)}
                 className="p-2 cursor-pointer hover:bg-gray-200"
               >
-                {producto.Nombre}
+                {producto.nombre}
               </li>
             ))}
           </ul>
@@ -173,15 +194,26 @@ const AgregarBonificacion: React.FC = () => {
           placeholder="Ingrese la descripción de la bonificación"
         />
         <label htmlFor="compre" className="font-bold text-sm text-white">
-          Precio Unitario
+          Por la compra de: 
         </label>
         <input
-          value={precioUnitario}
-          onChange={(e) => setPrecioUnitario(e.target.value)}
+          value={compre}
+          onChange={(e) => setCompre(e.target.value)}
           type="number"
           id="compre"
           className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
           placeholder="Ingrese el número de productos a comprar"
+        />
+        <label htmlFor="lleve" className="font-bold text-sm text-white">
+          Lleva Gratis: 
+        </label>
+        <input
+          value={lleve}
+          onChange={(e) => setLleve(e.target.value)}
+          type="number"
+          id="lleve"
+          className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
+          placeholder="Ingrese el número de productos a llevar"
         />
         {error && <div className="text-red-500">{error}</div>}
         <div className="flex justify-center">
