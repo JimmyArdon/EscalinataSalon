@@ -12,8 +12,9 @@ const app = express();
 const db = mysql.createConnection({
     host: 'localhost', // Cambia estos valores según tu configuración
     user: 'root', // Cambia estos valores según tu configuración
-    password: '@ElPoderMental99', // Cambia estos valores según tu configuración
-    database: 'escalinatasalon' // Nombre de la base de datos
+    password: 'root0101', // Cambia estos valores según tu configuración
+    database: 'escalinataSalon' // Nombre de la base de datos
+
 });
 
 app.use(express.json());
@@ -220,30 +221,27 @@ app.delete('/productos', (req, res) => {
     });
 });
 
-// Editar un producto por nombre
-app.put('/productos', (req, res) => {
+// Método PUT para actualizar un producto existente
+app.put('/productos/:id', (req, res) => {
+    const { id } = req.params;
     const { Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta } = req.body;
-
-    if (!Nombre) {
-        return res.status(400).json({ error: 'Por favor, proporciona el nombre del producto a editar' });
-    }
-
+    
     const query = `
-        UPDATE Producto
-        SET Proveedor_id = ?, Marca_id = ?, Cantidad_stock = ?, Precio = ?, ISV = ?, Precio_venta = ?
-        WHERE Nombre = ?
-    `;
+        UPDATE Producto 
+        SET Nombre = ?, Proveedor_id = ?, Marca_id = ?, Cantidad_stock = ?, Precio = ?, ISV = ?, Precio_venta = ? 
+        WHERE Id = ?`;
 
-    db.query(query, [Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, Nombre], (err, result) => {
+    db.query(query, [Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, id], (err, result) => {
         if (err) {
-            return res.status(500).json({ error: 'Error al editar el producto' });
+            console.error('Error al actualizar el producto:', err);
+            res.status(500).send('Error al actualizar el producto');
+            return;
         }
-
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+            res.status(404).send('Producto no encontrado');
+            return;
         }
-
-        res.status(200).json({ message: 'Producto editado exitosamente' });
+        res.send('Producto actualizado exitosamente');
     });
 });
 
@@ -364,6 +362,83 @@ app.get('/servicios', (req, res) => {
         res.status(200).json(results);
     });
 });
+
+app.delete('/servicios', (req, res) => {
+    const nombreServicio = req.body.Nombre;
+
+    // Primero, verificamos si el servicio existe
+    const checkSql = 'SELECT * FROM Servicio WHERE Nombre = ?';
+    db.query(checkSql, [nombreServicio], (err, results) => {
+        if (err) {
+            console.error('Error al buscar el servicio:', err);
+            res.status(500).json({ error: 'Error al buscar el servicio' });
+            return;
+        }
+
+        if (results.length === 0) {
+            res.status(404).json({ error: 'Servicio no encontrado' });
+            return;
+        }
+
+        const servicioId = results[0].Id;
+
+        // Eliminar las citas relacionadas
+        const deleteCitasSql = 'DELETE FROM Cita WHERE Servicio_id = ?';
+        db.query(deleteCitasSql, [servicioId], (err) => {
+            if (err) {
+                console.error('Error al eliminar citas relacionadas:', err);
+                res.status(500).json({ error: 'Error al eliminar citas relacionadas' });
+                return;
+            }
+
+            // Ahora, eliminar el servicio
+            const deleteSql = 'DELETE FROM Servicio WHERE Nombre = ?';
+            db.query(deleteSql, [nombreServicio], (err) => {
+                if (err) {
+                    console.error('Error al eliminar el servicio:', err);
+                    res.status(500).json({ error: 'Error al eliminar el servicio' });
+                    return;
+                }
+
+                res.json({ message: 'Servicio y citas relacionadas eliminados con éxito' });
+            });
+        });
+    });
+});
+
+// Método PUT para actualizar un servicio existente
+app.put('/servicios/:id', (req, res) => {
+    const { id } = req.params;
+    const { Nombre, Duracion, Precio, Descripcion } = req.body;
+    const query = 'UPDATE Servicio SET Nombre = ?, Duracion = ?, Precio = ?, Descripcion = ? WHERE Id = ?';
+    db.query(query, [Nombre, Duracion, Precio, Descripcion, id], (err, result) => {
+        if (err) {
+            console.error('Error al actualizar el servicio:', err);
+            res.status(500).send('Error al actualizar el servicio');
+            return;
+        }
+        if (result.affectedRows === 0) {
+            res.status(404).send('Servicio no encontrado');
+            return;
+        }
+        res.send('Servicio actualizado exitosamente');
+    });
+});
+
+// Método POST para crear un nuevo servicio
+app.post('/servicios', (req, res) => {
+    const { Nombre, Duracion, Precio, Descripcion } = req.body;
+    const query = 'INSERT INTO Servicio (Nombre, Duracion, Precio, Descripcion) VALUES (?, ?, ?, ?)';
+    db.query(query, [Nombre, Duracion, Precio, Descripcion], (err, result) => {
+        if (err) {
+            console.error('Error al crear el servicio:', err);
+            res.status(500).send('Error al crear el servicio');
+            return;
+        }
+        res.status(201).send(`Servicio creado con ID: ${result.insertId}`);
+    });
+});
+
 
 // GET Obtener data de los servicios
 app.get('/servicioss', (req, res) => {
@@ -1010,6 +1085,72 @@ app.get('/marca', (req, res) => {
     });
 });
 
+
+// Obtener ventas al crédito con filtro de cliente
+app.get('/ventas-credito', (req, res) => {
+    db.query('  SELECT vc.*, c.nombre, tev.Descripcion FROM ventas_credito vc JOIN cliente c ON vc.cliente_id = c.id JOIN tipo_estado_venta tev ON vc.Tipo_estado_id  = tev.Id ',
+        (err, results) => {
+            if (err) {
+                console.error('Error fetching ventas data:', err);
+                res.status(500).send('Internal Server Error');
+                return;
+            }
+            res.json(results);
+        });
+});
+
+// Obtener historial de pagos
+app.get('/historial-pagos', (req, res) => {
+    db.query('SELECT hp.*, c.Nombre FROM historial_pagos hp JOIN cliente c ON hp.Cliente_id = c.id', (err, results) => {
+        if (err) {
+            console.error('Error fetching historial pagos data:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        res.json(results);
+    });
+});
+
+// Define el endpoint para registrar un pago
+app.post('/registrar-pago', (req, res) => {
+    const { ClienteId, montoPagado, fechaPago } = req.body;
+
+    // Verifica que los datos requeridos estén presentes
+    if (typeof ClienteId !== 'number' || typeof montoPagado !== 'number' || typeof fechaPago !== 'string') {
+        return res.status(400).send('Invalid input');
+    }
+
+    // Actualizar venta
+    const updateQuery = `
+      UPDATE ventas_credito
+      SET Monto_pendiente = Monto_pendiente - ?, 
+          Tipo_estado_id = CASE 
+                            WHEN Monto_pendiente - ? = 0 THEN 1 
+                            ELSE 2 
+                          END
+      WHERE id = ?;
+    `;
+
+    db.query(updateQuery, [montoPagado, montoPagado, ClienteId], (err) => {
+        if (err) {
+            console.error('Error updating venta:', err);
+            return res.status(500).send('Internal Server Error');
+        }
+
+        // Insertar en historial de pagos
+        const insertQuery = 'INSERT INTO historial_pagos (Cliente_id, Monto_pagado, Fecha_pago) VALUES (?, ?, ?)';
+        db.query(insertQuery, [ClienteId, montoPagado, fechaPago], (err) => {
+            if (err) {
+                console.error('Error inserting into historial pagos:', err);
+                return res.status(500).send('Internal Server Error');
+            }
+            res.status(200).send('Pago registrado exitosamente');
+        });
+    });
+});
+
+
+
 // GETALL - Trae una marcas
 app.get('/marca/:id', (req, res) => {
     const { id } = req.params;
@@ -1026,6 +1167,7 @@ app.get('/marca/:id', (req, res) => {
             res.status(200).json(rows[0]);
         });
 })
+
 
 app.listen(4000, () => {
     console.log("Backend conectado en el puerto 4000");

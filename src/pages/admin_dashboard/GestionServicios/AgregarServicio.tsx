@@ -16,6 +16,7 @@ const Container = styled.div`
   height: 100%;
   box-sizing: border-box;
 `;
+
 const Salir = styled(IoMdCloseCircleOutline)`
   width: 50px;
   height: 50px;
@@ -26,8 +27,8 @@ const Salir = styled(IoMdCloseCircleOutline)`
   transition: all 3s ease;
 
   &:hover {
-    width: 60px; /* Aumenta el tamaño en el hover */
-    height: 60px; /* Aumenta el tamaño en el hover */
+    width: 60px;
+    height: 60px;
     color: #8b4513;
   }
 `;
@@ -36,9 +37,10 @@ const AgregarServicio: React.FC = () => {
   const [nombre, setNombre] = useState("");
   const [duracion, setDuracion] = useState("");
   const [precio, setPrecio] = useState("");
+  const [descripcion, setDescripcion] = useState("");
 
   const { id } = useParams();
-  
+
   useEffect(() => {
     if (id) {
       fetch(`http://localhost:4000/servicios/${id}`)
@@ -47,6 +49,7 @@ const AgregarServicio: React.FC = () => {
           setNombre(data.Nombre);
           setDuracion(data.Duracion);
           setPrecio(data.Precio);
+          setDescripcion(data.Descripcion);
         });
     }
   }, [id]);
@@ -55,29 +58,30 @@ const AgregarServicio: React.FC = () => {
 
   const manejarOnSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
+    const servicio = {
+      Nombre: nombre,
+      Duracion: duracion,
+      Precio: precio,
+      Descripcion: descripcion,
+    };
+
     if (id) {
-      await fetch(
-        `http://localhost:4000/servicios/${id}`,
-        {
-          method: "PUT",
-          body: JSON.stringify({ Nombre: nombre, Duracion: duracion, Precio: precio }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await fetch(`http://localhost:4000/servicios/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(servicio),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
     } else {
-      await fetch(
-        "http://localhost:4000/servicioss",
-        {
-          method: "POST",
-          body: JSON.stringify({ Nombre: nombre, Duracion: duracion, Precio: precio }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await fetch("http://localhost:4000/servicios", {
+        method: "POST",
+        body: JSON.stringify(servicio),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
     }
 
     navigate("/dashboard-admin/gestion-de-servicios");
@@ -133,8 +137,22 @@ const AgregarServicio: React.FC = () => {
           className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
           placeholder="Precio"
         />
+        <label htmlFor="descripcion" className="font-bold text-sm text-white">
+          Descripcion
+        </label>
+        <textarea
+          value={descripcion}
+          onChange={(e) => setDescripcion(e.target.value)}
+          required
+          id="descripcion"
+          className="rounded-2 border-b-2 p-2 mb-4 w-full text-black"
+          placeholder="Descripcion"
+        />
         <div className="flex justify-between">
-          <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
             Guardar
           </button>
           {id && (
@@ -143,7 +161,7 @@ const AgregarServicio: React.FC = () => {
                 await fetch(`http://localhost:4000/servicios/${id}`, {
                   method: "DELETE",
                 });
-                navigate('/dashboard-recepcionista/main/gestion-de-servicios');
+                navigate("/dashboard-admin/gestion-de-servicios");
               }}
               className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
             >

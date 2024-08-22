@@ -1,159 +1,365 @@
-// import React, { useState } from 'react';
-// import styled from 'styled-components';
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import styled from "styled-components";
+import { IoMdCloseCircleOutline } from "react-icons/io";
 
-// const Container = styled.div`
-//   padding: 20px;
-// `;
+const Container = styled.div`
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #d9d9d9;
+  padding: 40px;
+  border-radius: 10px;
+  position: relative;
+  width: 80%;
+  max-width: 800px;
+  box-sizing: border-box;
+  min-height: 100vh;
+`;
 
-// const SearchInput = styled.input`
-//   padding: 8px;
-//   margin-right: 10px;
-// `;
+const FormGroup = styled.div`
+  margin-bottom: 15px;
+`;
 
-// const Button = styled.button`
-//   padding: 8px;
-//   margin-top: 10px;
-// `;
+const Label = styled.label`
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+`;
 
-// const FormContainer = styled.div`
-//   margin-top: 20px;
-// `;
+const Input = styled.input`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
 
-// const FormInput = styled.input`
-//   display: block;
-//   margin-bottom: 10px;
-//   padding: 8px;
-//   width: 100%;
-// `;
+const Select = styled.select`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
 
-// const ProductEditView: React.FC = () => {
-//   const [searchName, setSearchName] = useState<string>('');
-//   const [product, setProduct] = useState(null);
-//   const [editData, setEditData] = useState({
-//     Proveedor_id: '',
-//     Marca_id: '',
-//     Cantidad_stock: '',
-//     Precio: '',
-//     ISV: '',
-//     Precio_venta: '',
-//   });
+const Button = styled.button`
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: #45a049;
+  }
+`;
 
-//   const handleSearch = async () => {
-//     try {
-//       const response = await fetch(`/nameProductos?Nombre=${searchName}`);
-//       const data = await response.json();
-//       if (data.length > 0) {
-//         setProduct(data[0]); // Assuming you only want to edit one product at a time
-//         setEditData({
-//           Proveedor_id: data[0].Proveedor_id,
-//           Marca_id: data[0].Marca_id,
-//           Cantidad_stock: data[0].Cantidad_stock,
-//           Precio: data[0].Precio,
-//           ISV: data[0].ISV,
-//           Precio_venta: data[0].Precio_venta,
-//         });
-//       } else {
-//         alert('Producto no encontrado');
-//       }
-//     } catch (error) {
-//       console.error('Error fetching product:', error);
-//     }
-//   };
+const ClearButton = styled(Button)`
+  background-color: #f44336;
+  &:hover {
+    background-color: #d32f2f;
+  }
+`;
 
-//   const handleEdit = async () => {
-//     try {
-//       const response = await fetch('/productos', {
-//         method: 'PUT',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ Nombre: searchName, ...editData }),
-//       });
-//       const result = await response.json();
-//       if (response.ok) {
-//         alert('Producto editado exitosamente');
-//       } else {
-//         alert(result.error || 'Error al editar el producto');
-//       }
-//     } catch (error) {
-//       console.error('Error editing product:', error);
-//     }
-//   };
+const Salir = styled(IoMdCloseCircleOutline)`
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const { name, value } = e.target;
-//     setEditData(prevState => ({ ...prevState, [name]: value }));
-//   };
+  &:hover {
+    width: 60px;
+    height: 60px;
+    color: #8b4513;
+  }
+`;
 
-//   return (
-//     <Container>
-//       <h1>Buscar y Editar Producto</h1>
-//       <div>
-//         <SearchInput
-//           type="text"
-//           placeholder="Nombre del producto"
-//           value={searchName}
-//           onChange={(e) => setSearchName(e.target.value)}
-//         />
-//         <Button onClick={handleSearch}>Buscar</Button>
-//       </div>
+const ErrorMessage = styled.p`
+  color: #f44336;
+  font-weight: bold;
+`;
 
-//       {product && (
-//         <FormContainer>
-//           <h2>Editar Producto</h2>
-//           <FormInput
-//             type="text"
-//             name="Proveedor_id"
-//             placeholder="ID del Proveedor"
-//             value={editData.Proveedor_id}
-//             onChange={handleChange}
-//           />
-//           <FormInput
-//             type="text"
-//             name="Marca_id"
-//             placeholder="ID de la Marca"
-//             value={editData.Marca_id}
-//             onChange={handleChange}
-//           />
-//           <FormInput
-//             type="number"
-//             name="Cantidad_stock"
-//             placeholder="Cantidad en stock"
-//             value={editData.Cantidad_stock}
-//             onChange={handleChange}
-//           />
-//           <FormInput
-//             type="number"
-//             name="Precio"
-//             placeholder="Precio de compra"
-//             value={editData.Precio}
-//             onChange={handleChange}
-//           />
-//           <FormInput
-//             type="number"
-//             name="ISV"
-//             placeholder="ISV"
-//             value={editData.ISV}
-//             onChange={handleChange}
-//           />
-//           <FormInput
-//             type="number"
-//             name="Precio_venta"
-//             placeholder="Precio de venta"
-//             value={editData.Precio_venta}
-//             onChange={handleChange}
-//           />
-//           <Button onClick={handleEdit}>Actualizar Producto</Button>
-//         </FormContainer>
-//       )}
-//     </Container>
-//   );
-// };
+const ResultList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: #fff;
+`;
 
-// export default ProductEditView;
-import React from 'react';
+const ResultItem = styled.li`
+  padding: 8px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
 
-const ProductEditView: React.FC = () => {
-    return (
-        <h1>Hola</h1>
-    )
-    };
-export default ProductEditView;
+interface Opcion {
+  id: string;
+  descripcion: string;
+}
+
+interface Producto {
+  Id: string;
+  Nombre: string;
+  Proveedor_id: string;
+  Marca_id: string;
+  Cantidad_stock: string;
+  Precio: string;
+  ISV: string;
+  Precio_venta: string;
+}
+
+const EditarProducto = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [producto, setProducto] = useState<Producto>({
+    Id: "",
+    Nombre: "",
+    Proveedor_id: "",
+    Marca_id: "",
+    Cantidad_stock: "",
+    Precio: "",
+    ISV: "",
+    Precio_venta: "",
+  });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [allProductos, setAllProductos] = useState<Producto[]>([]);
+  const [filteredProductos, setFilteredProductos] = useState<Producto[]>([]);
+  const [proveedores, setProveedores] = useState<Opcion[]>([]);
+  const [marcas, setMarcas] = useState<Opcion[]>([]);
+
+  useEffect(() => {
+    fetch("http://localhost:4000/proveedores")
+      .then((response) => response.json())
+      .then((data) => setProveedores(data))
+      .catch((error) => console.error("Error al cargar los proveedores:", error));
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:4000/marcas")
+      .then((response) => response.json())
+      .then((data) => setMarcas(data))
+      .catch((error) => console.error("Error al cargar las marcas:", error));
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:4000/productos")
+      .then((response) => response.json())
+      .then((data) => setAllProductos(data));
+  }, []);
+
+  useEffect(() => {
+    if (id) {
+      fetch(`http://localhost:4000/productos/${id}`)
+        .then((response) => response.json())
+        .then((data) => setProducto(data));
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (searchQuery) {
+      setFilteredProductos(
+        allProductos.filter((producto) =>
+          producto.Nombre.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    } else {
+      setFilteredProductos([]);
+    }
+  }, [searchQuery, allProductos]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    setProducto({
+      ...producto,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const result = allProductos.find(
+      (producto) => producto.Nombre.toLowerCase() === searchQuery.toLowerCase()
+    );
+    if (result) {
+      setProducto(result);
+      setErrorMessage("");
+    } else {
+      setProducto({
+        Id: "",
+        Nombre: "",
+        Proveedor_id: "",
+        Marca_id: "",
+        Cantidad_stock: "",
+        Precio: "",
+        ISV: "",
+        Precio_venta: "",
+      });
+      setErrorMessage("No se encontró ningún producto con ese nombre.");
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (producto.Id) {
+      fetch(`http://localhost:4000/productos/${producto.Id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(producto),
+      }).then(() => {
+        navigate("/dashboard-admin/inventario");
+      });
+    }
+  };
+
+  const handleClear = () => {
+    setSearchQuery("");
+    setProducto({
+      Id: "",
+      Nombre: "",
+      Proveedor_id: "",
+      Marca_id: "",
+      Cantidad_stock: "",
+      Precio: "",
+      ISV: "",
+      Precio_venta: "",
+    });
+    setErrorMessage("");
+  };
+
+  const manejarOnClickSalir = () => {
+    navigate("/dashboard-admin/inventario");
+  };
+
+  const handleSelectProducto = (selectedProducto: Producto) => {
+    setProducto(selectedProducto);
+    setSearchQuery(selectedProducto.Nombre);
+    setFilteredProductos([]);
+    setErrorMessage("");
+  };
+
+  return (
+    <Container>
+      <Salir onClick={manejarOnClickSalir} />
+      <h2>Editar Producto</h2>
+      <form onSubmit={handleSearch} className="bg-slate-500 p-10 rounded-[15px] w-full">
+        <FormGroup>
+          <Label>Buscar por Nombre</Label>
+          <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+            <Input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Nombre del producto"
+              required
+            />
+            <Button type="submit">Buscar</Button>
+            <ClearButton type="button" onClick={handleClear}>
+              Limpiar
+            </ClearButton>
+          </div>
+          {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+          {filteredProductos.length > 0 && (
+            <ResultList>
+              {filteredProductos.map((producto) => (
+                <ResultItem key={producto.Id} onClick={() => handleSelectProducto(producto)}>
+                  {producto.Nombre}
+                </ResultItem>
+              ))}
+            </ResultList>
+          )}
+        </FormGroup>
+      </form>
+      {producto.Nombre && (
+        <form onSubmit={handleSubmit} className="bg-slate-500 p-10 rounded-[15px] w-full">
+          <FormGroup>
+            <Label>Nombre</Label>
+            <Input
+              type="text"
+              name="Nombre"
+              value={producto.Nombre}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Proveedor:</Label>
+            <Select name="Proveedor_id" value={producto.Proveedor_id} onChange={handleChange} required>
+              <option value="">Selecciona un proveedor</option>
+              {proveedores.map((proveedor) => (
+                <option key={proveedor.id} value={proveedor.id}>
+                  {proveedor.descripcion}
+                </option>
+              ))}
+            </Select>
+          </FormGroup>
+          <FormGroup>
+            <Label>Marca:</Label>
+            <Select name="Marca_id" value={producto.Marca_id} onChange={handleChange} required>
+              <option value="">Selecciona una marca</option>
+              {marcas.map((marca) => (
+                <option key={marca.id} value={marca.id}>
+                  {marca.descripcion}
+                </option>
+              ))}
+            </Select>
+          </FormGroup>
+          <FormGroup>
+            <Label>Cantidad en Stock</Label>
+            <Input
+              type="number"
+              name="Cantidad_stock"
+              value={producto.Cantidad_stock}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Precio de Compra</Label>
+            <Input
+              type="number"
+              name="Precio"
+              value={producto.Precio}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>ISV (%)</Label>
+            <Input
+              type="number"
+              name="ISV"
+              value={producto.ISV}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Precio de Venta</Label>
+            <Input
+              type="number"
+              name="Precio_venta"
+              value={producto.Precio_venta}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
+          <Button type="submit">Guardar Cambios</Button>
+        </form>
+      )}
+    </Container>
+  );
+};
+
+export default EditarProducto;
