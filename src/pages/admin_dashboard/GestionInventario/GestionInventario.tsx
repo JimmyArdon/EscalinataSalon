@@ -14,7 +14,6 @@ interface Producto {
     ISV: number;
     Precio_venta: number;
 }
-
 interface Opcion {
     id: number;
     descripcion: string;
@@ -61,8 +60,7 @@ const ButtonGroup = styled.div`
 
 const GestionInventario: React.FC = () => {
     const [productos, setProductos] = useState<Producto[]>([]);
-    const [proveedores, setProveedores] = useState<Opcion[]>([]);
-    const [marcas, setMarcas] = useState<Opcion[]>([]);
+    const [marca, setMarcas] = useState<Opcion[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<Producto[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [error, setError] = useState<string | null>(null);
@@ -90,7 +88,6 @@ const GestionInventario: React.FC = () => {
         // Obtener proveedores
         fetch('http://localhost:4000/proveedores')
             .then(response => response.json())
-            .then(data => setProveedores(data))
             .catch(error => console.error('Error al cargar los proveedores:', error));
 
         // Obtener marcas
@@ -146,7 +143,6 @@ const GestionInventario: React.FC = () => {
                     <tr>
                         <th>ID</th>
                         <th>Nombre</th>
-                        <th>Proveedor</th>
                         <th>Marca</th>
                         <th>Cantidad en Stock</th>
                         <th>Precio</th>
@@ -163,9 +159,7 @@ const GestionInventario: React.FC = () => {
                         paginatedProducts.map(producto => (
                             <tr key={producto.Id}>
                                 <td>{producto.Id}</td>
-                                <td>{producto.Nombre}</td>
-                                <td>{obtenerNombre(producto.Proveedor_id, proveedores)}</td>
-                                <td>{obtenerNombre(producto.Marca_id, marcas)}</td>
+                                <td>{producto.Nombre}</td><td>{obtenerNombre(producto.Marca_id, marca)}</td>
                                 <td>{producto.Cantidad_stock}</td>
                                 <td>{producto.Precio}</td>
                                 <td>{producto.ISV}</td>

@@ -232,22 +232,21 @@ app.get('/productos/:id', (req, res) => {
       res.status(500).send(err.message);
     }
 })
-
 // Agregar un nuevo producto al inventario
 app.post('/addProductos', (req, res) => {
-    const { Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, CodigoBarra } = req.body;
+    const { Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta } = req.body;
 
     // Validación simple de datos
-    if (!Nombre || !Proveedor_id || !Marca_id || !Cantidad_stock || !Precio || !ISV || !Precio_venta || !CodigoBarra) {
+    if (!Nombre || !Proveedor_id || !Marca_id || !Cantidad_stock || !Precio || !ISV || !Precio_venta) {
         return res.status(400).json({ error: 'Por favor, proporciona todos los campos requeridos' });
     }
 
     const query = `
-        INSERT INTO Producto (Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, CodigoBarra)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO Producto (Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(query, [Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, CodigoBarra], (err, result) => {
+    db.query(query, [Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta], (err, result) => {
         if (err) {
             console.error(err); // Agregar un log para más detalles en caso de error
             return res.status(500).json({ error: 'Error al agregar el producto' });
@@ -256,7 +255,6 @@ app.post('/addProductos', (req, res) => {
         res.status(201).json({ message: 'Producto agregado exitosamente', productId: result.insertId });
     });
 });
-
 
 // Borrar un producto por nombre
 app.delete('/productos', (req, res) => {
@@ -281,19 +279,44 @@ app.delete('/productos', (req, res) => {
     });
 });
 
+// Editar un producto por nombre
+app.put('/productos', (req, res) => {
+    const { Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta } = req.body;
+
+    if (!Nombre) {
+        return res.status(400).json({ error: 'Por favor, proporciona el nombre del producto a editar' });
+    }
+
+    const query = `
+        UPDATE Producto
+        SET Proveedor_id = ?, Marca_id = ?, Cantidad_stock = ?, Precio = ?, ISV = ?, Precio_venta = ?
+        WHERE Nombre = ?
+    `;
+
+    db.query(query, [Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, Nombre], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error al editar el producto' });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+
+        res.status(200).json({ message: 'Producto editado exitosamente' });
+    });
+});
+
 // Método PUT para actualizar un producto existente
 app.put('/productos/:id', (req, res) => {
     const { id } = req.params;
     const { Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta } = req.body;
-    
     const query = `
-        UPDATE Producto 
+     UPDATE Producto 
         SET Nombre = ?, Proveedor_id = ?, Marca_id = ?, Cantidad_stock = ?, Precio = ?, ISV = ?, Precio_venta = ? 
         WHERE Id = ?`;
-
-    db.query(query, [Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, id], (err, result) => {
-        if (err) {
-            console.error('Error al actualizar el producto:', err);
+        db.query(query, [Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta, id], (err, result) => {
+            if (err) {
+                console.error('Error al actualizar el producto:', err);
             res.status(500).send('Error al actualizar el producto');
             return;
         }
@@ -304,9 +327,6 @@ app.put('/productos/:id', (req, res) => {
         res.send('Producto actualizado exitosamente');
     });
 });
-
-
-
 app.get('/citas', (req, res) => {
     const query = `
          SELECT 
@@ -538,6 +558,39 @@ app.get('/servicioss/:id', (req, res) => {
     }
 })
 
+// Buscar productos por nombre
+app.get('/nameProductos', (req, res) => {
+    const nombre = req.query.Nombre || '';
+    const query = 'SELECT Id, Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta FROM Producto WHERE Nombre LIKE ?';
+    db.query(query, [`%${nombre}%`], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Error al obtener los productos' });
+        }
+        res.json(results);
+    });
+});
+
+//BorrarProductos
+app.delete('/nameProductos', (req, res) => {
+    const { Id } = req.body;
+
+    if (!Id) {
+        return res.status(400).json({ error: 'ID del producto es requerido' });
+    }
+    const query = 'DELETE FROM Producto WHERE Id = ?';
+    db.query(query, [Id], (err, results) => {
+        if (err) { 
+            console.error(err);
+            return res.status(500).json({ error: 'Error al eliminar el producto' });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
+        }
+
+        res.json({ message: 'Producto eliminado correctamente' });
+    });
+});
 //GETBYNAME - Consultar Servicio por nombre
 app.get('/servicios/nombre', (req, res) => {
     const { Nombre } = req.query;
@@ -874,6 +927,16 @@ app.get('/clientes', (req, res) => {
     });
 });
 
+
+app.get('/clientess', (req, res) => {
+    db.query('SELECT * FROM cliente', (err, results) => {
+        if (err) {
+            console.error('Error al obtener clientes:', err);
+            return res.status(500).json({ error: 'Error al obtener clientes' });
+        }
+        res.status(200).json(results);
+    });
+});
 // Endpoint para agregar un cliente
 app.post('/clientes', (req, res) => {
     const { Nombre, Rtn, Direccion, Numero_Telefono, Email } = req.body;
@@ -887,6 +950,52 @@ app.post('/clientes', (req, res) => {
     });
 });
 
+
+app.get('/clientess/:id', (req, res) => {
+    const { id } = req.params; // Obtén el ID del parámetro de la solicitud
+
+    // Realiza la consulta con un filtro WHERE para obtener el cliente específico
+    db.query('SELECT * FROM cliente WHERE id = ?', [id], (err, results) => {
+        if (err) {
+            console.error('Error al obtener cliente:', err);
+            return res.status(500).json({ error: 'Error al obtener cliente' });
+        }
+
+        if (results.length === 0) {
+            // Si no se encuentra el cliente, devuelve un error 404
+            return res.status(404).json({ error: 'Cliente no encontrado' });
+        }
+
+        // Devuelve el primer resultado ya que el ID debería ser único
+        res.status(200).json(results[0]);
+    });
+});
+
+
+app.put('/clientess/:id', (req, res) => {
+    const { id } = req.params;
+    const { Nombre, Rtn, Direccion, Numero_Telefono, Email } = req.body;
+
+    // Verificar que todos los campos necesarios están presentes
+    if (!Nombre || !Rtn || !Direccion || !Numero_Telefono || !Email) {
+        return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    const query = `
+        UPDATE cliente 
+        SET Nombre = ?, Rtn = ?, Direccion = ?, Numero_Telefono = ?, Email = ?
+        WHERE id = ?
+    `;
+    const values = [Nombre, Rtn, Direccion, Numero_Telefono, Email, id];
+
+    db.query(query, values, (err) => {
+        if (err) {
+            console.error('Error al actualizar cliente:', err);
+            return res.status(500).json({ error: 'Error al actualizar cliente' });
+        }
+        res.status(200).json({ message: 'Cliente actualizado con éxito' });
+    });
+});
 // Endpoint para agregar una cita
 app.post('/citas', (req, res) => {
     const { Cliente_id, fecha, hora, Servicio_id, Usuario_id } = req.body;
@@ -1131,6 +1240,18 @@ app.delete('/proveedores/:id', (req, res) => {
     });
 });
 
+app.get('/terminos', (req, res) => {
+    const query = 'SELECT * FROM tipo_venta;';
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching marcas:', err);
+            return res.status(500).json({ error: 'Error al obtener la lista de marcas' });
+        }
+
+        res.json(results);
+    });
+});
 // GETALL - Trae las marcas
 app.get('/marca', (req, res) => {
     const query = 'SELECT Id, Descripcion FROM marca;';
@@ -1145,6 +1266,22 @@ app.get('/marca', (req, res) => {
     });
 });
 
+// GETALL - Trae una marcas
+app.get('/marca/:id', (req, res) => {
+    const { id } = req.params;
+        
+        
+        db.query('SELECT * FROM marca WHERE Id = ?', [id], (err, rows) => {
+            if (err) {
+                return res.status(400).json({ error: err.message });
+            }
+            
+            if (rows.length === 0) {
+                return res.status(404).json({ message: 'Marca no encontrado' });
+            }
+            res.status(200).json(rows[0]);
+        });
+})
 
 // Obtener ventas al crédito con filtro de cliente
 app.get('/ventas-credito', (req, res) => {
@@ -1157,6 +1294,47 @@ app.get('/ventas-credito', (req, res) => {
             }
             res.json(results);
         });
+});
+
+app.get('/historial-venta', (req, res) => {
+    const { filter, clientFilter } = req.query;
+
+    // Consulta base
+    let query = `
+        SELECT hv.*, c.nombre AS nombreCliente, f.numero_factura
+        FROM historial_ventas hv
+        JOIN cliente c ON hv.Cliente_id = c.id
+        JOIN factura f ON hv.Factura_id = f.id
+        WHERE 1=1
+    `;
+    const params = [];
+
+    // Filtro por nombre de cliente
+    if (clientFilter) {
+        query += ' AND c.nombre LIKE ?';
+        params.push(`%${clientFilter}%`);
+    }
+
+    // Filtro por fecha
+    if (filter === 'today') {
+        query += ' AND DATE(hv.fecha) = CURDATE()';
+    } else if (filter === 'week') {
+        query += ' AND YEARWEEK(hv.fecha, 1) = YEARWEEK(CURDATE(), 1)';
+    } else if (filter === 'month') {
+        query += ' AND MONTH(hv.fecha) = MONTH(CURDATE()) AND YEAR(hv.fecha) = YEAR(CURDATE())';
+    } else if (filter === 'year') {
+        query += ' AND YEAR(hv.fecha) = YEAR(CURDATE())';
+    }
+
+    // Ejecución de la consulta
+    db.query(query, params, (err, results) => {
+        if (err) {
+            console.error('Error fetching sales data:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        res.json(results);
+    });
 });
 
 // Obtener historial de pagos
@@ -1209,7 +1387,16 @@ app.post('/registrar-pago', (req, res) => {
     });
 });
 
-
+app.get('/marcas', (req, res) => {
+    const query = 'SELECT Id as id, Descripcion as descripcion FROM Marca';
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Error al obtener las marcas' });
+        }
+        res.json(results);
+    });
+});
 
 // GETALL - Trae una marcas
 app.get('/marca/:id', (req, res) => {

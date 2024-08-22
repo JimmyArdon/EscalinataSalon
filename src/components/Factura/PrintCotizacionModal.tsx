@@ -1,28 +1,27 @@
+// src/components/Factura/PrintFactModal.tsx
+
 import React from 'react';
 import Modal from 'react-modal';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
-import PrintCotizacion, { FacturaData } from './PrintCotizacion';
+import PrintFact, { FacturaData } from './PrintFact';
 
-interface PrintCotizacionModalProps {
+interface PrintFactModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
   facturaData: FacturaData;
 }
 
-const PrintCotizacionModal: React.FC<PrintCotizacionModalProps> = ({ isOpen, onRequestClose, facturaData }) => {
+const PrintFactModal: React.FC<PrintFactModalProps> = ({ isOpen, onRequestClose, facturaData }) => {
   const handlePrint = () => {
-    const printContent = document.getElementById('pdf-content');
-    if (printContent) {
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write('<html><head><title>Imprimir Cotización</title></head><body>');
-        printWindow.document.write(printContent.innerHTML);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.print();
-        printWindow.close();
-      }
+    // Abre una nueva ventana con el PDF para imprimir
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write('<html><head><title>Imprimir Cotizacion</title></head><body>');
+      printWindow.document.write('<iframe src="' + URL.createObjectURL(new Blob([document.getElementById('pdf-content')!.innerHTML], { type: 'application/pdf' })) + '" frameborder="0" style="width:100%;height:100%;"></iframe>');
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
     }
   };
 
@@ -31,7 +30,7 @@ const PrintCotizacionModal: React.FC<PrintCotizacionModalProps> = ({ isOpen, onR
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       contentLabel="Opciones de Factura"
-      ariaHideApp={false}
+      ariaHideApp={false} // Configura esto según tu configuración
       style={{
         content: {
           padding: '20px',
@@ -44,15 +43,15 @@ const PrintCotizacionModal: React.FC<PrintCotizacionModalProps> = ({ isOpen, onR
     >
       <div style={{ padding: '20px' }}>
         <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>Opciones de Factura</h2>
-        <div id="pdf-content" style={{ marginBottom: '20px', height: '500px' }}>
+        <div style={{ marginBottom: '20px', height: '500px' }}>
           <PDFViewer style={{ width: '100%', height: '100%' }}>
-            <PrintCotizacion data={facturaData} />
+            <PrintFact data={facturaData} />
           </PDFViewer>
         </div>
         <div style={{ marginTop: '20px' }}>
           <PDFDownloadLink
-            document={<PrintCotizacion data={facturaData} />}
-            fileName="cotización.pdf"
+            document={<PrintFact data={facturaData} />}
+            fileName="factura.pdf"
             style={{
               textDecoration: 'none',
               display: 'inline-block',
@@ -78,7 +77,7 @@ const PrintCotizacionModal: React.FC<PrintCotizacionModalProps> = ({ isOpen, onR
               fontSize: '1rem',
             }}
           >
-            Imprimir Cotización
+            Imprimir Factura
           </button>
         </div>
         <button
@@ -101,4 +100,4 @@ const PrintCotizacionModal: React.FC<PrintCotizacionModalProps> = ({ isOpen, onR
   );
 };
 
-export default PrintCotizacionModal;
+export default PrintFactModal;
