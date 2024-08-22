@@ -1,8 +1,7 @@
-
+// server.js
 import express from 'express';
 import mysql from 'mysql';
 import cors from 'cors';
-
 
 const app = express();
 
@@ -10,14 +9,17 @@ const app = express();
 const db = mysql.createConnection({
     host: 'localhost', // Cambia estos valores según tu configuración
     user: 'root', // Cambia estos valores según tu configuración
+<<<<<<< Updated upstream
     password: '12345678', // Cambia estos valores según tu configuración
-    database: 'escalinataSalon' // Nombre de la base de datos
+    database: 'EscalinataSalon' // Nombre de la base de datos
+=======
+    password: '@ElPoderMental99', // Cambia estos valores según tu configuración
+    database: 'escalinatasalon' // Nombre de la base de datos
+>>>>>>> Stashed changes
 });
 
 app.use(express.json());
-
 app.use(cors());
-
 
 // Conectar a la base de datos
 db.connect((err) => {
@@ -56,7 +58,7 @@ app.get('/productos', (req, res) => {
 });
 
 // Agregar un nuevo producto al inventario
-app.post('/productos', (req, res) => {
+app.post('/addProductos', (req, res) => {
     const { Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta } = req.body;
 
     // Validación simple de datos
@@ -79,38 +81,26 @@ app.post('/productos', (req, res) => {
     });
 });
 
-// Buscar productos por nombre
-app.get('/nameProductos', (req, res) => {
-    const nombre = req.query.Nombre || '';
-    const query = 'SELECT Id, Nombre, Proveedor_id, Marca_id, Cantidad_stock, Precio, ISV, Precio_venta FROM Producto WHERE Nombre LIKE ?';
-    db.query(query, [`%${nombre}%`], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: 'Error al obtener los productos' });
-        }
-        res.json(results);
-    });
-});
+// Borrar un producto por nombre
+app.delete('/productos', (req, res) => {
+    const { Nombre } = req.body;
 
-
-//BorrarProductos
-app.delete('/nameProductos', (req, res) => {
-    const { Id } = req.body;
-
-    if (!Id) {
-        return res.status(400).json({ error: 'ID del producto es requerido' });
+    if (!Nombre) {
+        return res.status(400).json({ error: 'Por favor, proporciona el nombre del producto a eliminar' });
     }
 
-    const query = 'DELETE FROM Producto WHERE Id = ?';
-    db.query(query, [Id], (err, results) => {
+    const query = 'DELETE FROM Producto WHERE Nombre = ?';
+
+    db.query(query, [Nombre], (err, result) => {
         if (err) {
-            console.error(err);
-            return res.status(500).json({ error: 'Error al eliminar el producto' });
+            return res.status(500).json({ error: 'Error al borrar el producto' });
         }
-        if (results.affectedRows === 0) {
-            return res.status(404).json({ error: 'Producto no encontrado' });
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
         }
-        res.json({ message: 'Producto eliminado correctamente' });
+
+        res.status(200).json({ message: 'Producto borrado exitosamente' });
     });
 });
 
@@ -141,28 +131,6 @@ app.put('/productos', (req, res) => {
     });
 });
 
-// Obtener todos los proveedores
-app.get('/proveedores', (req, res) => {
-    const query = 'SELECT Id as id, Nombre as descripcion FROM Proveedor';
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: 'Error al obtener los proveedores' });
-        }
-        res.json(results);
-    });
-});
-
-app.get('/marcas', (req, res) => {
-    const query = 'SELECT Id as id, Descripcion as descripcion FROM Marca';
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: 'Error al obtener las marcas' });
-        }
-        res.json(results);
-    });
-});
 
 
 app.get('/citas', (req, res) => {
@@ -196,6 +164,9 @@ JOIN cliente ON cita.cliente_id = cliente.id
         res.json(results);
     });
 });
+<<<<<<< Updated upstream
+// GET Obtener los nombres de los servicios
+=======
 
 // Endpoint para obtener una cita específica
 app.get('/citas/:id', (req, res) => {
@@ -270,7 +241,8 @@ app.put('/citas/:id', (req, res) => {
     });
 });
 
-// GET Obtener los nombres de los servicios
+// GETALL Obtener los nombres de los servicios
+>>>>>>> Stashed changes
 app.get('/servicios', (req, res) => {
     db.query('SELECT Nombre FROM servicio', (err, results) => {
         if (err) {
@@ -280,6 +252,8 @@ app.get('/servicios', (req, res) => {
         res.status(200).json(results);
     });
 });
+<<<<<<< Updated upstream
+=======
 
 // GET Obtener data de los servicios
 app.get('/servicioss', (req, res) => {
@@ -291,6 +265,215 @@ app.get('/servicioss', (req, res) => {
         res.status(200).json(results);
     });
 });
+
+//GETONE - Consultar un servicio
+app.get('/servicioss/:id', (req, res) => {
+    const { id } = req.params;
+    try {
+      db.query(`SELECT * FROM servicio WHERE Id = ?`, [id], (err, rows) => {
+        if (err) {
+          res.status(400).send(err);
+        } else {
+          res.status(200).json(rows[0]);
+        }
+      });
+    } catch (err) {
+      res.status(500).send(err.message);
+    }
+})
+
+//GETBYNAME - Consultar Servicio por nombre
+app.get('/servicioss', (req, res) => {
+    const { Nombre } = req.query;
+
+    if (!Nombre) {
+        return res.status(400).json({ error: 'El parámetro de búsqueda es obligatorio' });
+    }
+
+    db.query(
+        'SELECT * FROM servicio WHERE Nombre LIKE ?',
+        [`%${Nombre}%`],
+        (err, rows) => {
+            if (err) {
+                console.error('Error al obtener servicios por nombre:', err);
+                return res.status(400).json({ error: err.message });
+            }
+            res.status(200).json(rows);
+        }
+    );
+});
+
+//GETONE - Ingresar un Servicio
+app.post('/servicios', (req, res) => {
+    try {
+        const { Nombre, Duracion, Precio, Descripcion } = req.body;
+        db.query(
+          `INSERT INTO servicio (Id, Nombre, Duracion, Precio, Descripcion) VALUES (NULL, ?, ?, ?, ?);`,
+          [Nombre, Duracion, Precio, Descripcion],
+          (err, rows) => {
+            if (err) {
+              res.status(400).send(err);
+            } else {
+              res.status(201).json({ id: rows.insertId });
+            }
+          }
+        );
+      } catch (err) {
+        res.status(500).send(err.message);
+      }
+})
+
+//PUT  Actualizar Servicio
+app.put('/servicios/:id', (req, res) => {
+    const { id } = req.params;
+    try {
+        const { Nombre, Duracion, Precio, Descripcion } = req.body;
+        db.query(
+            `UPDATE servicio SET Nombre=?, Duracion=?, Precio=?, Descripcion=? WHERE Id=?;`,
+            [Nombre, Duracion, Precio, Descripcion, id],
+            (err, rows) => {
+                if (err) {
+                    return res.status(400).send(err);
+                }
+                if (rows.affectedRows == 1) {
+                    return res.status(200).json({ respuesta: 'Servicio actualizado con éxito' });
+                }
+                return res.status(404).json({ mensaje: 'Servicio no encontrado' });
+            }
+        );
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+})
+
+// DELETE - Borrar un servicio
+app.delete('/servicios/:id', (req, res) => {
+    const { id } = req.params;
+    try {
+        db.query(`DELETE FROM servicio WHERE Id=?;`,
+            [id], (err, rows) => {
+                if (err) {
+                    return res.status(400).send(err);
+                }
+                if (rows.affectedRows == 1) {
+                    return res.status(200).json({ respuesta: 'Servicio eliminado con éxito' });
+                }
+                return res.status(404).json({ mensaje: 'Servicio no encontrado' });
+            }
+        );
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+})
+
+// Promociones para los servicios
+app.get('/promociones-servicios', (req, res) => {
+    const { Servicio_id } = req.query;
+
+    if (Servicio_id) {
+        db.query(
+            'SELECT * FROM promociones_servicios WHERE Servicio_id LIKE ?',
+            [`%${Servicio_id}%`],
+            (err, rows) => {
+                if (err) {
+                    return res.status(400).json({ error: err.message });
+                }
+                res.status(200).json(rows);
+            }
+        );
+    } else {
+        // Buscar todos los servicios si no se proporciona Servicio_id
+        db.query(
+            'SELECT * FROM promociones_servicios',
+            (err, rows) => {
+                if (err) {
+                    return res.status(400).json({ error: err.message });
+                }
+                res.status(200).json(rows);
+            }
+        );
+    }
+});
+
+// GETONE - Una Promocion para los servicios
+app.get('/promociones-servicios/:id', (req, res) => {
+    const { id } = req.params;
+        
+        
+        db.query('SELECT * FROM promociones_servicios WHERE Id = ?', [id], (err, rows) => {
+            if (err) {
+                return res.status(400).json({ error: err.message });
+            }
+            
+            if (rows.length === 0) {
+                return res.status(404).json({ message: 'Servicio no encontrado' });
+            }
+            res.status(200).json(rows[0]);
+        });
+})
+
+// POST - Ingresar una promocion de servicios 
+app.post('/promociones-servicios',(req, res) => {
+    const { Servicio_id, Descuento, Fecha_inicio, Fecha_fin } = req.body;
+        
+        db.query(
+            `INSERT INTO promociones_servicios (Servicio_id, Descuento, Fecha_inicio, Fecha_fin)
+            VALUES (?, ?, ?, ?);`,
+            [Servicio_id, Descuento, Fecha_inicio, Fecha_fin],
+            (err, result) => {
+                if (err) {
+                    return res.status(400).json({ error: err.message });
+                }
+                res.status(201).json({ id: result.insertId });
+            }
+        );
+});
+
+// PUT - Actualizar una promocion de servicio
+app.put('/promociones-servicios/:id', (req, res) => {
+    const { id } = req.params;
+    const { Servicio_id, Descuento, Fecha_inicio, Fecha_fin } = req.body;
+
+    if (id) {
+        // Actualizar por ID
+        db.query(
+            `UPDATE promociones_servicios SET Servicio_id = ?, Descuento = ?, Fecha_inicio = ?, Fecha_fin = ? WHERE Id = ?`,
+            [Servicio_id, Descuento, Fecha_inicio, Fecha_fin, id],
+            (err, result) => {
+                if (err) {
+                    return res.status(400).json({ error: err.message });
+                }
+                if (result.affectedRows === 0) {
+                    return res.status(404).json({ message: 'Promoción no encontrada' });
+                }
+                res.status(200).json({ message: 'Promoción actualizada correctamente' });
+            }
+        );
+    } 
+});
+
+// DELETE - Elimina una promocion de servicios
+app.delete('/promociones-servicios/:id', (req, res) => {
+    const { id } = req.params;
+    try {
+        db.query(`DELETE FROM promociones_servicios WHERE Id=?;`,
+            [id], (err, rows) => {
+                if (err) {
+                    return res.status(400).send(err);
+                }
+                if (rows.affectedRows == 1) {
+                    return res.status(200).json({ respuesta: 'Promocion de servicio eliminado con éxito' });
+                }
+                return res.status(404).json({ mensaje: 'Promocion de servicio no encontrado' });
+            }
+        );
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+})
+
+
+>>>>>>> Stashed changes
 // GET /estilistas - Obtener todos los usuarios con rol de estilista
 app.get('/estilistas', (req, res) => {
     db.query('SELECT Nombre FROM usuario WHERE rol_id = 2', (err, results) => {
@@ -304,17 +487,7 @@ app.get('/estilistas', (req, res) => {
 
 // GET /GET Obtener los nombres de los clientes
 app.get('/clientes', (req, res) => {
-    db.query('SELECT id ,Nombre FROM cliente', (err, results) => {
-        if (err) {
-            console.error('Error al obtener clientes:', err);
-            return res.status(500).json({ error: 'Error al obtener clientes' });
-        }
-        res.status(200).json(results);
-    });
-});
-
-app.get('/clientess', (req, res) => {
-    db.query('SELECT * FROM cliente', (err, results) => {
+    db.query('SELECT Nombre FROM cliente', (err, results) => {
         if (err) {
             console.error('Error al obtener clientes:', err);
             return res.status(500).json({ error: 'Error al obtener clientes' });
@@ -327,120 +500,33 @@ app.get('/clientess', (req, res) => {
 app.post('/clientes', (req, res) => {
     const { Nombre, Rtn, Direccion, Numero_Telefono, Email } = req.body;
     db.query('INSERT INTO cliente (Nombre, Rtn, Direccion, Numero_Telefono, Email) VALUES (?, ?, ?, ?, ?)',
-        [Nombre, Rtn, Direccion, Numero_Telefono, Email], (err, results) => {
-            if (err) {
-                console.error('Error al agregar cliente:', err);
-                return res.status(500).json({ error: 'Error al agregar cliente' });
-            }
-            res.status(201).json({ message: 'Cliente agregado con éxito', id: results.insertId });
-        });
-});
-
-app.delete('/clientess/:id', (req, res) => {
-    const { id } = req.params;
-
-    const query = 'DELETE FROM cliente WHERE id = ?';
-    db.query(query, [id], (err) => {
+         [Nombre, Rtn, Direccion, Numero_Telefono, Email], (err, results) => {
         if (err) {
-            console.error('Error al eliminar el cliente: ' + err.stack);
-            return res.status(500).json({ error: 'Error al eliminar el cliente' });
+            console.error('Error al agregar cliente:', err);
+            return res.status(500).json({ error: 'Error al agregar cliente' });
         }
-        res.status(200).json({ message: 'Cliente eliminado con exito' });
+        res.status(201).json({ message: 'Cliente agregado con éxito', id: results.insertId });
     });
 });
 
-app.get('/clientess/:id', (req, res) => {
-    const { id } = req.params; // Obtén el ID del parámetro de la solicitud
-
-    // Realiza la consulta con un filtro WHERE para obtener el cliente específico
-    db.query('SELECT * FROM cliente WHERE id = ?', [id], (err, results) => {
-        if (err) {
-            console.error('Error al obtener cliente:', err);
-            return res.status(500).json({ error: 'Error al obtener cliente' });
-        }
-
-        if (results.length === 0) {
-            // Si no se encuentra el cliente, devuelve un error 404
-            return res.status(404).json({ error: 'Cliente no encontrado' });
-        }
-
-        // Devuelve el primer resultado ya que el ID debería ser único
-        res.status(200).json(results[0]);
-    });
-});
-
-
-app.put('/clientess/:id', (req, res) => {
-    const { id } = req.params;
-    const { Nombre, Rtn, Direccion, Numero_Telefono, Email } = req.body;
-
-    // Verificar que todos los campos necesarios están presentes
-    if (!Nombre || !Rtn || !Direccion || !Numero_Telefono || !Email) {
-        return res.status(400).json({ error: 'Todos los campos son obligatorios' });
-    }
-
-    const query = `
-        UPDATE cliente 
-        SET Nombre = ?, Rtn = ?, Direccion = ?, Numero_Telefono = ?, Email = ?
-        WHERE id = ?
-    `;
-    const values = [Nombre, Rtn, Direccion, Numero_Telefono, Email, id];
-
-    db.query(query, values, (err) => {
-        if (err) {
-            console.error('Error al actualizar cliente:', err);
-            return res.status(500).json({ error: 'Error al actualizar cliente' });
-        }
-        res.status(200).json({ message: 'Cliente actualizado con éxito' });
-    });
-});
 // Endpoint para agregar una cita
 app.post('/citas', (req, res) => {
     const { Cliente_id, fecha, hora, Servicio_id, Usuario_id } = req.body;
 
-    // Query to check if the Cliente, Usuario, and Servicio IDs exist
-    const validationQuery = `
-        SELECT EXISTS(SELECT 1 FROM cliente WHERE Id = ?) AS clienteExists,
-               EXISTS(SELECT 1 FROM usuario WHERE Id = ?) AS usuarioExists,
-               EXISTS(SELECT 1 FROM servicio WHERE Id = ?) AS servicioExists
+    const query = `
+        INSERT INTO cita (Cliente_id, fecha, hora, Servicio_id, Usuario_id, estado_cita_id)
+        VALUES (?, ?, ?, ?, ?, (SELECT id FROM estado_cita WHERE descripcion = 'Pendiente'))
     `;
 
-
-    db.query(validationQuery, [Cliente_id, Usuario_id, Servicio_id], (err, results) => {
+    db.query(query, [Cliente_id, fecha, hora,  Servicio_id, Usuario_id ], (err, results) => {
         if (err) {
-            console.error('Error al validar IDs:', err);
-            return res.status(500).json({ error: 'Error al validar IDs' });
+            console.error('Error al agregar cita:', err);
+            return res.status(500).json({ error: 'Error al agregar cita' });
         }
 
-        const { clienteExists, usuarioExists, servicioExists } = results[0];
-
-        if (!clienteExists) {
-            return res.status(400).json({ error: 'Cliente no encontrado' });
-        }
-        if (!usuarioExists) {
-            return res.status(400).json({ error: 'Usuario no encontrado' });
-        }
-        if (!servicioExists) {
-            return res.status(400).json({ error: 'Servicio no encontrado' });
-        }
-
-        // Proceed with the insertion if all IDs are valid
-        const insertQuery = `
-            INSERT INTO cita (Cliente_id, fecha, hora, Servicio_id, Usuario_id, estado_cita_id)
-            VALUES (?, ?, ?, ?, ?, (SELECT id FROM estado_cita WHERE descripcion = 'Pendiente'))
-        `;
-
-        db.query(insertQuery, [Cliente_id, fecha, hora, Servicio_id, Usuario_id], (err, results) => {
-            if (err) {
-                console.error('Error al agregar cita:', err);
-                return res.status(500).json({ error: 'Error al agregar cita' });
-            }
-
-            res.status(201).json({ message: 'Cita agregada con éxito', id: results.insertId });
-        });
+        res.status(201).json({ message: 'Cita agregada con éxito', id: results.insertId });
     });
 });
-
 
 
 app.delete('/citas/:id', (req, res) => {
@@ -478,22 +564,22 @@ app.get('/empresa', (req, res) => {
       FROM info_empresa
       LIMIT 1
     `;
-
+  
     db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error al obtener la información de la empresa:', err);
-            return res.status(500).json({ error: 'Error al obtener la información de la empresa' });
-        }
-
-        if (results.length > 0) {
-            res.json(results[0]);
-        } else {
-            res.status(404).json({ message: 'Información de la empresa no encontrada' });
-        }
+      if (err) {
+        console.error('Error al obtener la información de la empresa:', err);
+        return res.status(500).json({ error: 'Error al obtener la información de la empresa' });
+      }
+  
+      if (results.length > 0) {
+        res.json(results[0]);
+      } else {
+        res.status(404).json({ message: 'Información de la empresa no encontrada' });
+      }
     });
-});
+  });
 
-// Endpoint para obtener la información de la empresa
+  // Endpoint para obtener la información de la empresa
 app.get('/empresa/detalles', (req, res) => {
     const query = `
           SELECT 
@@ -514,20 +600,20 @@ app.get('/empresa/detalles', (req, res) => {
       FROM info_empresa
       LIMIT 1
     `;
-
+  
     db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error al obtener la información de la empresa:', err);
-            return res.status(500).json({ error: 'Error al obtener la información de la empresa' });
-        }
-
-        if (results.length > 0) {
-            res.json(results[0]);
-        } else {
-            res.status(404).json({ message: 'Información de la empresa no encontrada' });
-        }
+      if (err) {
+        console.error('Error al obtener la información de la empresa:', err);
+        return res.status(500).json({ error: 'Error al obtener la información de la empresa' });
+      }
+  
+      if (results.length > 0) {
+        res.json(results[0]);
+      } else {
+        res.status(404).json({ message: 'Información de la empresa no encontrada' });
+      }
     });
-});
+  });
 
 // Endpoint para actualizar la información de la empresa
 app.put('/empresa/detalles', (req, res) => {
@@ -614,23 +700,10 @@ app.get('/proveedores', (req, res) => {
     });
 });
 
-app.get('/proveedoress', (req, res) => {
-    const query = 'SELECT * FROM proveedor';
-
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching proveedores:', err);
-            return res.status(500).json({ error: 'Error al obtener la lista de proveedores' });
-        }
-
-        res.json(results);
-    });
-});
-
 app.get('/productos-proveedor/:Proveedor_id', (req, res) => {
     const { Proveedor_id } = req.params;
 
-    const query = ' SELECT Nombre, Marca_id, m.Descripcion as Marca , p.Descripcion, Precio FROM producto p join marca m on p.Marca_id = m.Id WHERE Proveedor_id = ?';
+    const query = ' SELECT Nombre, Marca_id, descripcion, Precio FROM producto WHERE Proveedor_id = ?';
     db.query(query, [Proveedor_id], (err, results) => {
         if (err) {
             console.error('Error al realizar la consulta: ' + err.stack);
@@ -640,7 +713,7 @@ app.get('/productos-proveedor/:Proveedor_id', (req, res) => {
     });
 });
 
-app.post('/proveedoress', (req, res) => {
+app.post('/proveedores', (req, res) => {
     const { Nombre, Direccion, Numero_Telefono, Email } = req.body;
 
     const query = 'INSERT INTO proveedor (Nombre, Direccion, Numero_Telefono , Email) VALUES (?, ?, ?, ?)';
@@ -653,9 +726,9 @@ app.post('/proveedoress', (req, res) => {
     });
 });
 
-app.put('/proveedoress/:id', (req, res) => {
+app.put('/proveedores/:id', (req, res) => {
     const { id } = req.params;
-    const { Nombre, Direccion, Numero_Telefono, Email } = req.body;
+    const { Nombre, Direccion, Numero_Telefono, Email} = req.body;
 
     const query = 'UPDATE proveedor SET Nombre = ?, Direccion = ?, Numero_Telefono = ?, Email = ? WHERE id = ?';
     db.query(query, [Nombre, Direccion, Numero_Telefono, Email, id], (err) => {
@@ -667,7 +740,7 @@ app.put('/proveedoress/:id', (req, res) => {
     });
 });
 
-app.delete('/proveedoress/:id', (req, res) => {
+app.delete('/proveedores/:id', (req, res) => {
     const { id } = req.params;
 
     const query = 'DELETE FROM proveedor WHERE id = ?';
@@ -679,111 +752,6 @@ app.delete('/proveedoress/:id', (req, res) => {
         res.status(200).json({ message: 'Proveedor eliminado' });
     });
 });
-app.get('/historial-venta', (req, res) => {
-    const { filter, clientFilter } = req.query;
-
-    // Consulta base
-    let query = `
-        SELECT hv.*, c.nombre AS nombreCliente, f.numero_factura
-        FROM historial_ventas hv
-        JOIN cliente c ON hv.Cliente_id = c.id
-        JOIN factura f ON hv.Factura_id = f.id
-        WHERE 1=1
-    `;
-    const params = [];
-
-    // Filtro por nombre de cliente
-    if (clientFilter) {
-        query += ' AND c.nombre LIKE ?';
-        params.push(`%${clientFilter}%`);
-    }
-
-    // Filtro por fecha
-    if (filter === 'today') {
-        query += ' AND DATE(hv.fecha) = CURDATE()';
-    } else if (filter === 'week') {
-        query += ' AND YEARWEEK(hv.fecha, 1) = YEARWEEK(CURDATE(), 1)';
-    } else if (filter === 'month') {
-        query += ' AND MONTH(hv.fecha) = MONTH(CURDATE()) AND YEAR(hv.fecha) = YEAR(CURDATE())';
-    } else if (filter === 'year') {
-        query += ' AND YEAR(hv.fecha) = YEAR(CURDATE())';
-    }
-
-    // Ejecución de la consulta
-    db.query(query, params, (err, results) => {
-        if (err) {
-            console.error('Error fetching sales data:', err);
-            res.status(500).send('Internal Server Error');
-            return;
-        }
-        res.json(results);
-    });
-});
-
-// Obtener ventas al crédito con filtro de cliente
-app.get('/ventas-credito', (req, res) => {
-      db.query('  SELECT vc.*, c.nombre, tev.Descripcion FROM ventas_credito vc JOIN cliente c ON vc.cliente_id = c.id JOIN tipo_estado_venta tev ON vc.Tipo_estado_id  = tev.Id ',
-    (err, results) => {
-      if (err) {
-        console.error('Error fetching ventas data:', err);
-        res.status(500).send('Internal Server Error');
-        return;
-      }
-      res.json(results);
-    });
-  });
-  
-  // Obtener historial de pagos
-  app.get('/historial-pagos', (req, res) => {
-    db.query('SELECT hp.*, c.Nombre FROM historial_pagos hp JOIN cliente c ON hp.Cliente_id = c.id', (err, results) => {
-      if (err) {
-        console.error('Error fetching historial pagos data:', err);
-        res.status(500).send('Internal Server Error');
-        return;
-      }
-      res.json(results);
-    });
-  });
-  
-  // Define el endpoint para registrar un pago
-app.post('/registrar-pago', (req, res) => {
-    const { ClienteId, montoPagado, fechaPago } = req.body;
-  
-    // Verifica que los datos requeridos estén presentes
-    if (typeof ClienteId !== 'number' || typeof montoPagado !== 'number' || typeof fechaPago !== 'string') {
-      return res.status(400).send('Invalid input');
-    }
-  
-    // Actualizar venta
-    const updateQuery = `
-      UPDATE ventas_credito
-      SET Monto_pendiente = Monto_pendiente - ?, 
-          Tipo_estado_id = CASE 
-                            WHEN Monto_pendiente - ? = 0 THEN 1 
-                            ELSE 2 
-                          END
-      WHERE id = ?;
-    `;
-  
-    db.query(updateQuery, [montoPagado, montoPagado, ClienteId], (err) => {
-      if (err) {
-        console.error('Error updating venta:', err);
-        return res.status(500).send('Internal Server Error');
-      }
-  
-      // Insertar en historial de pagos
-      const insertQuery = 'INSERT INTO historial_pagos (Cliente_id, Monto_pagado, Fecha_pago) VALUES (?, ?, ?)';
-      db.query(insertQuery, [ClienteId, montoPagado, fechaPago], (err) => {
-        if (err) {
-          console.error('Error inserting into historial pagos:', err);
-          return res.status(500).send('Internal Server Error');
-        }
-        res.status(200).send('Pago registrado exitosamente');
-      });
-    });
-  });
-  
-  
 
 app.listen(4000, () => {
     console.log("Backend conectado en el puerto 4000");
