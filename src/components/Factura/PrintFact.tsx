@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 import { convertirNumeroConCentavos } from '../../convertirNumeros';
+
 // Define el estilo del documento
 const styles = StyleSheet.create({
     page: {

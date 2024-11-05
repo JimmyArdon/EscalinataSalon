@@ -17,14 +17,14 @@ const Login: React.FC = () => {
         event.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:4000/login', { Usuario: username, Contraseña: password });
-            const { token, Rol_id } = response.data;
+            const response = await axios.post('http://localhost:4000/login', { usuario: username, contraseña: password });
+            const { token, rol_id } = response.data;
 
             // Almacenar el token en el almacenamiento local si es necesario
             localStorage.setItem('token', token);
 
             // Redirigir basado en el rol
-            switch (Rol_id) {
+            switch (rol_id) {
                 case 1: // Administrador
                     navigate('/dashboard-admin/main');
                     break;

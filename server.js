@@ -1,6 +1,4 @@
-
 import dotenv from 'dotenv';
-
 import express from 'express';
 import mysql from 'mysql';
 import cors from 'cors';
@@ -62,14 +60,14 @@ const authenticateToken = (req, res, next) => {
 };
 // Ruta de login
 app.post('/login', async (req, res) => {
-    const { Usuario, Contraseña } = req.body;
+    const { usuario, contraseña } = req.body;
 
-    if (!Usuario || !Contraseña) {
+    if (!usuario || !contraseña) {
         return res.status(400).json({ error: 'Faltan datos requeridos' });
     }
 
-    const query = 'SELECT * FROM usuario WHERE Usuario = ?';
-    db.query(query, [Usuario], async (err, results) => {
+    const query = 'SELECT * FROM usuario WHERE usuario = ?';
+    db.query(query, [usuario], async (err, results) => {
         if (err) {
             console.error('Error en la base de datos:', err);
             return res.status(500).json({ error: 'Error en la base de datos' });
@@ -80,7 +78,7 @@ app.post('/login', async (req, res) => {
 
         const user = results[0];
 
-        const isMatch = await bcrypt.compare(Contraseña, user.Contraseña);
+        const isMatch = await bcrypt.compare(contraseña, user.contraseña);
         if (!isMatch) {
             return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
         }
@@ -90,9 +88,9 @@ app.post('/login', async (req, res) => {
             return res.status(500).json({ error: 'Error en la configuración del servidor' });
         }
 
-        const token = jwt.sign({ id: user.id, Rol_id: user.Rol_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user.id, rol_id: user.rol_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({ token, Rol_id: user.Rol_id });
+        res.json({ token, rol_id: user.rol_id });
     });
 });
 
@@ -103,7 +101,20 @@ app.get('/protected', authenticateToken, (req, res) => {
 
 // Obtener usuarios
 app.get('/usuarios', (req, res) => {
-    const query = 'SELECT * FROM Usuario';
+    const query = `
+    SELECT 
+      u.id,
+      u.nombre,
+      u.apellido,
+      u.telefono,
+      u.email,
+      u.usuario,
+      r.descripcion AS Rol
+    FROM 
+      usuario u
+    JOIN 
+      roles r ON u.rol_id = r.id
+  `;
     db.query(query, (err, results) => {
         if (err) {
             console.error('Error al obtener usuarios: ', err);
@@ -113,23 +124,35 @@ app.get('/usuarios', (req, res) => {
     });
 });
 
+// Obtener roles
+app.get('/roles', (req, res) => {
+    const query = `SELECT * FROM roles`;
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error al obtener los roles: ', err);
+            return res.status(500).json({ error: 'Error al obtener los roles' });
+        }
+        res.status(200).json(results);
+    });
+});
+
 
 // Endpoint para obtener usuarios con sus roles
 app.get('/usuarios-roles', (req, res) => {
     const query = `
-      SELECT 
-        u.Id,
-        u.Nombre,
-        u.Apellido,
-        u.Telefono,
-        u.Email,
-        u.Usuario,
-        r.Descripcion AS Rol
-      FROM 
-        usuario u
-      JOIN 
-        roles r ON u.Rol_id = r.Id
-    `;
+    SELECT 
+      u.id,
+      u.nombre,
+      u.apellido,
+      u.telefono,
+      u.email,
+      u.usuario,
+      r.descripcion AS Rol
+    FROM 
+      usuario u
+    JOIN 
+      roles r ON u.rol_id = r.id
+  `;
   
     db.query(query, (err, results) => {
       if (err) {
@@ -142,41 +165,39 @@ app.get('/usuarios-roles', (req, res) => {
 
 // Método POST para agregar un nuevo usuario
 app.post('/usuarios', async (req, res) => {
-    const { Nombre, Apellido, Telefono, Email, Usuario, Contraseña, Rol_id } = req.body;
-    if (!Nombre || !Apellido || !Telefono || !Email || !Usuario || !Contraseña || Rol_id === undefined) {
+    const { nombre, apellido, telefono, email, usuario, contraseña, rol_id } = req.body;
+    if (!nombre || !apellido || !telefono || !email || !usuario || !contraseña || rol_id === undefined) {
         return res.status(400).json({ error: 'Faltan datos requeridos' });
     }
 
-    const hashedPassword = await bcrypt.hash(Contraseña, 10);
-    const query = 'INSERT INTO usuario (Nombre, Apellido, Telefono, Email, Usuario, Contraseña, Rol_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    const values = [Nombre, Apellido, Telefono, Email, Usuario, hashedPassword, Rol_id];
+    const hashedPassword = await bcrypt.hash(contraseña, 10);
+    const query = 'INSERT INTO usuario (nombre, apellido, telefono, email, usuario, contraseña, rol_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const values = [nombre, apellido, telefono, email, usuario, hashedPassword, rol_id];
 
     db.query(query, values, (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Error al insertar el usuario' });
         }
-        res.status(201).json({ id: result.insertId, Nombre, Apellido, Telefono, Email, Rol_id });
+        res.status(201).json({ id: result.insertId, nombre, apellido, telefono, email, rol_id });
     });
 });
 
 // Método PUT para actualizar un usuario
 app.put('/usuarios/:id', async (req, res) => {
     const { id } = req.params;
-    const { Nombre, Apellido, Telefono, Email, Usuario, Contraseña, Rol_id } = req.body;
+    const { nombre, apellido, telefono, email, usuario,  rol_id } = req.body;
 
-    if (!Nombre || !Apellido || !Telefono || !Email || !Usuario || Rol_id === undefined) {
+    if (!nombre || !apellido || !telefono || !email || !usuario || rol_id === undefined) {
         return res.status(400).json({ error: 'Faltan datos requeridos' });
     }
 
-    const hashedPassword = Contraseña ? await bcrypt.hash(Contraseña, 10) : undefined;
-
     const query = `
         UPDATE usuario
-        SET Nombre = ?, Apellido = ?, Telefono = ?, Email = ?, Usuario = ?, Contraseña = ?, Rol_id = ?
-        WHERE Id = ?
+        SET nombre = ?, apellido = ?, telefono = ?, email = ?, usuario = ?, rol_id = ?
+        WHERE id = ?
     `;
-    const values = [Nombre, Apellido, Telefono, Email, Usuario, hashedPassword || Contraseña, Rol_id, id];
+    const values = [nombre, apellido, telefono, email, usuario, rol_id, id];
 
     db.query(query, values, (err) => {
         if (err) {
@@ -187,10 +208,37 @@ app.put('/usuarios/:id', async (req, res) => {
     });
 });
 
+app.put('/usuarios/:id, async' , (req, res) => {
+    const { id } = req.params;
+    const { nuevaContraseña } = req.body;
+
+    // Verifica que la nueva contraseña esté presente
+    if (!nuevaContraseña) {
+        return res.status(400).json({ error: 'Falta la nueva contraseña' });
+    }
+    // Hashea la nueva contraseña
+    const hashedPassword = bcrypt.hash(nuevaContraseña, 10);
+    // Consulta SQL para actualizar solo la contraseña
+    const query = `
+        UPDATE usuario
+        SET contraseña = ?
+        WHERE id = ?
+    `;
+    const values = [hashedPassword, id];
+    // Ejecuta la consulta
+    db.query(query, values, (err) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Error al cambiar la contraseña' });
+        }
+        res.status(200).json({ message: 'Contraseña cambiada con éxito', id });
+    });
+});
+
 // Método DELETE para eliminar
 app.delete('/usuarios/:id', (req, res) => {
     const id = req.params.id;
-    const query = 'DELETE FROM usuario WHERE Id = ?';
+    const query = 'DELETE FROM usuario WHERE id = ?';
     db.query(query, [id], (err, results) => {
         if (err) {
             console.error('Error al eliminar el usuario:', err);
@@ -1480,7 +1528,7 @@ app.post('/clientes', (req, res) => {
                 return res.status(500).json({ error: 'Error al agregar cliente' });
             }
             res.status(201).json({ message: 'Cliente agregado con éxito', id: results.insertId });
-            res.status(200).json(rows[0]);
+            //res.status(200).json(rows[0]);
         });
 })
 
