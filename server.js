@@ -17,7 +17,7 @@ const app = express();
 const db = mysql.createConnection({
     host: 'localhost', // Cambia estos valores según tu configuración
     user: 'root', // Cambia estos valores según tu configuración
-    password: '@ElPoderMental99', // Cambia estos valores según tu configuración
+    password: '12345678', // Cambia estos valores según tu configuración
     database: 'escalinatasalon' // Nombre de la base de datos
 
 });

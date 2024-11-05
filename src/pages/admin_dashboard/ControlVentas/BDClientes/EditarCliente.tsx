@@ -59,7 +59,7 @@ const EditarCliente = () => {
           Email: cliente.Email
         })
         .then(() => {
-          navigate("/dashboard-admin/control-ventas/gestion-clientes");
+          navigate("/dashboard-admin/gestion-clientes");
         })
         .catch(() => {
           setErrorMessage("Error al guardar los cambios.");
